@@ -1,0 +1,34 @@
+\chapter{Benchmark}
+
+Contemporary research does not provide a unified approach to measuring "goodness" of an explanation. There are attempts to propose a set of properties a good explainability method should fulfill, but they are not aligned [2, 3]. What is more, some studies even present contradictory results, rendering objective conclusions even more challenging [4, 5].
+%% here something where we consider human expert evaluation the best, and the worst
+
+This chapter consists of two sections. First, we tackle the current problem of high computational resources utilization by occlusion-based saliency. In the second part, we establishing qualitative benchmark, choosing suitable metrics alongside brief reasoning and evidence behind our choice. We compare methods introduced in Section N.M against Occlusion. We combine qualitative metrics capturing desired properties of explainability methods, alongside improved and refined metrics from original paper by Gallo et al [6].
+
+In the last part, we elaborate over the results and propose new method to be used.
+
+\section{What makes a good explanation?}
+
+We analyzed several studies, which attempt to capture what is important for an explainability method to fulfill. Despite those studies not being universally aligned, there exists consensus on some of the criterion's a "good" method should meet [2, 3, 4, 5]. 
+
+%% The approach to evaluating explainability methods is not unified [1]. Increased interest in neural network explainability yields several studies proposing multiple approaches or methods to assess quality of explanations. 
+
+\section{Computational complexity}
+
+The main problem of the existing approach to generate explanations is the required time.
+
+\subsection{Time efficiency}
+
+In order for the method to actively assist pathologist, the explanation needs to be computed fast enough to not disrupt his workflow. The main caveat of the current solution untilizing occlusion is that it takes too long.
+
+\subsection{GPU utilization}
+
+Modern GPU's offer possiblity of multiple processes performing computations on the same instance. For production deployment, this is important factor. High GPU utilization for single method can negatively affect number of parallel processes and therefore raise costs of production deployment.
+
+\section{Quantitative evaluation}
+
+\subsection{Remove and Debias}
+
+\subsection{Sensitivity}
+
+\subsection{Weighting Game}

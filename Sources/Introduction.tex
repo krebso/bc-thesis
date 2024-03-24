@@ -1,0 +1,27 @@
+\chapter{Introduction}\label{chap:introduction}
+
+As IT progresses every day, humankind relies on the usage of the electronic devices more and more. We use these products to store valuable information while ensuring the product can keep our data secret.
+
+An ideal product, in terms of security, is something that withstands physical harm, defends itself from malware attacks, or survive geological catastrophes. However, for development to continue, we need to use inventions we made and ensure they are secure at least to a certain level. This level is usually determined by specific requirements that the given product has to pass, usually stated in security standards.
+
+
+When an authority validates a product under a security standard, the issuing authority publishes basic information as well as detailed technical information about the product.
+
+The information about the product is then used to represent the product's properties and its use cases, making it the main entry point for customers to choose when they need security-related information about the product.
+
+Validated products do not have to be standalone products -- a part of a product can be validated, too. Other vendors can then use the part in their product, easing the process of validation. However, when a vulnerability is found in the reused part, products that depend on it might also be affected by the vulnerability. 
+The task of finding all modules depending on the vulnerable module is not straightforward. To find them, one must search all available certificates for mentions of the module they are looking for. This arises from the references not being bidirectional. 
+
+This thesis aims to design and implement a tool capable of creating a~directed graph of dependencies for certificates of Federal Information Processing Standards (FIPS) Cryptographic Module Validation Program, displaying clusters of certificates referencing each other. These clusters divide the graph into small subgraphs, creating a~map of references for cryptographic modules. We create the clusters by searching every cryptographic module HTML page and security policy PDF file to reference other certificates. The task of data extraction can be divided into three stages: HTML extraction, PDF extraction, and processing of the extracted data. None of the tasks is straightforward, and sometimes advanced heuristics are needed.
+
+One of our goals is also to extract information that might be useful in further analyses of the data. There are many types of analyses and comparisons that the extracted data offers, and some of them require knowledge of mapping certificate dependencies, making it a non-primary goal. Information needed for the rest of the analyses is also easier to extract and does not require much processing.
+\newpage
+This thesis contains five main chapters:
+\begin{itemize}
+    \item In the first chapter -- \textbf{State of the Art} -- we provide an overview of the most common security standards used today -- Common Criteria and FIPS. We describe the certification process and documents required in Common Criteria certification and then describe FIPS 140 and the second publication of this standard, FIPS 140-2. We also discuss attempts to parse security-related documents automatically.
+    \item In the second chapter, we focus on \textbf{FIPS 140 Validation Programs}, namely Cryptographic Module Validation Program and Cryptographic Algorithm Validation Program. We describe the security documents related to validation under FIPS 140 validation programs and the process of testing and validation of a product. 
+    \item In the third chapter -- \textbf{Processing of Certificates} -- we focus on extracting data from the security documents of the FIPS 140-2 validated modules. We describe the stages of the automated process of extraction, problems encountered during each stage, and recommendations and suggestions on improving the FIPS 140-2 security standard. We provide details on the creation of the dataset containing all the extracted data. This dataset is used in further analyses.
+    \item The fourth chapter includes analyses and comparisons performed on the dataset. We provide the results of these analyses along with a brief discussion.
+\end{itemize}
+
+The outcome of this thesis is an extension to \texttt{sec-certs}~\cite{sec-certs} -- automated tool capable of extracting information from security certificates -- focusing on FIPS 140-2 certificates and creating a directed graph of dependencies between them. We further analyze the extracted information and provide results.

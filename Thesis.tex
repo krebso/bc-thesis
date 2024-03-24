@@ -1,0 +1,164 @@
+\documentclass{mimosis}
+
+\usepackage{metalogo}
+\usepackage{xargs} % Use more than one optional parameter in a new commands
+\usepackage{indentfirst}
+%
+\usepackage[colorinlistoftodos,prependcaption,textsize=tiny]{todonotes}
+\newcommandx{\unsure}[2][1=]{\todo[linecolor=red,backgroundcolor=red!25,bordercolor=red,#1]{#2}}
+\newcommandx{\change}[2][1=]{\todo[linecolor=blue,backgroundcolor=blue!25,bordercolor=blue,#1]{#2}}
+
+\newcommandx{\info}[2][1=]{\todo[linecolor=OliveGreen,backgroundcolor=OliveGreen!25,bordercolor=OliveGreen,#1]{#2}}
+\newcommandx{\improvement}[2][1=]{\todo[linecolor=Plum,backgroundcolor=Plum!25,bordercolor=Plum,#1]{#2}}
+\newcommandx{\thiswillnotshow}[2][1=]{\todo[disable,#2]{#1}}
+%
+
+\usepackage{float}
+\usepackage{geometry}
+\usepackage{babel}
+\graphicspath{ {./img/} }
+
+\newcommand{\alphabet}{%
+  abcdefghijklmnopqrstuvwxyz%
+}
+\newlength{\textW}
+\setlength{\textW}{\widthof{\alphabet}* \real{2.5}}
+\geometry{textwidth=\textW,}
+\newcommand{\myref}[2]{\hyperref[#2]{#1~\ref*{#2}}}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Some of my favourite personal adjustments
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+% These are the adjustments that I consider necessary for typesetting
+% a nice thesis. However, they are *not* included in the template, as
+% I do not want to force you to use them.
+
+% This ensures that I am able to typeset bold font in table while still aligning the numbers
+% correctly.
+\usepackage{etoolbox}
+\usepackage{listings}
+
+\usepackage[binary-units=true]{siunitx}
+\DeclareSIUnit\px{px}
+
+\sisetup{%
+  detect-all           = true,
+  detect-family        = true,
+  detect-mode          = true,
+  detect-shape         = true,
+  detect-weight        = true,
+  detect-inline-weight = math,
+}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Hyperlinks & bookmarks
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\usepackage[%
+  colorlinks = true,
+  citecolor  = OliveGreen,
+  linkcolor  = Mahogany,
+  urlcolor   = RoyalBlue,
+  unicode,
+  ]{hyperref}
+
+
+\newcommand{\smallquote}[1]{
+    \begin{center}
+        \begin{minipage}{0.5\textwidth}
+            \begin{small}
+                #1
+            \end{small}
+        \end{minipage}
+        \vspace{0.5cm}
+    \end{center}
+}
+
+\usepackage{bookmark}
+
+\usepackage[all]{nowidow}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Bibliography
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+% I like the bibliography to be extremely plain, showing only a numeric
+% identifier and citing everything in simple brackets. The first names,
+% if present, will be initialized. DOIs and URLs will be preserved.
+
+\usepackage[%
+  autocite     = plain,
+  backend      = biber,
+  doi          = true,
+  url          = true,
+  giveninits   = true,
+  hyperref     = true,
+  maxbibnames  = 99,
+  maxcitenames = 99,
+  sortcites    = true,
+  style        = iso-numeric,
+  ]{biblatex}
+
+\input{bibliography-mimosis}
+\addbibresource{Thesis.bib}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Fonts
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\ifxetexorluatex
+  \setmainfont{Minion Pro}
+\else
+  \usepackage[lf]{ebgaramond}
+  \usepackage[oldstyle,scale=0.7]{sourcecodepro}
+  \singlespacing
+\fi
+
+\renewcommand{\th}{\textsuperscript{\textup{th}}\xspace}
+
+\newacronym{XAI}{XAI}{Explainable Artificial Intelligence}
+
+\makeindex
+\makeglossaries
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Incipit
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\title{Effectiveness of interpretation techniques for deep networks in digital histopathology}
+\author{Martin Krebs}
+
+% This ensures that the subsequent sections are being included as root
+% items in the bookmark structure of your PDF reader.
+\begin{document}
+\frontmatter
+    \include{Sources/Title}
+    \include{Sources/Declaration}
+    \include{Sources/Acknowledgements}
+    \include{Sources/Abstract}
+    \tableofcontents
+    \listoffigures
+    \glsaddall
+    \printglossary[type=\acronymtype]
+
+\mainmatter
+
+    \include{Sources/DL-in-histo}
+    \include{Sources/RationAI}
+    \include{Sources/XAI}
+    \include{Sources/Benchmark}
+
+  \bookmarksetup{startatroot}
+
+
+  \include{Sources/Conclusion}
+  % \include{Sources/Appendix}
+  \backmatter
+  \printindex
+  \begingroup
+  \sloppy
+  \printbibliography
+\endgroup
+
+
+\end{document}

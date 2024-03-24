@@ -1,0 +1,18 @@
+\addcontentsline{toc}{chapter}{Conclusion}
+\chapter*{Conclusion}
+
+In this thesis, we described the certification processes of two of the world's most used security certification standards -- CC and NIST FIPS -- and provided an overview, along with elementary differences between them. We have described NIST FIPS in detail, focusing on CMVP, CAVP, and the security-related documents used during the~standardization process. 
+
+We also created a module extending the functionality of \texttt{sec-certs}, capable of building a dataset of extracted information from security certificates validated in CMVP. 
+The module uses regular expressions to find references to cryptographic modules in web pages and security policy documents. Using specific heuristics, we were able to distinguish the cryptographic algorithm implementation references from cryptographic module references. After finalizing the results, the obtained information is used to create a directed graph of dependencies between the certified modules. When a security vulnerability is found in a validated module, the tool can be used to find all validated modules referencing the selected module and quickly pinpoint the modules affected by the vulnerability.
+
+We found issues during the parsing of both web pages and security policy documents, making the process more difficult. We listed these issues and proposed suggestions to improve the NIST FIPS 140-2 standard and reduce the problems we encountered while parsing the documents.
+
+Then we inspected the dataset with all the extracted data, aiming to analyze further the references of validated cryptographic modules and cryptographic algorithm implementations. We provided explanations for the results and visualizations of these analyses and compared them with the results obtained from the CC module for \texttt{sec-certs}.
+
+\section*{Future work}
+
+The results we obtained are not perfect -- we assume that the results are only about 85\% accurate. Even though the regular expressions we use are extensive, we had to manually find all the patterns we tried to look for. There are no universal regular expressions to match exactly what we need. The main problem we faced was that algorithm implementation IDs are practically the same as module IDs and are indistinguishable without additional context, usually only an expert with additional knowledge in the field can spot the difference.
+As the transition to FIPS 140--3 progresses to the final stages~\cite{fips140-3_transition}, the suggestions we provided may be used to improve the~standardization process from the beginning. Publishing all the relevant information on the webpage along with the changed form of listing module and algorithm implementation IDs will significantly reduce the problems with parsing and extracting relevant information from the certificates.
+
+Vassilev's work can be beneficial in terms of effective information extraction. If Bowtie~\cite{vassilev_bowtie} tests and proves to help analyze security-related documents, \texttt{sec-certs} may move on to using natural language processing and sentence analysis based information extraction. 

@@ -68,13 +68,11 @@ Such spurious correlations and the black-box tag lead clinicians to be sceptic a
 % legal
 \subsection*{Legal obligations for AI explainability in the European Union}
 
-Given certain applications, understanding the model is not only a moral obligation.
-
-In 2016, the European Union included what is often referred to as the "right to explanation" within the General Data Protection Regulation (GDPR). Specifically, Articles 13 and 14 give individuals the right to receive "meaningful information about the logic involved", when they are a part of automatic decision process making.  This pose a challenge for industry, implicating that adequate measures need to be taken in place in order to fully integrate decision support systems based on deep learning. More on what Articles 13 and 14 mean for AI is to be found in a paper by Goodman and Flaxman [].
+Given certain applications, understanding the model is not only a moral obligation. In 2016, the European Union included what is often referred to as the "right to explanation" within the General Data Protection Regulation (GDPR). Specifically, Articles 13 and 14 give individuals the right to receive "meaningful information about the logic involved", when they are a part of automatic decision process making.  This pose a challenge for industry, implicating that adequate measures need to be taken in place in order to fully integrate decision support systems based on deep learning. More on what Articles 13 and 14 mean for AI is to be found in a paper by Goodman and Flaxman [].
 
 % https://arxiv.org/pdf/1606.08813.pdf
 
-Another piece of legislation from the European Union is anticipated to be implemented in May or June of 2024. \emph{AI Act} introduces a series of regulations for machine learning-based AI systems. The legislation is notably more detailed and exhaustive than Articles 13 and 14 of the GDPR, yielding mixed responses from domain experts. While the full implications are yet to be seen, it already imposes several restrictions on what needs to be met before deploying machine learning models. In particular, one section specifically targets high risk AI systems and that a "Providers must build for human oversight, incorporating ‘human-machine interface tools’ to ensure systems ‘can be effectively overseen by natural persons’". Several other important aspects of model's lifecycle are revised as well, ranging from training dataset to technical documentation. Comprehensive overview of the article is beyond the scope of this thesis, and is summarized by Veale and Borgesius in [].
+Another piece of legislation from the European Union is anticipated to be implemented in May or June of 2024. \emph{AI Act} introduces a series of regulations for machine learning-based AI systems. The legislation is notably more detailed and exhaustive than Articles 13 and 14 of the GDPR, yielding mixed responses from domain experts. While the full implications are yet to be seen, it already imposes several restrictions on what needs to be met before deploying machine learning models. In particular, one section specifically targets high risk AI systems and states that a "Providers must build for human oversight, incorporating ‘human-machine interface tools’ to ensure systems ‘can be effectively overseen by natural persons’". Several other important aspects of model's life-cycle are revised as well, ranging from training dataset to technical documentation. Comprehensive overview of the article is beyond the scope of this thesis, and is summarized by Veale and Borgesius in [].
 
 % https://www.degruyter.com/document/doi/10.9785/cri-2021-220402/html
 
@@ -84,11 +82,10 @@ Rapid development of deep learning models and scarcity of trust among users call
 
 \todo{find citations, forgot to write down}
 
-Throughout this thesis, 'XAI' will refer specifically to the subfield dedicated to advancing explainability in AI, while 'explainable artificial intelligence' will denote the attribute of machine learning models that enables certain level of understandability.
-
-To describe explainable artificial intelligence, Arietta et al. [] suggest to use the following definition: \emph{Given an audience, an explainable Artificial Intelligence is one that produces details or reasons to make its functioning clear or easy to understand}.
+Throughout this thesis, 'XAI' will refer specifically to the subfield dedicated to advancing explainability in AI, while 'explainable artificial intelligence' will denote the attribute of machine learning models that enables certain level of understandability. To describe explainable artificial intelligence, Arietta et al. [] suggest to use the following definition: \emph{Given an audience, an explainable Artificial Intelligence is one that produces details or reasons to make its functioning clear or easy to understand}.\newline
 % taxonomy paper
 
+\noindent
 The field of XAI distinguishes between two means, how to make artificial intelligence understandable:
 
 \begin{enumerate}
@@ -133,13 +130,38 @@ In the production settings, size of the occlusion patch is 55 x 55 px and stride
 
 \todo{Occlusion obrazok}
 
+\subsection{CAM}
+
+Zhout et al. show, that introducing GAP layer to a convolutional neural network has a welcome side-effect -- aside of regularization during trainig, it enhances networks localization capabilities, despite being trained on image level labes only. Their proposed method, called Class Activation Mapping (CAM) is used to visually highlight regions of input image used by the CNN to make its prediction for certain class $c$. This method is model-specific, since it works with networks having GAP (or GMP) as intermediate layer between the last convolutional layer and final fully-connected layer. 
+
+On intuitive level, CAM is simply sum of weighted activations of last convolutional layer. To formalize, consider a network with convolutional layer with $F$ activation maps $A^1, A^2, ..., A^F$ followed by GAP layer and single fully connected layer, in which we fix neuron denoting class $c$. Recall Equation ..., and tha GAP reduces value of each activation map $A^k$ to a single value $a^k$ -- average of the activations. The score for class $c$ is then calculated as:
+
+\begin{equation}
+    s^c = \sum_{k=1}^F a^k * w^k_c
+\end{equation}
+
+To define class activation map for class $c$, we use the same weights as in Equation .... Consider feature of attribution map $A^k$, denoted by $A^k_{xy}$. The mapping for this value is calculated as follows:
+
+\begin{equation}
+    I
+\end{equation}
+
+Therefore $s^c$ is equal to the sum of  and directly indicates importance of the respective spatial locations.\newline
+
+\noindent
+Authors point out, that this method is particularly useful for networks with GAP layer. They believe that using GMP leads to the method pointing out to the single most discriminatory location, instead of all of them. While this has been largely confirmed by their experiment on ILSVRC dataset [], we believe that the method is worth considering for our use case. Models employed in the experiment are trained to distinguish between $1000$ classes, while their last convolutional layer had $1024$ filters. In our setting, the last convolutional layer has 512 units -- meaning there is hope that even though we only take the most discriminative location, averaging accross all units will lead to enough information when they only capture features for one class.
+
+\todo{Toto je napisane uplne strasne, ale som uz unaveny.}
+
+
+
 \subsection{GradCAM++}
 
-GradCAM++ is popular gradient-based model-specific method used to spatially attribute convolutional layer features with respect to a given class. It improves upon its successful predecessor GradCAM [].
+GradCAM++ is popular gradient-based model-specific method used to spatially attribute convolutional layer features with respect to a given class. It improves upon its successful predecessor GradCAM []. We first overview th e GradCAM methods in order to see its limitations and how GradCAM++ specifically targets them.
 
 % https://arxiv.org/pdf/1610.02391.pdf
 
-GradCAM stands for Gradien-Weigthed class explanation maps. GradCAM is capable of explaining various CNN architectures, including VGG-16 based models. The idea is, that convolutional layer retain spatial information about their activation. Neurons in these layers look for certain patterns, and by their inspection, we should be able to point out, what are the model's areas of interest, given a input image and a class $c$.
+GradCAM stands for Gradien-Weigthed class explanation maps. GradCAM is capable of explaining various CNN architectures, including VGG-16 based models. The idea is, that convolutional layer holds spatial information about their activation. Neurons in these layers look for certain patterns, and by their inspection, we should be able to point out, what are the model's areas of interest, given a input image and a class $c$.
 
 Principle of GradCAM is fairly straightforward. Let $L$ be a fixed convolutional layer of our network with feature maps $A^1, A^2, ... A^n$, each with $Z$ features. We compute importance weight $w^c_k$ for feature map $A^k$ as gradient of $y^c$ with respect to that feature map. Individual gradients are global-average-pooled, yielding following equation []:
 \todo{Why do we use raw score instead of softmaxed, if we do not perturb the image?}
@@ -159,7 +181,7 @@ If pooling layers are present in the network, the saliency map $S^c_{GradCAM}$ i
 \todo{gradcam success and adoptations, maybe that it is generalization of CAM, which is shit, localization capabilities}
 
 \noindent
-Chattopadhyay and Sarkar [] built novel method on foundation of GradCAM while addressing some of its problems. They observed, that if multiple occurences of class of interest $c$ are present in the input image, localization capabilities of GradCAM gets worse. According to authors, this stems from using unweighted derivatives in Equation 3.1. If there are multiple occurences of class $c$, different feature maps may get activated, resulting in diluted and faded saliency map. They proposed generalized solution, equivalent in terms of computational performance.  
+Chattopadhyay and Sarkar [] built novel method on foundation of GradCAM while addressing some of its problems. They observed, that if multiple occurences of class of interest $c$ are present in the input image, localization capabilities of GradCAM gets worse. According to authors, this stems from using unweighted partial derivatives in Equation 3.1. If there are multiple occurences of class $c$, different feature maps may get activated, resulting in diluted and faded saliency map. They proposed generalized solution, equivalent in terms of computational performance.  
 
 \todo{GradCAM vs GradCAM++ obrazok z original paperu, tie veci co som spominal vyssie}
 
@@ -169,11 +191,11 @@ GradCAM++ introduces weights to the computation of partial derivatives, slightly
     w^c_k = \sum_i \sum_j \alpha^{kc}_{ij} \times ReLU(\frac{\delta Y^c}{\delta A^k_{ij}})
 \end{equation}
 
-Thanks to additional coefficient $\alpha^{kc}_{ij}$ for all partial derivatives, all instances of class $c$ will be highlighted with equal importance. Inspiration for using $ReLU$ -- therefore taking only positive partial derivatives -- comes from Deconvolution and Guided Backpropagation, both being post-hoc methods already covered by Gallo et al. in []. Unlike GradCAM, GradCAM++ computes the partial derivative for activated score, as it needs it to be smooth function. For derivation of $\alpha$, visit third chapter of original GradCAM++ paper []. To obtain saliency map $S^c_{GradCAM++}$, we simply plug $w^c_k$ into Equation 3.2.
+Thanks to additional coefficient $\alpha^{kc}_{ij}$ for all partial derivatives, all instances of class $c$ will be highlighted with equal importance. Inspiration for using $ReLU$ -- therefore taking only positive partial derivatives -- comes from Deconvolution and Guided Backpropagation, both being post-hoc methods already covered by Gallo et al. in []. Unlike GradCAM, GradCAM++ computes the partial derivative for activated score, as it needs it to be smooth function. This is denoted by $Y^c$ in Equation 3.3. For derivation of $\alpha$, visit third chapter of original GradCAM++ paper []. To obtain saliency map $S^c_{GradCAM++}$, we simply plug $w^c_k$ into Equation 3.2.
 
 % https://arxiv.org/pdf/1710.11063.pdf
 
-Being able to attribute all occurences of cancerous tissue would be good.
+Being able to attribute all occurences of cancerous tissue would be a major advantage, since it is possible for a tile to contain multiple gleason patterns. Highlighting them all will undoubtledly lead to a greater trust of the examining clinician.
 \todo{successful utilization of gradcam++, that it beats normal gradcam and so.}
 
 \subsection{HiResCAM}
@@ -185,15 +207,22 @@ HiResCAM is another gradient based method building upon GradCAM's success. First
 \end{equation}
 % https://arxiv.org/pdf/2011.08891.pdf
 
-The rationale is that ....
+The rationale is that this better reflects how models "sees" the input image. This way, feature maps are scaled accordingly to the gradient, before summing them up to form the saliency map. Authors claim, that GAP-ing the partial derivatives in Equation 3.1 leads to blurring the effect of the gradient across feature maps. 
 
-In addition to evaluation of the method, authors present a exhaustive proof of HiResCAM's corretness. This proof is of great interest for us, since it is presented for CNN's with one fully connected layer -- and it can intuitively be interpreted, that HiResCAM highlights all occurence of features of interest for particular class. This is similar promise as the one we get from authors of GradCAM++ and it will be interesting to compare these methods side by side.
+In addition to the method itself, authors present a proof of HiResCAM's capabilities. The proof shows, that for convolutional networks ending in one fully connected layer, HiResCAM guarantees to visually highlight all parts of input image which increase class score $y^c$, given we compute the saliency map for the last convolutional layer []. Unfortunately, the proof cannot be extended as is for our model introduced in Section .... While the model ends in one fully connected layer, it is separated from the last convolutional layer by intermediate global max pooling operation, which reduces each feature map to a single value. This breaks down the assumption that we can extract spatial information from the feature maps, since such information will be destroyed in the GMP operation. 
+
+Authors show, that given a model has CAM architecture, HiResCAM saliency collapses to produce identical results as the CAM method from Section .... However, our model is using GMP instead of GAP, therefore the theoretical implications are unclear.
 
 \subsection{ScoreCAM}
 
+With aim to bridge gap between perturbation-based and gradient-based methods, Wang and Wang [] introduced ScoreCAM to fight with several problems introduced by GradCAM method. 
+
+In the original paper, authors mention that saliency maps computed by ScoreCAM are more "focused" than the ones computed by GradCAM++. While having focused saliency maps is desired property, comparing results visually and drawing any conclusions is considered being an anectodal evidence and proper quantitative assessment needs to be done [].
+
+% anecdotal evidence paper
+
 \subsection{AblationCAM}
 
+
+
 \subsection{Layerwise Relevance Propagation}
-
-\section{Explaining RationAI's model}
-

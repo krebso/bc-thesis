@@ -2,19 +2,19 @@
 
 In this chapter, we begin by introducing the field of histopathology and its concerns, alongside with tools and methods used in contemporary clinical practice. We show how digitization helped to reduce the temporal and spatial complexity of everyday tasks, and how decision support systems can further reduce the human labor. We introduce artificial neural networks, with focus on convolutional networks, which are exceptional at tackling various computer vision problems.
 
-\section{Digital Histopathology}
+\section{Histopathology}
 
 Histopathology is a discipline concerned with study of diseases of tissue. This involves, but is not limited to cancer detection and prediction [], infectious or inflammatory disease diagnostics [] and study of brain-degenerative diseases such as Parkinson's or Alzheimer's [].
 
 Histopathologists are medically qualified physicians, who inspect tissue extracted from patients. They are responsible for interpreting cellular abnormalities and tissue anomalies, that may signify various medical conditions. Histopathologists often cooperate with other doctors, to help set the direction of patients care [].
 
-\subsection{Limitations of traditional histopathology}
+\section{Limitations of traditional approach}
 
 Traditionally, to get tissue from patient to histopathologist, tedious process is necessary. Tissue needs to be extracted from patient. Then it needs to be sent to specialized laboratory for further processing. In lab, tissue samples are infused with mix of chemicals and then infiltrated with paraffin wax, afterwards rest overnight. The next day, tissue is embedded into paraffin wax block and thinly sliced. Sliced sections of approx. $3$ microns are then put into a water bath to straighten, after which they are laminated into a glass slide. Glass slides are further stained with hematoxilin/eosin (or other compound) [] to enhance contrast between different cellular structures. Slides are then delivered to histopathologist for a review.
 
 Having a physical glass slide suffers from several inefficiencies. A slide can be studied only by one histopathologist at a time and if a second opinion from a different histopathologist is required, the glass slide must be conveyed to the respective clinic. This throttles the diagnosis process and leads to longer waiting times for a patient.
 
-\subsection{Addressing limitations through digital histopathology}
+\section{Digital histopathology}
 
 Digital histopathology aims to reduce the logistic overhead introduced by physical copies of glass slides. After the tissue is extracted and prepared, it is scanned using specialized lenses resulting in a high-resolution digital image, called \emph{Whole Slide Image} (WSI) [].
 
@@ -22,7 +22,7 @@ This image is then uploaded to an aggregator server, which enable real-time shar
 
 Recently, researches and various companies made attempts to employ machine learning systems to further aid pathologist during the diagnosis process. 
 
-\subsection{Decision Support System}
+\subsection*{Decision Support System}
 
 A computer system, which aids human to make a decision while performing a particular task is referred to as decision support system []. These systems are utilized across a wide array of applications, including high-stake environments such as investment banking [], autonomous driving [] or military and defense []. In digital histopathology, such systems are usually utilized to help with operational processes []. With deep learning in the spotlight of today's research, new possibilities emerge.
 
@@ -47,7 +47,7 @@ Introduced in 1943 by McCulloch and Pitts [], neural networks have come a long w
 %% forecast - https://www.nature.com/articles/s41586-023-06185-3
 
 
-\subsection{Neural Network}
+\subsection*{Neural Network}
 
 With goal of creating a computational unit resembling a neurons in human brain --- a perceptron was born. 
 
@@ -80,7 +80,7 @@ To achieve this, training leverages large amount of data to adjust networks para
 
 Despite MLP's demonstrating impressive results on tasks previously considered as impossible for computers, they come with some setbacks. Given they are fully connected, even small contemporary architectures such as ImageNET with multiple layers would have unimaginable number of trainable parameters. This led to development of new architectures, tailored to specific domain needs. Despite shift from using fully-connected layers only, MLP stood its ground and to this day, it is essential part of various state of the art neural network models [gpt, alexnet].
 
-\subsection{Convolutional Neural Network}
+\subsection*{Convolutional Neural Network}
 %% Architecture
 Architecture introduced specifically to solve various computer vision problems adds two additional layer types --- convolutional and pooling. These layers help to capture features from input image, as well as reduce size of the network []. 
 %% - https://arxiv.org/pdf/1511.08458.pdf

@@ -3,6 +3,8 @@
 Contemporary research does not provide a unified approach to measuring "goodness" of an explanation. There are attempts to propose a set of properties a good explainability method should fulfill, but they are not aligned [2, 3]. What is more, some studies even present contradictory results, rendering objective conclusions even more challenging [4, 5].
 %% here something where we consider human expert evaluation the best, and the worst
 
+As of now, there is no universal guideline on how to choose the correct explainability method, and the choice needs to be adapted according to ones domain needs []. We need to keep in mind several factors when selecting a suitable method. Form of explanation, performance and complexity of the method itself are all important properties we need to take into consideration. In definition of explainable artificial intelligence used in Section ABC, authors put emphasis on the \emph{audience} of the generated explanations. Given a model, end user verifying trustworthiness and fairness of the result and researcher trying to debug the model are likely to demand different forms of produced explanations. 
+
 This chapter consists of two sections. First, we tackle the current problem of high computational resources utilization by occlusion-based saliency. In the second part, we establishing qualitative benchmark, choosing suitable metrics alongside brief reasoning and evidence behind our choice. We compare methods introduced in Section N.M against Occlusion. We combine qualitative metrics capturing desired properties of explainability methods, alongside improved and refined metrics from original paper by Gallo et al [6].
 
 In the last part, we elaborate over the results and propose new method to be used.
@@ -17,22 +19,22 @@ We analyzed several studies, which attempt to capture what is important for an e
 
 The main problem of the existing approach to generate explanations is the required time.
 
-\subsection{Time efficiency}
+\subsection*{Time efficiency}
 
 In order for the method to actively assist pathologist, the explanation needs to be computed fast enough to not disrupt his workflow. The main caveat of the current solution untilizing occlusion is that it takes too long.
 
-\subsection{GPU utilization}
+\subsection*{GPU utilization}
 
-Modern GPU's offer possiblity of multiple processes performing computations on the same instance. For production deployment, this is important factor. High GPU utilization for single method can negatively affect number of parallel processes and therefore raise costs of production deployment.
+Modern GPU's offer possibility of multiple processes performing computations on the same instance. For production deployment, this is important factor. High GPU utilization for single method can negatively affect number of parallel processes and therefore raise costs of production deployment.
 
 \section{Quantitative evaluation}
 
-\subsection{Remove and Debias}
+\subsection*{Remove and Debias}
 
-\subsection{Sensitivity}
+\subsection*{Sensitivity}
 
-\subsection{Weighting Game}
+\subsection*{Weighting Game}
 
-\subsection{Occlusion similarity}
+\subsection*{Occlusion similarity}
 
 \section{Domain expert evaluation}

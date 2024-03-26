@@ -32,7 +32,7 @@ State of the art neural network models are often products of billions of paramet
 % https://pdf.sciencedirectassets.com/272144/1-s2.0-S1566253519X0007X/1-s2.0-S1566253519308103/main.pdf
 % https://ieeexplore.ieee.org/document/8400040
 
-\subsection{Spurious Correlations}
+\subsection*{Spurious Correlations}
 % systematic bias & reserch
 Distrust does not stem only from lack of insight into model's internal reasoning. In certain cases, seemingly flawless performance of machine learning models may in fact be a result of a systematic bias in training and evaluation data. Commonly used example is an experiment by Ribeiro et al. where they purposely trained a logistic regression classifier to distinguish between wolves and husky dogs. The training dataset was arranged, such that wolf pictures have snow in their background and the husky counterpart does not. This led the classifier to make its decision based on the presence of snow in the picture, rather of the animal []. 
 
@@ -57,7 +57,7 @@ Instances such as these demonstrate that the understandability of a decision sup
 % horse - https://arxiv.org/pdf/1902.10178.pdf
 
 % medicine pov
-\subsection{Explainability in medical domain}
+\subsection*{Explainability in medical domain}
 
 Such spurious correlations and the black-box tag lead clinicians to be sceptic about integrating AI in healthcare. Recent survey by GE HealthCare concludes, that out of 2000 clinicians participating in the survey, $58$ percent does not have overall trust in AI systems and $44$ percent of respondents believe, that the AI-based systems are biased []. Achieving trust of both clinicians and patients is crucial in order to achieve industry-wide utilization of machine learning-based systems.
 
@@ -66,7 +66,7 @@ Such spurious correlations and the black-box tag lead clinicians to be sceptic a
 
 
 % legal
-\subsection{Legal obligations for AI explainability in the European Union}
+\subsection*{Legal obligations for AI explainability in the European Union}
 
 Given certain applications, understanding the model is not only a moral obligation.
 
@@ -92,9 +92,14 @@ To describe explainable artificial intelligence, Arietta et al. [] suggest to us
 The field of XAI distinguishes between two means, how to make artificial intelligence understandable:
 
 \begin{enumerate}
-    \item Transparent model: Models based on linear regression or decision trees are inherently interpretable -- therefore understandable by itself. By looking at their parameters, we are able to clearly derive, how they came to given conclusion.
-    \item Post-hoc explainability methods: When dealing with e.g. neural networks, we gain little insight into how they operate by simply inspecting their weights. Therefore we must implement auxiliary methods, which simplify and distill the reasoning of networks, so that according to the definition -- we get a clear and easy to understand explanation. Post-hoc explainability methods can be further divided into two subgroups -- global methods explaining model as a whole and local methods, focused on internal reasoning behind prediction for particular input sample.
+    \item Using transparent model: Models based on linear regression or decision trees are inherently interpretable -- therefore understandable by itself. By looking at their parameters, we are able to clearly derive, how they came to given conclusion.
+    \item Using post-hoc explainability methods: When dealing with neural networks, we gain little insight into how they operate by simply inspecting their weights. Therefore we must implement auxiliary methods, which simplify and distill the reasoning of networks, so that according to the definition -- we get a clear and easy to understand explanation. Post-hoc explainability methods can be further divided into two subgroups -- global methods explaining model as a whole and local methods, focused on internal reasoning behind prediction for particular input sample.
 \end{enumerate}
+
+% Since neural networks can be seen as a complex non-linear attempt to approximate a function we cannot even fully define, it is easy to see that there is little to their transparent nature. If we want to better understand their decisions and reasoning, we need to carefully dive into post-hoc metods.
+In the recent years, plethora of both global and local post-hoc explainability methods has been introduced in order to help grasp decision process of deep neural networks []. Post-hoc methods can be further divided into two groups. Model-specific methods are designed to explain only models with specific features and capabilities -- such as attention-based models or convolutional neural networks. On the contrary, model-agnostic methods can be used to explain arbitrary machine learning model.
+
+\todo{lost citation}
 
 % https://pdf.sciencedirectassets.com/272144/1-s2.0-S1566253519X0007X/1-s2.0-S1566253519308103/main.pdf
 \section{Making CNN's explainable}
@@ -103,16 +108,11 @@ The field of XAI distinguishes between two means, how to make artificial intelli
 \newline
 % https://arxiv.org/pdf/2209.00366.pdf
 
-Since neural networks can be seen as a complex non-linear attempt to approximate a function we cannot even fully define, it is easy to see that there is little to their transparent nature. If we want to better understand their decisions and reasoning, we need to dive into post-hoc metods.
 
-In the recent years, plethora of both global and local post-hoc explainability methods has been introduced in order to help grasp decision process of deep neural networks []. Post-hoc methods can be further divided into two groups. Model-specific methods are designed to explain only models with specific features and capabilities -- such as attention-based models or convolutional neural networks. On the contrary, model-agnostic methods can be used to explain arbitrary machine learning model.
 
-As of now, there is no universal guideline on how to choose the correct explainability method, and the choice needs to be adapted according to ones domain needs []. We need to keep in mind several factors when choosing a suitable method. In definition of explainable artificial intelligence used in Section ABC in this thesis, authors put emphasis on the \emph{audience} of the generated explanations.
+For convolutional neural networks, industry-wide standard is to visually highlight parts of a image, which are considered "important" to the model. The result of such visualization is commonly referred to as a \emph{saliency map}, class activation map (CAM) or attribution map. All terms mean 
 
-\todo{lost citation}
-
-Given a model, end user verifying trustworthiness and fairness of the result and researcher trying to debug the model are likely to demand different forms of produced explanations. Additionally, performance and complexity of the method itself are all important factors, which we need to consider when determining the method to use.\newline
-% we can cite the Arrieta paper here, but I came up with this on my own.
+SALIENCY MAP + class activation mapping (CAM)
 
 \noindent
 In following subsections we overview several explainability methods we will later benchmark in Chapter 4. We deliberately chose methods, which were not covered in previous work by RationAI's team. Popular methods such as LIME, Deconvolution or ...  were either computationaly too expensive, or produced sub-par results, which could not be used when deployed [].
@@ -124,19 +124,70 @@ In following subsections we overview several explainability methods we will late
 
 \subsection{Occlusion}
 
-Occlusion is model-agnostic method and comes from family of so-called input perturbation based methods. Occlusion computes attribution map by systematically covering square parts in input image and observing the change in models prediction confidence on the perturbed image. Intuitively, we expect that when we cover (occlude) important part of the input image, the confidence of our classifier drops. In contrary, when we cover region which does not contain any important features, the output should not differ too much from output for the original pixel.
+Occlusion is model-agnostic method and comes from family of so-called input perturbation based methods. Occlusion computes attribution map by systematically covering square parts in input image and observing the change in models prediction confidence on the perturbed image. Intuitively, we expect that when we cover (occlude) important part of the input image, the confidence of our classifier drops. In contrary, when we cover region which does not contain any important features, the output should not differ too much from output for the original pixel. Visual example can be seen in .... This approach gives us in dependence of the size of the square patch a rough heatmap of input feature saliency.
 
+Experiment conducted by Gallo et al. [] shows, that in the domain of prostate cancer detection, the method produces semantically correct explanation maps. Sadly, occlusion comes with high computational complexity and resource utilization. For our use-case, explaining a single tile of $512px \times 512px$, the method needs 289 forward passes to compute the attribution map. 
+% https://pdf.sciencedirectassets.com/277035/1-s2.0-S1871678423X00065/1-s2.0-S1871678423000511/main.pdf
 
-% here i want to introduce, how we select methods - literature is unclear. But we have a set goal and existing solutions -- therefore we will look for methods which produce the output in the given form -- as local attribution map
-%sal
+In the production settings, size of the occlusion patch is 55 x 55 px and stride is set to 27 px. With those parameters in place, we need 289 forward passes through our our model to explain one patch. On a machine with 8 cores, 16GB of RAM and 48GB of GPU memory capacity, occlusion needs approx. 2 seconds and 40GB of GPU memory to generate single heatmap. Recall Section Y and processing WSI. In our test set, slide size varies from 400 to 4000 tiles per slide. Omitting auxiliary attribution map processing, this method takes  
 
-During this section, when referring to a model, we mean model employed by RationAI introduced in Section TBD.
-
-\todo{ref section}
+\todo{Occlusion obrazok}
 
 \subsection{GradCAM++}
 
+GradCAM++ is popular gradient-based model-specific method used to spatially attribute convolutional layer features with respect to a given class. It improves upon its successful predecessor GradCAM [].
+
+% https://arxiv.org/pdf/1610.02391.pdf
+
+GradCAM stands for Gradien-Weigthed class explanation maps. GradCAM is capable of explaining various CNN architectures, including VGG-16 based models. The idea is, that convolutional layer retain spatial information about their activation. Neurons in these layers look for certain patterns, and by their inspection, we should be able to point out, what are the model's areas of interest, given a input image and a class $c$.
+
+Principle of GradCAM is fairly straightforward. Let $L$ be a fixed convolutional layer of our network with feature maps $A^1, A^2, ... A^n$, each with $Z$ features. We compute importance weight $w^c_k$ for feature map $A^k$ as gradient of $y^c$ with respect to that feature map. Individual gradients are global-average-pooled, yielding following equation []:
+\todo{Why do we use raw score instead of softmaxed, if we do not perturb the image?}
+
+\begin{equation}
+    w^c_k = \frac{1}{Z} \sum_i \sum_j \frac{\delta y^c}{\delta A^k_{ij}}
+\end{equation}
+
+To obtain a coarse saliency map, we compute weighted combination of activations and their respective importance. $ReLU$ is applied over the heatmap to get only positive values advocating for important features with respect to class $c$ []:
+
+\begin{equation}
+    S^c_{GradCAM} = ReLU(\sum_k w^c_k A^k)
+\end{equation}
+
+If pooling layers are present in the network, the saliency map $S^c_{GradCAM}$ is smaller than input image. This is solved by simply upsampling the saliency map to image resolution.\newline
+
+\todo{gradcam success and adoptations, maybe that it is generalization of CAM, which is shit, localization capabilities}
+
+\noindent
+Chattopadhyay and Sarkar [] built novel method on foundation of GradCAM while addressing some of its problems. They observed, that if multiple occurences of class of interest $c$ are present in the input image, localization capabilities of GradCAM gets worse. According to authors, this stems from using unweighted derivatives in Equation 3.1. If there are multiple occurences of class $c$, different feature maps may get activated, resulting in diluted and faded saliency map. They proposed generalized solution, equivalent in terms of computational performance.  
+
+\todo{GradCAM vs GradCAM++ obrazok z original paperu, tie veci co som spominal vyssie}
+
+GradCAM++ introduces weights to the computation of partial derivatives, slightly changing the Equation 3.1 into []:
+
+\begin{equation}
+    w^c_k = \sum_i \sum_j \alpha^{kc}_{ij} \times ReLU(\frac{\delta Y^c}{\delta A^k_{ij}})
+\end{equation}
+
+Thanks to additional coefficient $\alpha^{kc}_{ij}$ for all partial derivatives, all instances of class $c$ will be highlighted with equal importance. Inspiration for using $ReLU$ -- therefore taking only positive partial derivatives -- comes from Deconvolution and Guided Backpropagation, both being post-hoc methods already covered by Gallo et al. in []. Unlike GradCAM, GradCAM++ computes the partial derivative for activated score, as it needs it to be smooth function. For derivation of $\alpha$, visit third chapter of original GradCAM++ paper []. To obtain saliency map $S^c_{GradCAM++}$, we simply plug $w^c_k$ into Equation 3.2.
+
+% https://arxiv.org/pdf/1710.11063.pdf
+
+Being able to attribute all occurences of cancerous tissue would be good.
+\todo{successful utilization of gradcam++, that it beats normal gradcam and so.}
+
 \subsection{HiResCAM}
+
+HiResCAM is another gradient based method building upon GradCAM's success. First step is the same as for GraCAM++ -- we need to compute partial derivatives of $y^c$ with respect to feature map $\mathcal{A}^k$ Instead of condensing "importance" of the feature map to a single value, we build kernel of partial derivatives $\mathcal{A}^k$ of the same dimension as the feature map $A^k$. Then we simply do pairwise multiplication of repective kernels and feature maps of last convolutional layer, yielding following equation []: 
+
+\begin{equation}
+    S^c_{HiResCAM} = \sum_k \mathcal{A}^k \odot A^k
+\end{equation}
+% https://arxiv.org/pdf/2011.08891.pdf
+
+The rationale is that ....
+
+In addition to evaluation of the method, authors present a exhaustive proof of HiResCAM's corretness. This proof is of great interest for us, since it is presented for CNN's with one fully connected layer -- and it can intuitively be interpreted, that HiResCAM highlights all occurence of features of interest for particular class. This is similar promise as the one we get from authors of GradCAM++ and it will be interesting to compare these methods side by side.
 
 \subsection{ScoreCAM}
 
@@ -145,10 +196,4 @@ During this section, when referring to a model, we mean model employed by Ration
 \subsection{Layerwise Relevance Propagation}
 
 \section{Explaining RationAI's model}
-
-Current post-hoc method employed to explain decisions of model described in Subsection X is occlusion-based saliency. Experiment conducted by Gallo et al. [] shows, that in the domain of prostate cancer detection, the method produces semantically correct explanation maps. Sadly, occlusion comes with high computational complexity and resource utilization. For our use-case, explaining a single tile of $512px \times 512px$, the method needs 289 forward passes to compute the attribution map. In production setting, on a machine with 8 cores, 16GB of RAM and 48GB of GPU memory capacity, occlusion needs approx. 2 seconds and 40GB of GPU memory to generate single heatmap. Recall Section Y and processing WSI. In our test set, slide size varies from 400 to 4000 tiles per slide. Ommiting auxiliary attribution map processing, this method takes  
-% https://pdf.sciencedirectassets.com/277035/1-s2.0-S1871678423X00065/1-s2.0-S1871678423000511/main.pdf
-
-
-In the production settings, size of the occlusion patch is 55 x 55 px and stride is set to 27 px. With those parameters in place, we need 289 forward passes through our our model to explain one patch. With production system resources, this solution takes about 2 seconds and approx. 40GB of GPU memory to compute attribution map for a single image. Recall, that number of patches of WSI's from test set is ranging from 400 to 4000.
 

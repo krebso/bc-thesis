@@ -101,9 +101,6 @@ In the recent years, plethora of both global and local post-hoc explainability m
 % https://pdf.sciencedirectassets.com/272144/1-s2.0-S1566253519X0007X/1-s2.0-S1566253519308103/main.pdf
 \section{Making CNN's explainable}
 
-\emph{Unfortunately, “explainability” is a nebulous and elusive concept that is hard to target.} []
-\newline
-% https://arxiv.org/pdf/2209.00366.pdf
 
 
 
@@ -140,13 +137,13 @@ On intuitive level, CAM is simply sum of weighted activations of last convolutio
     s^c = \sum_{k=1}^F a^k * w^k_c
 \end{equation}
 
-To define class activation map for class $c$, we use the same weights as in Equation .... Consider feature of attribution map $A^k$, denoted by $A^k_{xy}$. The mapping for this value is calculated as follows:
+To define class activation map for class $c$, we use the same weights as in Equation .... Consider feature $A^k_{xy}$ in attribution map $A^k$, where $x$ and $y$ denote spatial coordinates of this feature. The mapping value is then calculated as follows:
 
 \begin{equation}
     I
 \end{equation}
 
-Therefore $s^c$ is equal to the sum of  and directly indicates importance of the respective spatial locations.\newline
+We compute a kernel of mappings $K$ such that $K_{xy} = I$ for all pairs of $x, y$. Therefore $s^c$ is equal to the sum of  and directly indicates importance of the respective spatial locations.\newline
 
 \noindent
 Authors point out, that this method is particularly useful for networks with GAP layer. They believe that using GMP leads to the method pointing out to the single most discriminatory location, instead of all of them. While this has been largely confirmed by their experiment on ILSVRC dataset [], we believe that the method is worth considering for our use case. Models employed in the experiment are trained to distinguish between $1000$ classes, while their last convolutional layer had $1024$ filters. In our setting, the last convolutional layer has 512 units -- meaning there is hope that even though we only take the most discriminative location, averaging accross all units will lead to enough information when they only capture features for one class.
@@ -215,14 +212,79 @@ Authors show, that given a model has CAM architecture, HiResCAM saliency collaps
 
 \subsection{ScoreCAM}
 
-With aim to bridge gap between perturbation-based and gradient-based methods, Wang and Wang [] introduced ScoreCAM to fight with several problems introduced by GradCAM method. 
+With aim to bridge gap between perturbation-based and gradient-based methods, Wang and Wang [] introduced ScoreCAM to fight with several problems introduced by GradCAM method. Unlike it is the case for previous CAM methods, ScoreCAM does not rely on gradient to compute the saliency. Instead, author relies on so-called increase in confidence $c_i$ for input vector $X$, which is defined by following equation:
 
-In the original paper, authors mention that saliency maps computed by ScoreCAM are more "focused" than the ones computed by GradCAM++. While having focused saliency maps is desired property, comparing results visually and drawing any conclusions is considered being an anectodal evidence and proper quantitative assessment needs to be done [].
+\begin{equation}
+    c_i = f(B \odot H_i) - f(B)
+\end{equation}
+
+Where $B$ is apriori known baseline vector, and Hadamard product with $H_i$ replaces $i$-th entry with $x_i$ from original input vector.
+
+We use Equation ... to further define channel-wise increase in confidence:
+
+\begin{equation}
+    C(A^k) = f(X \odot scale(upsample(A^k)) - f(X_b)
+\end{equation}
+
+Where $upsample$ is a function, which resizes activation map $A^k$ to the size of input and $scale$ is scaling function to squish upsampled activation to range $[0, 1]$. $C(A^k)$ is then importnace score for unit $k$ given input $X$.
+
+Then we calculate the final saliency map using channel-wise increase of confidence as our weight for convolutional layer activations, yielding []:
+
+\begin{equation}
+    L_{ScoreCAM}^c = ReLU(\sum_k C(A^k_l) \cdot A^k_l)
+\end{equation}
+
+As one of the initial goal of authors, we get rid of dependency of intermediat GAP (GMP) layer. According to the conducted experiments, ScoreCAM is able to locate multiple objects, something we believe might not be possible due to our utilization of GMP layer. In the original paper, authors also mention that saliency maps computed by ScoreCAM are more "focused" than the ones computed by GradCAM++. While having focused saliency maps is desired property, comparing results visually and drawing any conclusions is considered being an anectodal evidence and proper quantitative assessment needs to be done [].
 
 % anecdotal evidence paper
 
 \subsection{AblationCAM}
 
+\todo{Gradient saturation}
 
+Riding the wave of gradient free methods, AblationCAM utilizes ablation analysis to compute importance of feature maps. AblationCAM computes how inidividual feature maps contribute to the final score $s^c$, given class $c$ by iteratively removing them and observing drop in comfidence of the model. To replaces gradient, preventing gradient saturation or explosion. Influence of removal of feature map $A^k$ to final score is defined as:
 
-\subsection{Layerwise Relevance Propagation}
+\begin{equation}
+    w^c_k = \frac{y^c - y^c_k}{y^c}
+\end{equation}
+
+The idea is, that if we remove filter important to the network when assessing presence of class $c$, the score should drop. To obtain the final saliency map, we compute the ablation weights for layer of interest, yielding the following equation:
+
+\begin{equation}
+    L^c_{AblationCAM} = ReLU(\sum_k w^c_k \cdot A_k)
+\end{equation}
+
+As it is the case for ScoreCAM, this method does not require gradient or GAP, and therefore it should be able to detect the occurrence of multiple instances of important input feature captured by feature map.
+
+\subsection{Layer-Wise Relevance Propagation}
+
+While Occlusion estimated feature importance by observing changes in output and CAM-based methods utilized spatial information in convolutional layer, Layer-Wise Relevance Propagation (LRP) takes different approach. Given a output score of the network, LRP utilizes several types of propagation rules to redistribute the score from output layer all the way down to the input pixels. To describe this procedure, assume $i$ and $j$ are two neurons in consecutive layers, such that there is and connection from $i$ to $j$. Process of relevance propagation is captured by following propagation rule:
+
+\begin{equation}
+    R_i = \sum_j \frac{z_{ij}}{\sum_i z_{ij} R_j}
+\end{equation}
+
+Where $R_i$ and $R_j$ are relevance scores and $z_{ij}$ models to which extent neuron $i$ made neuron $j$ relevant []. The extent $z_{ij}$ is modeled by various rules, which are further described in []. The choice of rules is largely left to experimentation, however, Montavon et al. [] provide a blueprint for choosing layers when working with VGG-16. The main building block is LRP-$0$ rule:
+
+\begin{equation}
+    R_i = \sum_j \frac{a_i \cdot w_{ij}}{\sum_i a_i \cdot w_{ij}} R_j
+\end{equation}
+
+Where $a_j$ and $w_ij$ stand for activation and weight respectively, as defined in Section X.
+\todo{ref section for weigh}
+
+Gallo et al. used this rule exclusively on our model in [] and accordingly to observations of Montavon et al. in [], it lead to very noisy explanations. To tackle the noise, we add small positive term $\epsilon$ to the denominator -- $\epsilon$ will absorb weak and contradictory contributions, preserving only the salient scores. As a result, we typically get less noisy explanations. LRP-$\epsilon$ rule:
+
+\begin{equation}
+    R_i = \sum_j \frac{a_i \cdot w_{ij}}{\epsilon + \sum_i a_i \cdot w_{ij}} R_j
+\end{equation}
+
+To further enhance the explanations, LRP-$\gamma$ is used to favor positive contributions using coefficient applied only to the positive weights:
+
+\begin{equation}
+    R_i = \sum_j \frac{a_i \cdot (w_{ij} \cdot \gamma w_{ij}^+)}{\epsilon + \sum_i a_i \cdot (w_{ij} \cdot \gamma w_{ij}^+)} R_j
+\end{equation}
+
+For VGG-16, Montavon suggests to apply those rule in a very particular fashion, see Figure ...
+
+\todo{Figure, explain rule selection on the bottom}

@@ -131,7 +131,7 @@ In the production settings, size of the occlusion patch is 55 x 55 px and stride
 
 Zhout et al. show, that introducing GAP layer to a convolutional neural network has a welcome side-effect -- aside of regularization during trainig, it enhances networks localization capabilities, despite being trained on image level labes only. Their proposed method, called Class Activation Mapping (CAM) is used to visually highlight regions of input image used by the CNN to make its prediction for certain class $c$. This method is model-specific, since it works with networks having GAP (or GMP) as intermediate layer between the last convolutional layer and final fully-connected layer. 
 
-On intuitive level, CAM is simply sum of weighted activations of last convolutional layer. To formalize, consider a network with convolutional layer with $F$ activation maps $A^1, A^2, ..., A^F$ followed by GAP layer and single fully connected layer, in which we fix neuron denoting class $c$. Recall Equation ..., and tha GAP reduces value of each activation map $A^k$ to a single value $a^k$ -- average of the activations. The score for class $c$ is then calculated as:
+On intuitive level, CAM is simply sum of weighted activations of last convolutional layer. To formalize, consider a network with convolutional layer with $F$ activation maps $A^1, A^2, ..., A^F$ followed by GAP layer and single fully connected layer, in which we fix neuron denoting class $c$. Recall Equation ..., and that GAP reduces value of each activation map $A^k$ to a single value $a^k$ -- average of the activations. The score for class $c$ is then calculated as:
 
 \begin{equation}
     s^c = \sum_{k=1}^F a^k * w^k_c

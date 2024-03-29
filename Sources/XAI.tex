@@ -258,13 +258,15 @@ As it is the case for ScoreCAM, this method does not require gradient or GAP, an
 
 \subsection{Layer-Wise Relevance Propagation}
 
-While Occlusion estimated feature importance by observing changes in output and CAM-based methods utilized spatial information in convolutional layer, Layer-Wise Relevance Propagation (LRP) takes different approach. Given a output score of the network, LRP utilizes several types of propagation rules to redistribute the score from output layer all the way down to the input pixels. To describe this procedure, assume $i$ and $j$ are two neurons in consecutive layers, such that there is and connection from $i$ to $j$. Process of relevance propagation is captured by following propagation rule:
+While Occlusion estimated feature importance by observing changes in output and CAM-based methods utilized spatial information in convolutional layer, Layer-Wise Relevance Propagation (LRP) takes different approach. Given a output score of the network, LRP utilizes several types of propagation rules to redistribute the score from output layer all the way down to the input pixels. Idea is, that we can look at how individual pixels contribute to the final score -- Each pixel value is weighted and sent to the upper layer across the whole network and in reverse fashion, we can compute the pixel importance.
+
+To describe this procedure, assume $i$ and $j$ are two neurons in consecutive layers, such that there is and connection from $i$ to $j$. Process of relevance propagation is captured by following generic propagation rule:
 
 \begin{equation}
     R_i = \sum_j \frac{z_{ij}}{\sum_i z_{ij} R_j}
 \end{equation}
 
-Where $R_i$ and $R_j$ are relevance scores and $z_{ij}$ models to which extent neuron $i$ made neuron $j$ relevant []. The extent $z_{ij}$ is modeled by various rules, which are further described in []. The choice of rules is largely left to experimentation, however, Montavon et al. [] provide a blueprint for choosing layers when working with VGG-16. The main building block is LRP-$0$ rule:
+Where $R_i$ and $R_j$ are relevance scores and $z_{ij}$ models to which extent neuron $i$ contributed to neuron $j$'s activation []. The extent $z_{ij}$ is modeled by various rules, which are further described in []. The choice of rules is largely left to experimentation, however, Montavon et al. [] provide a blueprint for choosing layers when working with VGG-16. The main building block is LRP-$0$ rule:
 
 \begin{equation}
     R_i = \sum_j \frac{a_i \cdot w_{ij}}{\sum_i a_i \cdot w_{ij}} R_j

@@ -19,12 +19,11 @@ Contemporary research does not provide a unified approach to measuring "goodness
     \item Performant: This is the main bottleneck of current solution of Occlusion-based saliency. Without reasonable performance, we do not care how good a method is, since it cannot be utilized for practical purposes.
     \item Faithful: Ideally, we want to ensure that the explainability method only highlight the relevant parts of input.
     \item Useful: We need the explanations to be presented to domain experts in such way, that it is understandable for for them. If they do not understand the explanation, it is of little value. 
-    
 \end{enumerate}
 
 \section{Computational complexity}
 
-The main problem of the existing approach to generate explanations is the required time.
+The main problem of the existing approach to generate explanations in the required time.
 
 \subsection*{Time efficiency}
 
@@ -40,9 +39,9 @@ This section covers use of several widely used metrics capturing desired traits 
 
 \subsection*{Faithfulness}
 
-Common approach to assess whether explainability method marks the relevant part of input is to perturb the image such that we remove those marked features -- similar to how occlusion estimates the importance. However, there are studies indicating that simply removing those features may not be correct, since the perturbed input can contain certain artifacts, leading to a distribution shift. This may affect the plausibility of such metrics, since we cannot tell whether the increase/drop in model's confidence is caused by distribution shift, or the features were really important [ROAR].
+Common approach to assess whether explainability method marks the relevant part of input is to perturb the image such that we remove those marked features, then backfill those area with certain fixed value -- similar to how occlusion estimates the importance. However, there are studies indicating that simply removing those features may not be correct, since the perturbed input can contain certain artifacts, leading to a distribution shift. This may affect the plausibility of such metrics, since we cannot tell whether the increase/drop in model's confidence is caused by distribution shift, or the features were really important [ROAR].
 
-In paper Gallo et al., only methods suffering from potential artifact introduction were used to measure the faithfulness. Notably, Occlusion received the highest scores, aligned with observation by ... -- that such method may favor methods, which rely on the same mechanism when estimating importance on input features [].
+In paper by Gallo et al., methods suffering from potential artifact introduction were used to measure the faithfulness. Notably, occlusion and DTD received the highest scores, aligned with observation by Hsieh et al. -- that such metrics may favor methods, which rely on the same mechanism when estimating importance on input features []. Moreover employed metrics (Causal Deletion [] and Area Over Perturbation Curve) did not produce aligned results.
 % https://arxiv.org/pdf/2006.00442.pdf
 
 To tackle the distribution issue, Hooker et al. [ROAR] present metric called Remove and Retrain (ROAR), which first removes the marked features, and then retrains the model on newly created dataset. While this method got widely accepted, it brings significant drawback in form of how computationaly exhaustive would this method be for our use-case. As ... shown, ROAR does not solve the problem of \emph{class information leakage} -- phenomenon, when the uniformly-valued mask itself reveals relevant class info through its shape [ROAD].
@@ -52,12 +51,27 @@ Rong et al. propose method building on foundations of ROAR, called Remove and De
 To evaluate performance of methods described in Section ..., we will iteratively remove features from the most important to the least (MoRF order). After each removal, missing features are imputed using noisy-linear imputer, to reduce class information leakage. We evaluate the metods at $10, 20, 30, 40, 50$ percents removed, as in the original paper. It is desired, that score should drop significantly as we start removing the features and the rate slows down as we approach the $50$\% border, as it signals that the important parts were removed as first. For evaluation, we used implementation from \emph{pytorch-gradcam} package.
 % road
 
-\subsection*{Robustness}
-% max sensitivity
+Since this method relies on sensitivity, we will only use positive tiles from test split of dataset from Section ....
 
 \subsection*{Localization}
 % localization
+Faithfulness metric tells us, how well the explainability method important locations. Now we want to make sure, that these location resemble something a pathologist would use to decide, wheter there is cancer in the tissue or not. To measure how well a output of given method resembles pathologists annotation, Effective Heatmap Ratio (EHR) was used. This approach relies on bounding boxes, which encapsulates objects of interest. We argue, that it is not the best method to be used for our use case.
+
+Given a bounding box, according to how EHR is calculated, it always favor methods which highlight larger areas of the image. This is not desired, as the bounding box only marks cancerous tissue -- the exact borders are difficult to find [Matej] and such annotion would likely vary pathologist from pathologist [].
+
+\todo{Tu chcem ocitovat nieco o tom, ze patologovaia sa casto nezhoduju}
+
+We will use technique called Weighting Game instead []. It build upon widely-employed Pointing Game metric [], which looks whether the most attributed pixel falls into the bounding box. Unlike pointing game, which gives us just binary information about the highest pixel, Weighting Game calculates ratio of the mass of the explanation within the bounding box with respect to total mass of the explanation. Unlike EHR, this does not disqualifies methods which highlight smaller parts of annotated area and and gives us very good measure, of how the explanation holds compared to the pathologist's annotation.
 
 \subsection*{Usefulness}
 
+It is almost impossible to determine usefulness of explanation by any quantitative metric, since how we perceive given explanation varies from person to person -- the audience is again a crutial part []. Luckily, we already know that solution based on occlusion proposed in [Matej] produces semantically correct explanations, which are of great use to the pathologist []. Therefore we will reuse metric from Subsection LOCALIZATION and we take $55$\% of most salient Occlusion result as our bounding box. Since such "annotations" do not represent ground truth, we do not perceive this metric as adding to the truthfulness of explanation method. Instead, it will serve as a guide for which methods we should present to pathologist, and we can measure how well will his former assessment of Occlusion stand against his new assessment of explainability methods introduced in Chapter XAI.
+
+\subsection*{Robustness}
+% max sensitivity
+Another desired property is resistance against small perturbations. In order for explanations to be deemed trustful by clinicians, we need to be sure that the produced explnations are stable and not prone to adversarial attacks. Yeh et al. [] propose metric called Max-Sensitivity to measure how explanation changed when the input is exposed to insignificant (small) perturbations. This metric utilized Monte-Carlo sampling approach when generating explanations, and is computationaly expensive. Therefore the evaluation is performed only on the subset of test split data from Subsection USEFUL.
+
+
 \section{Domain expert assessment}
+
+This section presents qualitative evaluation of produced explanations by domain expert. We replicate experiment from []. What follows is assessment from Dr. Nenutil on how are explanations perceived from POV of a clinician.

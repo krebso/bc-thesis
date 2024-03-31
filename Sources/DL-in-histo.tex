@@ -57,20 +57,17 @@ Introduced in 1943 by McCulloch and Pitts [] with goal of creating a computation
 
 \subsection*{Feed-forward Neural Network}
 
-A multi-layer perceptron is a simple feed-forward neural network. It can be seen as a function $f$ that maps real-valued input vector \textbf{x} to a single value $\hat{y}$. As the name suggest, a multi-layer perceptron is organized into layers and each layer consists of its trainable weights and biases, commonly in form of a real-valued matrices. Additionally, each layer has its activation function\footnote{Heaviside step function was the first activation function to be used. This led to a number of problems [] and because of their importance, activation functions are vital part of research interest up to this day [].}, usually denoted as $\Theta$. Formula for a function $f_l$ computed by a layer $l$ with weights $w_l$, biases $b_l$ and activation function $\Theta_l$ is denoted as:
+Neural networks can be seen as a specific arrangement of computational units called neurons. Feedforward networks, or multi-layer perceptrons (MLPs) are considered the foundation of contemporary models. We can see a MLP as a function $f$ that maps real-valued input vector \textbf{x} to a single value $y$. A MLP is a sequence of layers, and we can consider each layer $l$, to resemble intermediate function $f^l$. If our MLP has $L$ layers, given an input vector \textbf{x}, we can write $f(\textbf{x})$ as a composition of those intermediate functions, denoted by $f^L(f^{L-1}(...f^1(\textbf{x})))$. $f^1$ is the first layer of MLP, called input layer. $f^L$ is called output layer and all in-between layers are reffered to as hidden []. Even though ... shows that one hidden layer is all you need, it is common for MLPs to consist of multiple layers. The motivation is that each layer can be seen, as if it captures certain abstractions or patterns from its input. Deeper layers can build more complicated patterns by utilizing abstractions captured by previous layers. % Figure \ref{fig:simple-mlp} depicts a simple multi-layered perceptron (MLP) with one hidden layer.
+
+Layer consists of its neurons. Each neuron has associated its weights and bias. In a feedforward network, weights only connect neurons in two consecutive layers. If all neurons in a given layer have a incoming weight from all neurons in the previous layer, we say that $l$ is fully-connected. Given neuron $j$ from layer $l$ and neuron $i$ from previous layer $l - 1$, we denote $w_{ji}$ as the weight from $i$ to $j$ and $b_j$ as the bias of neuron $j$. Additionally, each neuron has its activation function\footnote{Heaviside step function was the first activation function to be used. This led to a number of problems [] and because of their importance, activation functions are vital part of research interest up to this day [].}, commonly denoted as $\phi$. Given a neuron $i$ with activation function $\phi_i$, which has incoming weights from $K$ neurons in the previous layer, formula for a function $g_i$ computed by neuron $i$ can be written as:
 
 \begin{equation}
-\hat{y_l} = \Theta_l(w_l \cdot x + b_l)
+y_i = \phi_i(\sum_{k=1}^K w_{ik}y_k)
 \end{equation}
-where $\hat{y_l}$ is output of the layer $l$, or simply $f_l(x)$.
 
+Deep learning aims to make networks weights and biases useful. Since a network computes a function $f$, with specific training, we can make network learn to approximate any desired function $f^*$ within a certain tolerance []. To train a network, we leverage large amount of data to adjust networks parameters to minimize difference between its and desired outputs. The difference is captured using loss function $\mathcal{L}$, and the process of minimizing $\mathcal{L}$ is typically performed iteratively using backpropagation and traning algorithm such as stochastic gradient descent. More on neural networks training can be found in []. 
 
-
-Even though ... shows that one hidden layer is all you need to essentially approximate arbitrary function, artificial neural networks often consists of multiple layers. The motivation is that each layer can be seen as if it captures certain abstractions or patterns from its input. Deeper layers can build more complicated patterns utilizing abstractions captured by previous layers. Figure \ref{fig:simple-mlp} depicts a simple multi-layered perceptron (MLP) with one hidden layer.
-
-Deep learning aims to make networks weights and biases useful. Since a network computes a function $f$, with specific training, we can make network learn to approximate any desited function $f*$ within a certain tolerance.
-
-To achieve this, training leverages large amount of data to adjust networks parametes to minimize difference between its and desired outputs. This process is typically performed iteratively using loss function, backpropagation, and traning algorithm such as stochastic gradient descent. More on neural networks training can be found in [].
+Despite deep dive to training is out of scope of this thesis, we need to familiarize ourselves with the notion of partial derivatives. Partial derivatives are commonly used to find a direction in which we move certain weight $w$ to minimize the $\mathcal{L}$, if all other parameters remain fixed. We denote the partial derivative of $\mathcal{L}$ with respect to $w$ as $\frac{\delta \mathcal{L}}{\delta w}$. 
 
 %% goodfellow kniha
 
@@ -84,22 +81,21 @@ To achieve this, training leverages large amount of data to adjust networks para
     \end{center}
 \end{figure}
 
-Despite MLP's demonstrating impressive results on tasks previously considered as impossible for computers, they come with some setbacks. Given they are fully connected, even small contemporary architectures such as ImageNET with multiple layers would have unimaginable number of trainable parameters. This led to development of new architectures, tailored to specific domain needs. Despite shift from using fully-connected layers only, MLP stood its ground and to this day, it is essential part of various state of the art neural network models [gpt, alexnet].
+Even though MLPs demostrate impressive results on tasks previously deemed impossible for computers, they come with certain setbacks. Given fully connected layers, even small contemporary architectures such as ImageNET would have unimaginable number of trainable parameters. This led to development of new architectures, tailored to specific domain needs. Despite shift from using fully-connected layers only, MLP stood its ground and to this day, it is essential part of various state of the art neural network models [gpt, alexnet].
 
 \subsection*{Convolutional Neural Network}
 %% Architecture
-Architecture introduced specifically to solve various computer vision problems adds two additional layer types --- convolutional and pooling. These layers help to capture features from input image, as well as reduce size of the network []. 
+Architecture introduced specifically to solve various computer vision problems adds two additional layer types --- convolutional and pooling. These layers help to capture patterns in input features, as well as reduce size of the network []. 
 %% - https://arxiv.org/pdf/1511.08458.pdf
 
 %% TODO: Why it suits them for image processing
 
 \subsubsection{Convolutional Layer}
 
-Convolutional layer works similar as to layers in a MLP. It utilizes learnable filters (alternatively called kernels) to search for patterns in its input.
+Convolutional layer searches for visual patterns in its input. It utilizes learnable filters (sometimes called kernels) typically significantly smaller in dimensions than the input. Instead of interacting with whole input at once using weights, as it is case for fully-connected layers, the filter with its own weights is instead systematically slid across the input. Weights of a filter are convolved with the corresponding input data segments, yielding an activation map. Resulting activation map can be seen as a evidence for presence of a shape, detected by the filter in the input data. Sliding filter through features gives us spatial invariance -- no matter where in the input the pattern is, it will get detected and reflected in a activation map, something very hard to achieve using fully-connected layer. Therefore it is commonly said, that the filter has "shared weights".
 
-Typically, a filter has significantly smaller dimensions compared to the input. Instead of interacting with whole input at once, as it is case for fully-connected layers, the filter is systematically slid across the input. Weights of a filter are convolved with the corresponding input data segments. This yields an activation map, which can be seen as a evidence for presence of a shape, detected by the filter in the input data.
+When incorporating a convolutional layer into a neural network, instead of specifying the number of neurons as with FC layers, the crucial parameter to define is the filter shape. This shape determines the receptive field's size -- how much of the input the filter can see at any given time. In addition we usually set two other parameters: \emph{padding} and \emph{stride}. Padding is a value we add as a border around the input features, allowing the filter to cover the edges and thus reducing information loss. Stride controls how much we shift the filter after each convolution. For visual representation of these concepts see Figure \ref{fig:cnn-convolution}.
 
-When defining a convolutional layer, aside from filter shape, we need to supply two additional parameters, usually called \emph{padding} and \emph{stride}. Padding is used at the borders of the input feature map, to help prevent loss of information, where the filter could not be otherwise applied. Stride controls how much we shift the filter upon calculating one convolution. See Figure \ref{fig:cnn-convolution} for visualization.
 
 \begin{figure}[!h]
     \begin{center}
@@ -111,15 +107,15 @@ When defining a convolutional layer, aside from filter shape, we need to supply 
     \end{center}
 \end{figure}
 
-It is important to note, that a filter shares its weights with every input segment it attributes to. This gives us spatial in-variance -- meaning the filter is able to detect learned pattern at any position in the input features. Moreover, it drastically reduces the number of weights. Given $512$ input and output features, fully connected layers would need $262144$ weights. Simple $3x3$ filter needs $9$.
+Convolutional layer consists of multiple units. Each unit has its own filter and produces unique activation map. The idea is that during training, each filter learns to recognize a different pattern. This gives a single layer capabilities to detect multiple patterns and similarly to its fully-connected counterpart -- it allows subsequent layers of the network to build upon captured abstractions and ultimately "understand" and represent high level concepts.
 
-Traditionally, a convolutional layer consists of multiple filters. The idea is, that each filter is trained to activate upon seeing a different pattern. Given a one layer can detect multiple shapes, as outlined in section ..., it allows the deeper layers of network to combine simple patterns into more complex ones.
+It is important to note, that sharing weights has not only effects of identifying patterns regardless of their position in the input -- it reduces the size of networks as well. Given $512$ input and output features, a fully connected layer needs $262,144$ weights to propagate the information. On the other hand, convolutional layer with $1,024$ units and receptive field of size $3 \times 3$ needs $9,216$.
 
 \subsubsection{Pooling Layer}
 
 To prevent overfitting, pooling layers are employed to further distill patterns captured by a CNN. They progressively reduce size of the features, leading to reduced number of model parameters and computational complexity [].
 
-A pooling layer is commonly placed after a convolutional one, iterating over its activation maps. It has its own filters and strides, however, the parameters are chosen more conservatively. Most of the time, filter is of size $2x2$ and stride is set to $2$, such that the pooled sectors do not overlap. It is reported that having a filter of size greater than 3 will most likely lead to loss of model's performance, since such granularity would hide more of the detected features [].
+A pooling layer is typically placed after a convolutional one, iterating over its activation maps and applying systematically applying a specific operation over its receptive field. We differentiate between two primary types of pooling: \emph{max} and \emph{average}. As their names imply, max pooling selects the maximum value within its receptive field, while average pooling computes the mean of the values. Pooling layer has its own filters and strides, however, the parameters are chosen more conservatively. A common choice is $2 \times 2$ filter and stride of $2$, ensuring that the pooled sectors do not overlap. It has been observed, that having a filter of size greater than $3 \times 3$ will most likely lead to loss of model's performance, since such granularity may hide too of the features detected by a network [].
 
 \begin{figure}[!h]
     \begin{center}
@@ -130,4 +126,9 @@ A pooling layer is commonly placed after a convolutional one, iterating over its
     \label{fig:cnn-pooling}
     \end{center}
 \end{figure}
-%%
+
+\subsubsection{Global Pooling Layer}
+
+Given our network composed solely of convolutional and pooling layers, we are not bound to any specific input size -- thanks to the inherent spatial invariance. Nonetheless, it is common practice to introduce fully connected layers towards the end of the network, which require a fixed-size number of input features. To meet this requirement, we use global pooling layers.
+
+Similar to standard pooling, global pooling comes in two forms: max and average. Global pooling layers operates on each activation map, condensing it into a single value. This guarantees that if a convolutional layer has $n$ units and the subsequent fully-connected layer receives $n$ input features, placing a global pooling layer in between will provide a compatible transition, standardizing the output size regardless of the input dimensions.

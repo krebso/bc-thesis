@@ -1,17 +1,15 @@
 \chapter{Prostate Cancer Detection Setting}
 
-According to the Masaryk Memorial Institute, prostate cancer is the most common oncological disease amongst men in Czech Republic, with around $8$ thousand new cases reported each year. In the global context, it is estimated that $1,276,106$ of new cases appeared solely in $2018$. To aid pathologists tackle the ever-growing number of new cases, RationAI team trained and tested CNN on dataset provided by Masaryk Memorial Institute.
+According to the Masaryk Memorial Cancer Institute, prostate cancer is the most common oncological disease amongst men in Czech Republic, with around $8$ thousand new cases reported each year. In the global context, it is estimated that $1,276,106$ of new cases appeared solely in $2018$. To aid pathologists tackle the ever-growing number of new cases, RationAI team trained and tested CNN on dataset provided by Masaryk Memorial Cancer Institute.
 
 This chapter presents brief introduction to prostate cancer, contemporary approach to detection of malignant tissue and finally, dataset and RationAI's model for prostate cancer detection.
 
 \section{Prostate Cancer}
 
 %intro
-Prostate cancer is a disease that causes rapid growth of cells in prostate -- a male gland under the bladder. This gland is responsible for producing seminal fluid that aids in the transport and nourishment of sperm.
+Prostate cancer is a disease that causes rapid growth of cells in prostate -- a male gland under the bladder. This gland is responsible for producing seminal fluid that aids in the transport and nourishment of sperm. Type of cancer attacking glandular tissue is called adenocarcinoma.
 
-\todo{adenocarcinoma}
-
-Prostate cancer is commonly diagnosed amongst men after $50$ years of age, and the incidence rate keeps increasing with aging -- we detect nearly $60$\% presence in men over $65$. Mortality rate varies worldwide, ranging from $3.3$ to $10.7$ per $100,000$ people. Diet, physical activity, ethnicity and family history are all likely to influence cancer's development and progression. Implications of prostate cancer are profound even if it does not result in death, as it affects ones quality of life due to potential urinary, bowel, and sexual dysfunctions. In advances stages, prostate cancer can spread beyond the prostate gland, affecting the bladder, rectum or bones [].
+Prostate cancer is commonly diagnosed amongst men after $50$ years of age, and the incidence rate keeps increasing with aging -- we detect nearly $60$\% presence in men over $65$. Mortality rate per $100,000$ people varies worldwide, ranging from $3.3$ in Easter Asia to $10.7$ in Central America. Diet, physical activity, ethnicity and family history are all likely to influence cancer's development and progression. Implications of prostate cancer are notable even if it does not result in death, as it affects ones quality of life due to potential urinary, bowel, and sexual dysfunctions. In advances stages, prostate cancer can spread beyond the prostate gland, affecting the bladder, rectum or bones [].
 % https://www.ncbi.nlm.nih.gov/pmc/articles/PMC6497009/pdf/wjon-10-063.pdf
 
 % adenocarcinoma
@@ -19,10 +17,10 @@ Given high prevalence and potential for aggressiveness, early detection and effe
 
 \section{Gleason Patterns}
 
-To effectively detect and estimate impact of disease spread, Donald Gleason presented a grading and scoring system in 1996. Gleason's system gained universal acceptance in 1974 and is the most prevalent system doctors use up to this day. It categorizes the growth of cancer cells into distinctive patterns based on how much the cancerous tissue differs from healthy prostate gland cells, as shown in Figure \ref{fig:gp}. Number of patterns and their description has been later refined, and as of today, we differ between 9 patterns. Complete enumeration and description of patterns can be found in [].
+To effectively detect and estimate impact of adenocarcinoma spread in prostate, in 1996, Donald Gleason presented a unified grading and scoring system. Gleason's system gained universal acceptance in 1974 and is the most prevalent system doctors use up to this day. It categorizes the growth of cancer cells into distinctive patterns based on how much the cancerous tissue differs from healthy prostate gland cells, as shown in Figure \ref{fig:gp}. Number of patterns and their description has been later refined, and as of today, we differ between 9 patterns. Complete enumeration and description of patterns can be found in [].
 % https://onlinelibrary.wiley.com/doi/epdf/10.1111/j.1365-2559.2011.04003.x?saml_referrer
 
-To calculate a Gleason score, a histopathologist determines the predominant and second most common patterns -- final score is simply a sum of pattern category numbers. The way how score impacts doctors assessment was a matter of evolvement as well. International Society of Urological Pathology (ISUP) distinguishes between $5$ grades of prostate cancer. More on scoring and grading innuendos can be found in [].
+To calculate a Gleason score, a histopathologist determines the predominant and second most common Gleason patterns -- the final score is simply a sum of pattern category numbers. The influence of the score on a doctor's evaluation has also evolved over time. International Society of Urological Pathology (ISUP) distinguishes between $5$ grades of prostate cancer. More on scoring and grading innuendos can be found in [].
 % file:///Users/krebso/kiwi/outpayments/apps/trxgate/CANCER%20DE%20PROSTATA%20-%20REVISAO%20DE%20DIAG%20E%20TRATAMENTO.pdf
 
 \begin{figure}[!h]
@@ -57,27 +55,30 @@ Grade 5         & 10 cases            & 2 case       \\
 \label{tab:who_grade_distribution}
 \end{table}
 
-To mark cancerous areas, WSIs containing carcinoms were manually annotated by domain expert in Automated Slide Analysis Platform -- annotations are of form of polygons, encapsulating cancerous areas. Because processing of whole WSI at once is computationaly expensive, we used common technique of tiling the WSIs to decrease memory requirements. Each WSI is split into overlapping tiles of size $512px \times 512px$, such that two consecutive tiles. This is a common approach [].
+To mark cancerous areas, WSIs containing adenocarcinomas were manually annotated by domain expert in Automated Slide Analysis Platform -- annotations are in form of polygons, encapsulating cancerous areas. Because processing of whole WSI at once is computationaly expensive, we used common technique of tiling the WSIs to decrease memory requirements. Each WSI is split into overlapping tiles of size $512px \times 512px$. An overlap of 256 pixels is used between two consecutive tiles, to counter possibility of severing important patterns. This is a well established approach used industry-wide, as per [].
 
-\todo{Slides are all of the same size, but cores not and therefore different number of tiles is segmented each time.}
+The WSIs contain several biopsies, and tiles, and any tile with less than $50$\% of its area covered by tissue is discarded from both training and testing dataset splits. Consequently, while all WSIs have the same size, their usable tile count differs.
 
 \section{Model}
 
 Model trained by RationAI to perform cancer detection in WSIs is a modified version of popular CNN architecture VGG16 []. The full architecture is depicted in Figure \ref{fig:rationai-vgg16}.
 % https://arxiv.org/abs/1409.1556
 
-The model aims to solve following problem, as formulated by Gallo et al. in [] as followed: Classify tiles according to the presence/absence of cancer in their central square area of size $256 px \times 256 px$. Presence is determined by whether the central squares overlaps with annotation from domain expert. Model achieves very good score on the test split, reaching $100$\% slide-level prediction accuracy.
+The model aims to solve following problem, as formulated by Gallo et al. (and loosely paraphrased) in []: Classify tiles according to the presence/absence of cancer in their central square area of size $256 px \times 256 px$. Presence is determined by whether the central squares overlaps with annotation from domain expert. Model achieves very good score on the test split, reaching $100$\% slide-level prediction accuracy.
+
+\todo{Ask Vit about where to scavenge params}
 
 \begin{figure}[!h]
     \begin{center}
     \begin{minipage}{0.75\textwidth}
       \includegraphics[width=\textwidth]{img/nn-arch.png}
     \end{minipage}
-    \caption{Architecture of Prostate Cancer Binary Classifier model utilized by RationAI. Model is based on VGG-16, introduced by Simonyan and Zisserman in 2014 []. It differs in size of input image. Original VGG-16 model is trained to classify 1000 classes from ... dataset and utilizes 3 fully connected layers before applying softmax on the last one. In our solution, global max pooling is placed before single fully connected layer, reducing each of the 512 feature maps into one value. Sigmoid is applied to output of the fully connected layer, to turn its output into probabilistic distribution [].}
+    \caption{Architecture of Prostate Cancer Binary Classifier model utilized by RationAI. Model is based on VGG-16, introduced by Simonyan and Zisserman in 2014 []. Original VGG-16 model is trained to classify 1000 classes from ILSVRC dataset [] and utilizes three FC layers before applying softmax on the last one. In our solution, global max pooling is placed before single fully connected layer, reducing each of the $512$ activation maps into single value. This can be seen as an extension of logistic regression, with condensed activation maps as independent variables. Sigmoid is applied to output of the FC layer, to turn its output into probabilistic distribution [].}
     \label{fig:rationai-vgg16}
     \end{center}
 
 %% original vgg paper
+% ILSVRC dataset
 %% how sigmoid makes it probability or whatever
 \end{figure}
 

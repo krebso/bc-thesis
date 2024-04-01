@@ -15,6 +15,7 @@ Traditionally, to get tissue from patient to histopathologist, tedious logistic 
 While we currently cannot replace surgeon performing the biopsy or lab workers staining and embedding the tissue, we can address logistic challenges of moving glass slides to histopathologist. Having a physical slide suffers from several inefficiencies. A slide can be studied only by one histopathologist at a time and if a second opinion from a different histopathologist is required, the glass slide must be conveyed to the respective clinic. This throttles the diagnosis process and leads to longer waiting times for a patient.
 
 \section{Digital histopathology}
+% https://pathsocjournals.onlinelibrary.wiley.com/doi/10.1002/path.5388
 
 Digital histopathology aims to reduce the logistic overhead caused by physical copies of glass slides. After the tissue is extracted and prepared, instead of shipping it to a histopathologist, it is scanned using specialized lenses resulting in a high-resolution digital image, called \emph{Whole Slide Image} (WSI) [].
 
@@ -37,7 +38,7 @@ Even though contemporary digital pathology systems provide a significant speed u
 
 A computer system, which aids human to make a decision while performing a particular task is referred to as decision support system []. These systems are utilized across a wide array of applications, including high-stake environments such as investment banking [], autonomous driving [] or military and defense []. In digital histopathology, such systems are usually utilized to help with operational processes []. With deep learning in the spotlight of today's research, new possibilities emerge.
 
-New systems could be utilized to enhance tissue diagnostic process by assisted diagnosis, or used to discover previously unrecognized features in large sets of data, incomprehensible by a single expert [].
+New systems could be used to enhance tissue diagnostic process by assisted diagnosis, or used to discover previously unrecognized features in large sets of data, incomprehensible by a single expert [].
 %% https://pathsocjournals.onlinelibrary.wiley.com/doi/10.1002/path.5388
 Random forests [], support vector machines [] and various neural network architectures [] are all attempts of such utilization. Those systems often provide real-time results and human-like performance, demonstrating that further research in this area can bring significant improvement to the contemporary processes [].
 
@@ -65,10 +66,13 @@ Layer consists of its neurons. Each neuron has associated its weights and bias. 
 y_i = \phi_i(\sum_{k=1}^K w_{ik}y_k)
 \end{equation}
 
-Deep learning aims to make networks weights and biases useful. Since a network computes a function $f$, with specific training, we can make network learn to approximate any desired function $f^*$ within a certain tolerance []. To train a network, we leverage large amount of data to adjust networks parameters to minimize difference between its and desired outputs. The difference is captured using loss function $\mathcal{L}$, and the process of minimizing $\mathcal{L}$ is typically performed iteratively using backpropagation and traning algorithm such as stochastic gradient descent. More on neural networks training can be found in []. 
+Deep learning aims to make networks weights and biases useful. Since a network computes a function $f$, with specific training, we can make network learn to approximate any desired function $f^*$ within a certain tolerance []. To train a network, we leverage large amount of data to adjust networks parameters to minimize difference between $f$ and $f^*$. The difference is captured using loss function $\mathcal{L}$, and the process of minimizing $\mathcal{L}$ is typically performed iteratively using backpropagation and traning algorithm such as stochastic gradient descent. More on neural networks training can be found in []. 
 
-Despite deep dive to training is out of scope of this thesis, we need to familiarize ourselves with the notion of partial derivatives. Partial derivatives are commonly used to find a direction in which we move certain weight $w$ to minimize the $\mathcal{L}$, if all other parameters remain fixed. We denote the partial derivative of $\mathcal{L}$ with respect to $w$ as $\frac{\delta \mathcal{L}}{\delta w}$. 
+Despite deep dive to training is out of scope of this thesis, we need to familiarize ourselves with the notion of partial derivatives. Partial derivatives are commonly used to find a direction in which we move certain weight $w$ to minimize the $\mathcal{L}$, if all other parameters remain fixed. We denote the partial derivative of $\mathcal{L}$ with respect to $w$ as $\frac{\delta \mathcal{L}}{\delta w}$. As we will see in Chapter 3, partial derivatives can also be leveraged to compute importance of features or networks parameters.
 
+Building on the concept of partial derivatives, we can compute the gradient. In the context of a deep learning model's loss function, the gradient is the collection of partial derivatives with respect to all the weights and biases within the model. We denote the gradient of the loss function with respect to the weights $w$ as $\nabla\mathcal{L}(w)$. This gradient points in the direction of the steepest ascent in the loss function's value. Thus, to minimize, we update the weights in the opposite direction of the gradient.
+
+\todo{gradient}
 %% goodfellow kniha
 
 \begin{figure}[!h]
@@ -76,12 +80,12 @@ Despite deep dive to training is out of scope of this thesis, we need to familia
     \begin{minipage}{.75\textwidth}
       \includegraphics[width=\textwidth]{img/nn.png}
     \end{minipage}
-    \caption{Architecture of a multi-layer perceptron with one hidden layer. Circles represent layer inputs. Edges represent layer weights. Biases are omitted for simplicity. Given a non-input layer L, if every unit has an incoming edge from all units in previous layer, we consider the perceptron to be fully-connected.}
+    \caption{Architecture of a multi-layer perceptron with one hidden layer. Circles represent layer inputs. Edges represent layer weights. Biases are ommited for simplicity. Notice, that each neuron in hidden and output layer share a weight with all neurons in previous layer -- therefore are fully-connected.}
     \label{fig:simple-mlp}
     \end{center}
 \end{figure}
 
-Even though MLPs demostrate impressive results on tasks previously deemed impossible for computers, they come with certain setbacks. Given fully connected layers, even small contemporary architectures such as ImageNET would have unimaginable number of trainable parameters. This led to development of new architectures, tailored to specific domain needs. Despite shift from using fully-connected layers only, MLP stood its ground and to this day, it is essential part of various state of the art neural network models [gpt, alexnet].
+Even though MLPs demostrate impressive results on tasks previously deemed impossible for computers, they come with certain setbacks. Given fully connected layers, even small contemporary architectures such as ImageNET would have unimaginable number of trainable parameters. This led to development of new architectures, tailored to specific domain needs. Despite shift from using fully-connected layers only, MLP stood its ground and to this day, it is an essential part of various state of the art neural network models [gpt, alexnet].
 
 \subsection*{Convolutional Neural Network}
 %% Architecture
@@ -92,7 +96,7 @@ Architecture introduced specifically to solve various computer vision problems a
 
 \subsubsection{Convolutional Layer}
 
-Convolutional layer searches for visual patterns in its input. It utilizes learnable filters (sometimes called kernels) typically significantly smaller in dimensions than the input. Instead of interacting with whole input at once using weights, as it is case for fully-connected layers, the filter with its own weights is instead systematically slid across the input. Weights of a filter are convolved with the corresponding input data segments, yielding an activation map. Resulting activation map can be seen as a evidence for presence of a shape, detected by the filter in the input data. Sliding filter through features gives us spatial invariance -- no matter where in the input the pattern is, it will get detected and reflected in a activation map, something very hard to achieve using fully-connected layer. Therefore it is commonly said, that the filter has "shared weights".
+Convolutional layer searches for visual patterns in its input. It utilizes learnable filters (sometimes called kernels) typically significantly smaller in dimensions than the input. Instead of interacting with whole input at once using weights, as it is case for fully-connected layers, the filter with its own weights is instead systematically slid across the input. Weights of a filter are convolved with the corresponding input data segments, yielding an activation map. Resulting activation map can be seen as a evidence for presence of a shape, detected by the filter in the input data. Sliding filter through features gives us spatial invariance -- no matter where in the input the pattern is, it will get detected and reflected in the respective activation map, something very hard to achieve using fully-connected layer. Therefore it is commonly said, that the filter has "shared weights".
 
 When incorporating a convolutional layer into a neural network, instead of specifying the number of neurons as with FC layers, the crucial parameter to define is the filter shape. This shape determines the receptive field's size -- how much of the input the filter can see at any given time. In addition we usually set two other parameters: \emph{padding} and \emph{stride}. Padding is a value we add as a border around the input features, allowing the filter to cover the edges and thus reducing information loss. Stride controls how much we shift the filter after each convolution. For visual representation of these concepts see Figure \ref{fig:cnn-convolution}.
 
@@ -107,7 +111,7 @@ When incorporating a convolutional layer into a neural network, instead of speci
     \end{center}
 \end{figure}
 
-Convolutional layer consists of multiple units. Each unit has its own filter and produces unique activation map. The idea is that during training, each filter learns to recognize a different pattern. This gives a single layer capabilities to detect multiple patterns and similarly to its fully-connected counterpart -- it allows subsequent layers of the network to build upon captured abstractions and ultimately "understand" and represent high level concepts.
+Convolutional layer consists of multiple units. Each unit has its own filter and produces unique activation map. The idea is that during training, each filter learns to recognize a different pattern. This gives a single layer capabilities to detect multiple patterns and similarly to its fully-connected counterpart -- it allows subsequent layers of the network to build upon captured abstractions and ultimately "understand" and represent high level concepts. Given a layer with $n$ units, we will denote $k$-th filter as $F^k$ and $k$-th activation map as $A^k$. Individual activation in spatial position $x, y$ will be denoted as $A^k_{xy}$.
 
 It is important to note, that sharing weights has not only effects of identifying patterns regardless of their position in the input -- it reduces the size of networks as well. Given $512$ input and output features, a fully connected layer needs $262,144$ weights to propagate the information. On the other hand, convolutional layer with $1,024$ units and receptive field of size $3 \times 3$ needs $9,216$.
 
@@ -132,3 +136,5 @@ A pooling layer is typically placed after a convolutional one, iterating over it
 Given our network composed solely of convolutional and pooling layers, we are not bound to any specific input size -- thanks to the inherent spatial invariance. Nonetheless, it is common practice to introduce fully connected layers towards the end of the network, which require a fixed-size number of input features. To meet this requirement, we use global pooling layers.
 
 Similar to standard pooling, global pooling comes in two forms: max and average. Global pooling layers operates on each activation map, condensing it into a single value. This guarantees that if a convolutional layer has $n$ units and the subsequent fully-connected layer receives $n$ input features, placing a global pooling layer in between will provide a compatible transition, standardizing the output size regardless of the input dimensions.
+
+We denote the final value of globally pooled activation map $A^k$ as $a^k$.

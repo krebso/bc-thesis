@@ -70,7 +70,7 @@ Given certain applications, understanding the model is not only a moral obligati
 
 % https://arxiv.org/pdf/1606.08813.pdf
 
-Another piece of legislation from the European Union is anticipated to be implemented in May or June of 2024. \emph{AI Act} introduces a series of regulations for machine learning-based AI systems. The legislation is notably more detailed and exhaustive than Articles 13 and 14 of the GDPR, yielding mixed responses from domain experts. While the full implications are yet to be seen, it already imposes several restrictions on what needs to be met before deploying machine learning models. In particular, one section specifically targets high risk AI systems and states that a 'providers must build for human oversight, incorporating "human-machine interface tools" to ensure systems "can be effectively overseen by natural persons"'. Several other important aspects of model's life-cycle are revised as well, ranging from training dataset to technical documentation. Comprehensive overview of the article is beyond the scope of this thesis, and is summarized by Veale and Borgesius in [].
+Another piece of legislation from the European Union is anticipated to be implemented in May or June of 2024. \emph{AI Act} introduces a series of regulations for machine learning-based AI systems. The legislation is notably more detailed and exhaustive than Articles 13 and 14 of the GDPR, yielding mixed responses from domain experts. While the full implications are yet to be seen, it already imposes several restrictions on what needs to be met before deploying machine learning models. In particular, one section specifically targets high risk AI systems and states that a 'providers must build for human oversight, incorporating ``human-machine interface tools'' to ensure systems "can be effectively overseen by natural persons"'. Several other important aspects of model's life-cycle are revised as well, ranging from training dataset to technical documentation. Comprehensive overview of the article is beyond the scope of this thesis, and is summarized by Veale and Borgesius in [].
 
 % https://www.degruyter.com/document/doi/10.9785/cri-2021-220402/html
 
@@ -80,7 +80,7 @@ Rapid development of deep learning models and scarcity of trust among users call
 
 \todo{find citations, forgot to write down}
 
-Throughout this thesis, 'XAI' will refer specifically to the subfield dedicated to advancing explainability in AI, while 'explainable artificial intelligence' will denote the attribute of machine learning models that enables certain level of understandability. To describe explainable artificial intelligence, Arietta et al. [] suggest to use the following definition: \emph{Given an audience, an explainable Artificial Intelligence is one that produces details or reasons to make its functioning clear or easy to understand}.\newline
+Throughout this thesis, `XAI' will refer specifically to the subfield dedicated to advancing explainability in AI, while 'explainable artificial intelligence' will denote the attribute of machine learning models that enables certain level of understandability. To describe explainable artificial intelligence, Arietta et al. [] suggest to use the following definition: \emph{Given an audience, an explainable Artificial Intelligence is one that produces details or reasons to make its functioning clear or easy to understand}.\newline
 % taxonomy paper
 
 \noindent
@@ -94,9 +94,11 @@ The field of XAI distinguishes between two means, how to make artificial intelli
 In the recent years, plethora of both global and local post-hoc explainability methods has been introduced in order to help grasp decision process of deep neural networks []. Post-hoc methods can be further divided into two groups. Model-specific methods are designed to explain only models with specific features and capabilities -- such as attention-based models or convolutional neural networks. On the contrary, model-agnostic methods can be used to explain arbitrary machine learning model.
 
 % https://pdf.sciencedirectassets.com/272144/1-s2.0-S1566253519X0007X/1-s2.0-S1566253519308103/main.pdf
-\section{Making CNN's explainable}
+\section{Making CNN's Understandable}
 
 For convolutional neural networks, industry-wide standard is to visually highlight parts of a image, which are considered \emph{important} to the model. The result of such visualization is commonly referred to as a \emph{saliency map}, class activation map or attribution map. There is no consensus on terminology, and we will use the term saliency map to describe any heatmap that identifies features considered significant by a post-hoc method. 
+
+\todo{highlight, that we use explainability methods to achieve understandability}
 
 \noindent
 In following subsections we overview several explainability methods we will later benchmark in Chapter 4. We deliberately chose methods, which were not covered in previous work by RationAI's team. Popular methods such as LIME, Deconvolution or ...  were either computationaly too expensive, or produced sub-par results, which are not deemed satisfactory []. We rather focused on methods used specifically created for explaining CNNs, leveraging their ability of spatial memory.
@@ -109,7 +111,7 @@ In following subsections we overview several explainability methods we will late
 
 Occlusion is model-agnostic method and comes from family of so-called input perturbation based methods. Occlusion computes attribution map by systematically covering square parts in input image and observing the change in models prediction confidence on the perturbed image. Intuitively, we expect that when we cover (occlude) important part of the input image, the confidence of our classifier drops. In contrary, when we cover region which does not contain any important features, the output should not differ too much from output for the non-perturbed image. Visual example can be seen in Figure \ref{fig:occ-saliency}. This approach gives us a rough heatmap of input feature saliency.
 
-Experiment conducted by Gallo et al. [] shows, that in the domain of prostate cancer detection, this method produces semantically correct saliency maps, detecting several of known Gleason patterns. Sadly, occlusion comes with high computational complexity and resource utilization. For our use-case, explaining a single tile of $512px \times 512px$, the method needs 289 forward passes to compute the attribution map. On a machine with $8$ cores, $16$GB of RAM and $48$GB of GPU memory capacity, occlusion needs approx. $2$ seconds and $40$GB of GPU memory to generate single saliency map. Recall Section Y and processing WSI. In our test set, slide size varies from 400 to 4000 tiles per slide. Omitting auxiliary saliency map processing, this method takes anywhere from $13$ to $130$ minutes to explain a single WSI.
+Experiment conducted by Gallo et al. [] shows, that in the domain of prostate cancer detection, this method produces semantically correct saliency maps. Occlusion detects several recognized Gleason patterns, \todo{vytiahnut z matejovho clanku, ze ktore}. Sadly, occlusion comes with high computational complexity and resource utilization. For our use-case, explaining a single tile of $512px \times 512px$, the method needs 289 forward passes to compute the attribution map. On a machine with $8$ cores, $16$GB of RAM and $48$GB of GPU memory capacity, occlusion needs approx. $2$ seconds and $40$GB of GPU memory to generate single saliency map. Recall Section Y and processing WSI. In our test set, slide size varies from 400 to 4000 tiles per slide. Omitting auxiliary saliency map processing, this method takes anywhere from $13$ to $130$ minutes to explain a single WSI.
 % https://pdf.sciencedirectassets.com/277035/1-s2.0-S1871678423X00065/1-s2.0-S1871678423000511/main.pdf
 
 \begin{figure}[!h]
@@ -117,7 +119,7 @@ Experiment conducted by Gallo et al. [] shows, that in the domain of prostate ca
     \begin{minipage}{1\textwidth}
       \includegraphics[width=\textwidth]{img/occ-saliency.png}
     \end{minipage}
-    \caption{Sample of prostate tissue with occlusion generated saliency. Green areas denote parts important for the model, while red parts signify areas which are not pro-cancerous. Since saliency maps are generated on a tile-level, they are further composed and overlapping areas averaged to produce slide-level saliency map. Sigmoid function is applied to saliency maps before combining, and is reported to have positive effect on smoothing of the explanations.}
+    \caption{Sample of prostate tissue with occlusion generated saliency. Green areas denote parts important for the model, while red parts signify areas which are not pro-cancerous. Since saliency maps are generated on a tile-level, they are further composed and overlapping areas averaged to produce slide-level saliency map. Sigmoid function is applied to saliency maps before combining, as is reported in [gallo] to have positive effect on smoothing and stability of the explanations.}
     \label{fig:occ-saliency}
     \end{center}
 \end{figure}
@@ -129,21 +131,19 @@ Experiment conducted by Gallo et al. [] shows, that in the domain of prostate ca
 Zhout et al. show, that introducing GAP layer to a convolutional neural network has a welcome side-effect -- aside of regularization during training, it enhances networks localization capabilities, despite being trained on image-level labels only -- without specifying, where in the input the object of interest resides. Their proposed method, called Class Activation Mapping (CAM) is used to visually highlight regions of input image used by the CNN to make its prediction for certain class $c$. This method is model-specific, since it works only with networks having GAP (or GMP) as intermediate layer between the last convolutional layer and final fully-connected layer []. 
 % https://arxiv.org/pdf/1512.04150.pdf
 
-On intuitive level, CAM is simply weighted sum activations of the last convolutional layer. To formalize, consider a network with convolutional layer $L$ with $F$ activation maps $A^1, A^2, ..., A^F$, followed by GAP layer and single fully-connected layer. In the FC layer, we fix neuron denoting class $c$, for which we want to compute a saliency map. Recall Equation ..., and that GAP reduces value of each activation map $A^k$ to a single value $a^k$ --- average of the activations. The score of network for class $c$ is then calculated as:
-
+On intuitive level, CAM is simply weighted sum activations of the last convolutional layer. To formalize, consider a network with convolutional layer $L$ with $F$ activation maps $A^1, A^2, ..., A^F$, followed by GAP layer and single fully-connected layer. In the FC layer, we fix neuron denoting class $c$, for which we want to compute a saliency map. Recall Equation ..., and that GAP reduces value of each activation map $A^k$ to a single value $a^k$ --- average of the activations. The score of network for class $c$ is then calculated...
 \begin{equation}
-    y^c = \sum_{k=1}^F w_{ck} * a^k
+    y^c = \sum_{k=1}^F w_{ck}  a^k.
 \end{equation}
 
-To construct class activation map for class $c$, we reverse-engineer calculation of $s^c$. The saliency map is constructed out of individual mappings, and mapping for spatial element $S^c_{xy}$ is calculated as: 
-
+To construct class activation map for class $c$, we reverse-engineer calculation of $y^c$. The saliency map is constructed out of individual mappings, and mapping for spatial element $S^c_{xy}$ is calculated as a weighted sum of activation maps $A^k$
 \begin{equation}
-    S^c_{xy} = \sum_{k=1}^F w_{ck} * A^k_{xy}
+    S^c = \sum_{k=1}^F w_{ck}  A^k.
 \end{equation}
+To obtain saliency map $S^c_{\text{CAM}}$, we simply calculate mappings for all pairs $x, y$. Mass of $S^c_{CAM}$ is equal to the score $s^c$ and directly indicates importance of the respective spatial locations. If pooling layers are present in the network, they lead to activations of $L$ having smaller dimension than the input. This is addressed by up-sampling the $S^c_{CAM}$ to the size of original input image.
+\medskip
 
-To obtain saliency map $S^c_{CAM}$, we simply calculate mappings for all pairs $x, y$. Mass of $S^c_{CAM}$ is equal to the score $s^c$ and directly indicates importance of the respective spatial locations. If pooling layers are present in the network, they lead to activations of $L$ having smaller dimension than the input. This is addressed by up-sampling the $S^c_{CAM}$ to the size of original input image.\newline
 
-\noindent
 Authors point out, that this method is particularly useful for networks with GAP layer. They believe that using GMP leads to the method pointing out to the single most discriminatory location, instead of all of them as it is case for GAP. While this has been largely confirmed by their experiment on ILSVRC dataset [], we believe that the method is worth considering for our use case. Models employed in the experiment are trained to distinguish between $1000$ classes, with their last convolutional layer having $1024$ units. This configuration suggests a roughly one-to-one relationship between the activations produced by the network and the classes it aims to identify. In our setting, the last convolutional layer has $512$ units --- we posit that even though we only extract the most discriminative location from each activation map, having 512 units should still yield robust localization performance.
 
 \subsection{GradCAM++}
@@ -159,24 +159,23 @@ Principle of GradCAM is fairly straightforward. Let $L$ be a fixed convolutional
 % \todo{Why do we use raw score instead of softmaxed, if we do not perturb the image?}
 
 \begin{equation}
-    i^c_k = \frac{1}{Z} \sum_x \sum_y \frac{\delta y^c}{\delta A^k_{xy}}
+    i^c_k = \frac{1}{|A^k|} \sum_{x,y} \frac{\partial y^c}{\partial\! A^k_{xy}}
 \end{equation}
 
 To obtain a coarse saliency map, we compute weighted combination of activations and their respective importance. $ReLU$ is applied over the heatmap to get only positive values advocating for important features with respect to class $c$ [].
 
 \begin{equation}
-    S^c_{GradCAM} = ReLU(\sum_k i^c_k * A^k)
+    S^c_{GradCAM} = \operatorname{ReLU}(\sum_k i^c_k A^k)
 \end{equation}
-
-Inspiration for using $ReLU$ -- therefore taking only positive partial derivatives -- comes from Deconvolution and Guided Backpropagation, both being post-hoc methods already covered by Gallo et al. in []. In case the saliency map $S^c_{GradCAM}$ is smaller than input image, we up-sample it as in the case of $S^c_{CAM}$.\newline
+Inspiration for using $\operatorname{ReLU}$ -- therefore taking only positive partial derivatives -- comes from Deconvolution and Guided Backpropagation, both being post-hoc methods already covered by Gallo et al. in []. In case the saliency map $S^c_{GradCAM}$ is smaller than input image, we up-sample it as in the case of $S^c_{CAM}$.\newline
 
 \noindent
 Chattopadhyay and Sarkar [] built novel method on foundation of GradCAM while addressing some of its problems. They observed, that if multiple occurences of class of interest $c$ are present in the input image, localization capabilities of GradCAM worsen. According to authors, this stems from using unweighted partial derivatives in Equation ... If there are multiple occurrences of class $c$, different feature maps may get activated, resulting in diluted and faded saliency map. They proposed generalized solution, equivalent in terms of computational performance. GradCAM++ introduces weights to the computation of partial derivatives, slightly changing the Equation 3.1 into []:
-
+%\DeclareMathOperator{\relu}{ReLU}
 \begin{equation}
-    i^c_k = \sum_x \sum_y \alpha^{kc}_{xy} \times ReLU(\frac{\delta Y^c}{\delta A^k_{xy}})
+    i^c_k = \sum_{x,y} \alpha^{kc}_{xy} \operatorname{ReLU}(\frac{\delta Y^c}{\delta A^k_{xy}}),
 \end{equation}
-
+where $Y = \operatorname{softmax}(y)$.
 \todo{GradCAM vs GradCAM++ obrazok z original paperu, tie veci co som spominal vyssie}
 
 Thanks to additional coefficient $\alpha^{kc}_{xy}$ for partial derivatives, all instances of class $c$ will be highlighted with equal importance. Unlike GradCAM, GradCAM++ computes the partial derivative for activated score, as it needs it to be smooth function. This is denoted by $Y^c$ in Equation 3.3. For derivation of $\alpha$, visit third chapter of original GradCAM++ paper []. To obtain saliency map $S^c_{GradCAM++}$, we simply plug $i^c_k$ into Equation 3.2.
@@ -188,11 +187,12 @@ Thanks to additional coefficient $\alpha^{kc}_{xy}$ for partial derivatives, all
 HiResCAM is another gradient based method building upon GradCAM's success. First step is the same as for GradCAM++ --- we need to compute partial derivatives of $y^c$ with respect to activation map $A^k$. Instead of condensing importance of the activation map to a single value, we perform pair-wise multiplication of $\nabla y^c(A^k)$ and respective activation map, yielding following equation []: 
 
 \begin{equation}
-    S^c_{HiResCAM} = \sum_k \nabla y^c(A^k) * A^k
+    (S^c_{\text{PHiResCAM}})_{xy}
+        = \sum_k \frac{\partial y^c}{\partial A^k_{xy}} A^k_{xy}.
 \end{equation}
 % https://arxiv.org/pdf/2011.08891.pdf
 
-The rationale is that such approach better reflects how models "sees" the input image. This way, individual activations are scaled accordingly to the gradient before they are summed up to form the final saliency map. Authors of HiResCAM arrived to similar observation as in case of GradCAM, that GAP-ing the partial derivatives in Equation 3.1 leads to blurring the effect of the gradient across feature maps. 
+The rationale is that such approach better reflects how models ``sees" the input image. This way, individual activations are scaled accordingly to the gradient before they are summed up to form the final saliency map. Authors of HiResCAM arrived to similar observation as in case of GradCAM, that GAP-ing the partial derivatives in Equation 3.1 leads to blurring the effect of the gradient across feature maps. 
 
 In addition to the method itself, authors present a proof of HiResCAM's capabilities. The proof shows, that for convolutional networks ending in one fully connected layer, HiResCAM guarantees to visually highlight all parts of input image which increase class score $y^c$, given we compute the saliency map for the last convolutional layer []. Unfortunately, the proof cannot be extended as is for our model introduced in Section .... While the model ends in one fully connected layer, it is separated from the last convolutional layer by intermediate global max pooling operation, which reduces each feature map to a single value. This breaks down the assumption that we can extract spatial information from the feature maps, since such information will be destroyed in the GMP operation. 
 
@@ -205,14 +205,15 @@ Authors show, that given a model has CAM architecture, HiResCAM saliency collaps
 With aim to bridge gap between perturbation-based and gradient-based methods, Wang and Wang [] introduced ScoreCAM to tackle GradCAM's flaws from different perspective. Unlike it is the case for previous CAM-based methods, ScoreCAM does not rely on partial derivatives to compute the saliency. Instead, author relies on so-called channel-wise increase in confidence, which is, given input vector $X$ and baseline vector $X_b$, defined as:
 
 \begin{equation}
-    cic^k = f(X * scale(upsample(A^k)) - f(X_b)
+    cic^k = f\bigl(X \odot \operatorname{upscale}(A^k)\bigr) - f(X_b)
 \end{equation}
 
 Where $upsample$ is a function, which resizes activation map $A^k$ to the size of input and $scale$ is scaling function to squish up-sampled activation to range $[0, 1]$. What we get, is a score indicating how much networks confidence changes, if we only supply areas of image where filter $f^k$ found a pattern it is trained to detect. We calculate the final saliency map using channel-wise increase of confidence as our weight for convolutional layer activation maps, yielding []:
 
 \begin{equation}
-    S_{ScoreCAM}^c = ReLU(\sum_k cic^k * A^k_l)
+    S_{ScoreCAM}^c = ReLU\biggl(\sum_k cic^k A^k\biggr)
 \end{equation}
+
 
 As a result, we get rid of dependency of intermediat GAP (GMP) layer and gradient. According to the conducted experiments, ScoreCAM is able to locate multiple objects with the same activation map, something we believe might be hard to achieve due to our utilization of GMP layer --- which zeroes our all but one partial derivative for each activation map. In the original paper, authors also mention that saliency maps computed by ScoreCAM are more "focused" than the ones computed by GradCAM++. While having focused saliency maps is desired property, comparing results visually and drawing any conclusions is considered being an anectodal evidence and proper quantitative assessment needs to be done [].
 
@@ -229,10 +230,10 @@ Riding the wave of gradient free methods, AblationCAM utilizes ablation analysis
     i^c_k = \frac{y^c - y^c_k}{y^c}
 \end{equation}
 
-The idea is, that if we remove filter important to the network when assessing presence of class $c$, the score $y^k$ should drop. To obtain the final saliency map, we compute the ablation weights for layer of interest, yielding the following equation:
+The idea is, that if we remove filter important to the network when assessing presence of class $c$, the score $y^c$ should drop. To obtain the final saliency map, we compute the ablation weights for layer of interest, yielding the following equation:
 
 \begin{equation}
-    L^c_{AblationCAM} = ReLU(\sum_k i^c_k * A_k)
+    L^c_{AblationCAM} = ReLU(\sum_k i^c_k A_k)
 \end{equation}
 
 As it is the case for ScoreCAM, this method does not require gradient or GAP, and therefore it should be able to detect the occurrence of multiple instances of input feature captured by single activation map.
@@ -244,7 +245,7 @@ While Occlusion estimated feature importance by observing changes in output and 
 To describe this procedure, assume $i$ and $j$ are two neurons in consecutive layers, such that there is a connection from $i$ to $j$. Process of propagating relevance $R_j$ from $j$ to $i$ is captured by the following generic propagation rule:
 
 \begin{equation}
-    R_i = \sum_j \frac{z_{ji}}{\sum_i z_{ji} R_j}
+    R_i = \sum_j \frac{z_{ji}}{\sum_i z_{ji}} R_j
 \end{equation}
 
 Where $z_{ij}$ models to which extent neuron $i$ contributed to neuron $j$'s activation []. The extent $z_{ij}$ is derived by various rules, which are further described in []. The choice of rules is largely left to experimentation, however, Montavon et al. [] provide a blueprint for choosing layers when working with VGG-16. The main building block is LRP-$0$ rule:
@@ -275,7 +276,7 @@ Figure \ref{fig:lrp-montavon} shows how multiple rules can be composed, to visua
     \begin{minipage}{1\textwidth}
       \includegraphics[width=\textwidth]{img/lrp-montavon.png}
     \end{minipage}
-    \caption{Image show explanation results after different combination of rules is applied. Notice, that combining multiple rules yields visualy more coherent saliency map. According to Montavon, it is beneficial to use LRP-$0$ in the upper layers, to combat entanglement of different concepts represented by the network. LRP-$\epsilon$ in the middle layer helps to propagate only the most salient activations, while LRP-$\gamma$ in the lower layer ensures uniform relevance spread [].}
+    \caption{Image show explanation results after different combination of rules is applied. Notice, that combining multiple rules yields visualy more coherent saliency map. According to Montavon, it is beneficial to use LRP-$0$ in the upper layers, to combat entanglement of different concepts represented by the network. LRP-$\epsilon$ in the middle layer helps to propagate only the most salient activations, while LRP-$\gamma$ in the lower layer ensures uniform relevance spread []. Image is taken from [].}
     \label{fig:lrp-montavon}
     \end{center}
 % https://iphome.hhi.de/samek/pdf/MonXAI19.pdf

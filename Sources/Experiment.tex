@@ -1,6 +1,6 @@
 \chapter{Benchmark}
 
-This chapter consists of three sections. First, we tackle the current problem of high computational resources utilization by occlusion-based saliency -- by measuring time and GPU memory it takes for a method to compute explanation. In the second part, we establishing quantitative benchmark, choosing suitable metrics alongside brief reasoning and evidence behind our choice. We compare methods introduced in Section N.M against Occlusion. We combine qualitative metrics capturing desired properties of explainability methods, alongside improved and refined metrics from original paper by Gallo et al [6]. In the last part, we conduct a human evaluation, where we present result of explainability methods to domain expert.
+This chapter consists of four sections. First, we try to outline, what should a good explanation fullfill. Then, we tackle the current problem of high computational resources utilization of current solution. In the third section, we construct quantitative benchmark, choosing suitable metrics alongside brief reasoning and evidence behind our choice. In the last section, we conduct a domain expert evaluation using previously established approach.
 
 \section{What makes a good explanation?}
 
@@ -10,66 +10,73 @@ This chapter consists of three sections. First, we tackle the current problem of
 
 \noindent
 
-Contemporary research does not provide a unified approach to measuring "goodness" of an explanation.  There are attempts to propose a set of properties a good explainability method should fulfill, but they are not aligned [2, 3]. What is more, some studies even present contradictory results, rendering objective conclusions even more challenging [4, 5]. According to Doshi-Velez [], "the field is crowded with evaluation methods, and there is no consensus on which are the “right” ones. Much less, there is not even agreement on which criteria should be evaluated". The challenge lies in the absence of ground truth for an explanation, and therefore we have no objective measure of grading the explanations []. However, through careful choice of metrics, we can reason that given audience and use-case, certain explainability method is sufficient. To avoid so-called "anecdotal evidence", we need to carefully pick our metrics, so that we ensure that explanation is:
+Contemporary research does not provide a unified approach to define a "goodness" of an explanation. There are attempts to propose a set of properties a good explainability method should fulfill, but they are not aligned []. What is more, some studies present contradictory results, rendering objective conclusions even more challenging []. According to Doshi-Velez [], "the field is crowded with evaluation methods, and there is no consensus on which are the “right” ones. Much less, there is not even agreement on which criteria should be evaluated". The challenge lies in the absence of ground truth for an explanation, and therefore we have no objective measure of grading the explanations []. However, through careful choice of metrics, we can avoid so-called "anecdotal-evidence" and reason that given audience and use-case, certain explainability methods are sufficient. We believe that for explanation to be applicable for our use-case of explaining tile-level predictions, it needs to be:
 
 % doshi How to Evaluate Explainability? – A Case for Three Criteria
 % A Benchmark for Interpretability Methods in Deep Neural Networks
 
 \begin{enumerate}
-    \item Performant: This is the main bottleneck of current solution of Occlusion-based saliency. Without reasonable performance, we do not care how good a method is, since it cannot be utilized for practical purposes.
-    \item Faithful: Ideally, we want to ensure that the explainability method only highlight the relevant parts of input.
-    \item Useful: We need the explanations to be presented to domain experts in such way, that it is understandable for for them. If they do not understand the explanation, it is of little value. 
+    \item Performant: This is the main bottleneck of current solution. Without reasonable performance, we do not care how good a method is, since it cannot be utilized for practical purposes.
+    \item Faithful: Ideally, we want to ensure that the explainability method only highlight the relevant parts of input tile.
+    \item Useful: We need the explanations to be presented to domain experts in such a way, that it is understandable for for them. If they do not understand the explanation, it is of little value. 
 \end{enumerate}
 
 \section{Computational complexity}
 
-The main problem of the existing approach to generate explanations in the required time.
+The main problem of the existing approach using occlusion-based saliency is to generate explanations for a entire slide in required time.
 
 \subsection*{Time efficiency}
 
-In order for the method to actively assist pathologist, the explanation needs to be computed fast enough to not disrupt his workflow. The main caveat of the current solution untilizing occlusion is that it takes too long. We let each method fully explain averagely-sized slide from test set. Each run is conducted 3 times, to make sure the result is not influenced by any momentarily factors. Results are presented in Table ...
+In order for the method to actively assist pathologist, the explanation needs to be computed fast enough not to disrupt his workflow. We let each method fully explain averagely-sized WSI from test set. Each run is conducted 3 times, to make sure the result is not influenced by any momentarily factors. We calculate time difference of timestamps, captured right before and right after computing the explanation. Results are presented in Table ...
 
 \subsection*{GPU utilization}
 
-Modern GPU's offer possibility of multiple processes performing computations on the same instance. For production deployment, this is important factor. High GPU utilization for single method can negatively affect number of parallel processes and therefore raise costs of production deployment. Since neural networks are generally expensive in terms of computational power, their usage inevitable leads to increase in carbon emissions. Since sustainability is a hot topic, it is wise to consider this aspect for future deployment and development.
+Modern GPU's offer possibility of simultaneous execution of multiple processes on the same card instance. For production deployment, this is important factor, since high GPU utilization for single method can negatively affect number of parallel processes and therefore raise costs of deployment by both acquisition and of new cards. Given neural networks are generally expensive in terms of computational power, their usage inevitable leads to increase in produced carbon emissions. Sustainability, being a crucial concern in technology development and deployment, should be thoughtfully weighed when considering the future use and advancement of deep learning models.
 
 \section{Quantitative evaluation}
 
-This section covers use of several widely used metrics capturing desired traits of explainability methods.
+This section covers use of several entrenched metrics that capture the desired traits of explainability methods. We build on the work of Gallo et al. in [] by incorporating state-of-the-art metrics that address known limitations of previous approaches.
+
+By refining previously used metrics, we aim to provide a more robust and reliable benchmark for evaluating the effectiveness of various explanatory approaches for CNNs, aligning the quantitative assessment more closely with domain-specific boundaries and expectations.
 
 \subsection*{Faithfulness}
 
-Common approach to assess whether explainability method marks the relevant part of input is to perturb the image such that we remove those marked features, then backfill those area with certain fixed value -- similar to how occlusion estimates the importance. However, there are studies indicating that simply removing those features may not be correct, since the perturbed input can contain certain artifacts, leading to a distribution shift. This may affect the plausibility of such metrics, since we cannot tell whether the increase/drop in model's confidence is caused by distribution shift, or the features were really important [ROAR].
+Established approach to assess whether explainability method points to the relevant part of input is to perturb the image, such that we remove features perceived as important by the model and back-fill removed areas with certain fixed value --- similar to how occlusion estimates feature importance --- and observe how model's confidence changes. However, literature suggests that this perturbation approach, which often involves filling in the removed areas with zeros or the mean pixel value, could be flawed. The perturbed input might include artifacts that induce a shift in the data distribution, compromising the reliability of such metrics, since we cannot tell to what extent the change in model's confidence stems from introduced artifacts, compared to the initial relevance of removed features [ROAR].
 
-In paper by Gallo et al., methods suffering from potential artifact introduction were used to measure the faithfulness. Notably, occlusion and DTD received the highest scores, aligned with observation by Hsieh et al. -- that such metrics may favor methods, which rely on the same mechanism when estimating importance on input features []. Moreover employed metrics (Causal Deletion [] and Area Over Perturbation Curve) did not produce aligned results.
+In experiment by Gallo et al., methods that are prone to the introduction of unintentional artifacts were used to measure the faithfulness. Notably, occlusion and DTD received the highest scores, aligned with observation by Hsieh et al. -- that such metrics may favor methods, which rely on the same mechanism when estimating importance of input features []. Employed metrics (Causal Deletion [] and Area Over Perturbation Curve) also did not produce aligned results, confirming findings in [ROAD].
 % https://arxiv.org/pdf/2006.00442.pdf
 
-To tackle the distribution issue, Hooker et al. [ROAR] present metric called Remove and Retrain (ROAR), which first removes the marked features, and then retrains the model on newly created dataset. While this method got widely accepted, it brings significant drawback in form of how computationaly exhaustive would this method be for our use-case. As ... shown, ROAR does not solve the problem of \emph{class information leakage} -- phenomenon, when the uniformly-valued mask itself reveals relevant class info through its shape [ROAD].
+Hooker et al. [ROAR] introduced an alternative metric known as Remove and Retrain (ROAR), which involves removing the identified important features and then retraining the model with the modified dataset --- removing the distribution shift. Although ROAR has gained popularity, it has the significant downside of being computationally intensive, rendering it unacceptable for our use-case. As further shown by Rong et al., ROAR does not solve the problem of so-called \emph{class information leakage} --- phenomenon, when the uniformly-valued mask itself reveals relevant class info through its shape [ROAD].
 
-Rong et al. propose method building on foundations of ROAR, called Remove and Debias (ROAD). Instead of retraining the model, areas after removed features are imputed in such fashion that risk of class information leakage is reduced. For further reading and information theory behing imputation, refer to original paper [].
+Rong et al. propose method building on foundations of ROAR, called Remove and Debias (ROAD). Instead of retraining the model, areas after removed features are imputed in such fashion that risk of class information leakage is reduced. For delve into mathematical intrications of underlying information theory, refer to the original paper [].\newline
 
-To evaluate performance of methods described in Section ..., we will iteratively remove features from the most important to the least (MoRF order). After each removal, missing features are imputed using noisy-linear imputer, to reduce class information leakage. We evaluate the metods at $10, 20, 30, 40, 50$ percents removed, as in the original paper. It is desired, that score should drop significantly as we start removing the features and the rate slows down as we approach the $50$\% border, as it signals that the important parts were removed as first. For evaluation, we used implementation from \emph{pytorch-gradcam} package.
-% road
+\noindent
+To evaluate performance of methods described in Section ..., ROAD iteratively removes features from the most important to the least (MoRF order). After each removal, missing features are imputed using noisy-linear imputer, to reduce class information leakage. We evaluate the metods at $10, 20, 30, 40, 50$ percents of salient pixels perturbed, as in the original paper. It is desired, that score should drop significantly as we start removing the features and the rate slows down as we approach the higher percentages, signalling that the important parts were indeed removed in the beginning. For evaluation, we used implementation from \emph{pytorch-gradcam} package. Since this method relies on sensitivity, we will only use positive tiles from test split of dataset from Section ....
 
-Since this method relies on sensitivity, we will only use positive tiles from test split of dataset from Section ....
+\todo{Again, methods which cover larger parts will be preffered}
 
 \subsection*{Localization}
 % localization
-Faithfulness metric tells us, how well the explainability method important locations. Now we want to make sure, that these location resemble something a pathologist would use to decide, wheter there is cancer in the tissue or not. To measure how well a output of given method resembles pathologists annotation, Effective Heatmap Ratio (EHR) was used. This approach relies on bounding boxes, which encapsulates objects of interest. We argue, that it is not the best method to be used for our use case.
+Faithfulness metric tells us, how well the explainability method attributes important locations. Now we want to make sure, that these locations resemble something that pathologist would classify as adenocarcinoma. To measure, how well a output of given method matches pathologists annotation, Effective Heatmap Ratio (EHR) [] was used in []. This approach relies on bounding boxes, which encapsulates objects of interest. We argue, that EHR is not the best method for our use case.
 
-Given a bounding box, according to how EHR is calculated, it always favor methods which highlight larger areas of the image. This is not desired, as the bounding box only marks cancerous tissue -- the exact borders are difficult to find [Matej] and such annotion would likely vary pathologist from pathologist [].
+Given a bounding box, according to how EHR is calculated, it favors methods which cover larger areas of the image. This is not necessarily desired, as the bounding box only marks rough location of cancerous tissue -- precise pixel-level borders are difficult to follow [Matej] and such annotation would likely vary pathologist from pathologist [].
 
 \todo{Tu chcem ocitovat nieco o tom, ze patologovaia sa casto nezhoduju}
 
-We will use technique called Weighting Game instead []. It build upon widely-employed Pointing Game metric [], which looks whether the most attributed pixel falls into the bounding box. Unlike pointing game, which gives us just binary information about the highest pixel, Weighting Game calculates ratio of the mass of the explanation within the bounding box with respect to total mass of the explanation. Unlike EHR, this does not disqualifies methods which highlight smaller parts of annotated area and and gives us very good measure, of how the explanation holds compared to the pathologist's annotation.
+We will use simpler technique called Weighting Game instead []. It builds upon popular employed Pointing Game metric [], which looks whether the most salient pixel falls into the bounding box. Unlike pointing game, which gives us just binary information about the accuracy of given method, Weighting Game calculates ratio of the mass of the explanation within the bounding box with respect to total mass of the explanation. Unlike EHR, this does not disqualifies methods which highlight smaller parts of annotated area and gives us good measure, of how the explanation holds compared to the pathologist's annotation.
 
 \subsection*{Usefulness}
 
-It is almost impossible to determine usefulness of explanation by any quantitative metric, since how we perceive given explanation varies from person to person -- the audience is again a crutial part []. Luckily, we already know that solution based on occlusion proposed in [Matej] produces semantically correct explanations, which are of great use to the pathologist []. Therefore we will reuse metric from Subsection LOCALIZATION and we take $55$\% of most salient Occlusion result as our bounding box. Since such "annotations" do not represent ground truth, we do not perceive this metric as adding to the truthfulness of explanation method. Instead, it will serve as a guide for which methods we should present to pathologist, and we can measure how well will his former assessment of Occlusion stand against his new assessment of explainability methods introduced in Chapter XAI.
+The usefulness of an explanation in the context of machine learning and deep learning models is inherently subjective, as it can vary significantly depending on the individual's perspective and context --- the audience's background, expertise, and purpose of use all play critical roles in determining the perceived utility of an explanation [Doshi-Velez, presumably] --- something hard to capture by a quantitative metric.
 
-\subsection*{Robustness}
-% max sensitivity
-Another desired property is resistance against small perturbations. In order for explanations to be deemed trustful by clinicians, we need to be sure that the produced explnations are stable and not prone to adversarial attacks. Yeh et al. [] propose metric called Max-Sensitivity to measure how explanation changed when the input is exposed to insignificant (small) perturbations. This metric utilized Monte-Carlo sampling approach when generating explanations, and is computationaly expensive. Therefore the evaluation is performed only on the subset of test split data from Subsection USEFUL.
+Luckily, we already know that solution based on occlusion proposed in [Matej] produces semantically correct explanations, which are aligned with features recognized by pathologist []. Therefore we will reuse metric from Subsection LOCALIZATION and we take $55$\% most salient occlusion explanation as our bounding box. Since such "annotations" do not represent ground truth, we do not perceive this metric as adding to the truthfulness. Instead, its purpose is twofold. First, it guides our selection of which explainability methods to present to a pathologist, allowing us to prioritize explanations that align most closely with the established occlusion baseline. Second, it enables us to evaluate how pathologist perceive different explainability techniques relative to established understanding and acceptance of occlusion-based explanations.
+
+By integrating this metric within our benchmark, we aim to gain insights into the extent to which various explainability methods maintain the coherence and alignment of their explanations with expert interpretations and expectations.
+
+%\subsection*{Robustness}
+%% max sensitivity
+%Another desired property is resistance against small perturbations. In order for explanations to be deemed trustful by clinicians, we need to be sure that the produced explnations are stable and not prone to adversarial attacks. Yeh et al. [] propose metric called Max-Sensitivity to measure how explanation changed when the input is exposed to insignificant (small) perturbations. This metric utilized Monte-Carlo sampling approach when generating explanations, and is computationaly expensive. Therefore the evaluation is performed only on the subset of test split data from Subsection USEFUL.
+\todo{Toto mozno vyhodit, aj tak to vyzera ako method-level metric a nie use-case level metric}
 
 
 \section{Domain expert assessment}

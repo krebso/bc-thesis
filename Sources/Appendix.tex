@@ -1,6 +1,6 @@
 % \appendix
 \renewcommand{\thechapter}{A}
-\chapter{Usage of FIPS 140-2 functionality of sec-certs}
+\chapter{Appendix}
 
 \definecolor{codegreen}{rgb}{0,0.6,0}
 \definecolor{codegray}{rgb}{0.5,0.5,0.5}
@@ -26,168 +26,29 @@
 
 \lstset{style=mystyle}
 
-% \section*{Usage of FIPS 140-2 functionality of sec-certs}
+\section*{GradCAM++ importance weights}\label{sec:grad-cam-plus-plus-weight-derivation}
 
-The Python module for analysis of FIPS 140-2 certificates, described in the thesis, is integrated in the \texttt{sec-certs} tool~\cite{sec-certs}. Current version of \texttt{sec-certs} acts like a Python library to be used in users' own scripts. 
+Without the loss of generality, let us fix layer $K$ with the highest activation $A^k_ij$.
+Since we utilize the GMP layer, all partial derivatives in \myref{Equation}{eq:grad-cam-pp-weights} will be zero, except for the one corresponding to the highest activation.
+As a result, we get rid of both sums, and the importance weight becomes 
+\begin{equation}
+    i_{ck} = \alpha^{ck}_{ij} \relu(\frac{\partial Y^c}{\partial A^k_{ij}}).
+\end{equation}
+Authors already derived the activated score $Y^c = \exp(y^c)$ for us, and given the architecture of our model, the following set of equations holds:
+\begin{equation}
+\begin{aligned}
+  \frac{\partial Y^c}{\partial A_{ij}^k}       &= \exp(y^c) \frac{\partial y^c}{\partial A_{ij}^k} &= \exp(y^c) w_{ck}     \\
+  \frac{\partial^2 Y^c}{\partial (A_{ij}^k)^2} &= \exp(y^c) (\frac{\partial y^c}{\partial A_{ij}^k})^2 &= \exp(y^c) (w_{ck})^2 \\
+  \frac{\partial^3 Y^c}{\partial (A_{ij}^k)^3} &= \exp(y^c) (\frac{\partial y^c}{\partial A_{ij}^k})^3 &= \exp(y^c) (w_{ck})^3
+\end{aligned}
+\end{equation}
 
-\section{Installation}
+Plugging it all together, we get 
+\begin{equation}
+    \alpha_{ij}^{ck} = \frac{\exp(y^c) (w_{ck})^2}{2 \exp(y^c) (w_{ck})^2 + A^k_{ij} \exp(y^c) (w_{ck})^3} = \frac{1}{2 + A^k_{ij}w_{ck}}
+\end{equation}
+and subsequently
+\begin{equation}
+    i_{ck} = \frac{1}{2 + A^k_{ij}w_{ck}} \relu\bigr(\exp(y^c)w_{ck}\bigl).
+\end{equation}
 
-The tool requires \texttt{Python>=3.8} and accessible \texttt{pdftotext} binary. The tool can be set up in a Python virtual environment and \texttt{setup.py}:
-
-\begin{lstlisting}[language=bash]
-    $ python3 -m venv venv
-    $ source venv/bin/activate
-    $ pip install -e .
-\end{lstlisting}
-This installs all neccessary python libraries needed for \texttt{sec-certs}.
-
-\section{Folder structure}
-
-\texttt{sec-certs} files related to this thesis are the following:
-\begin{itemize}
-    \item \texttt{sec\_certs} -- folder containing the Python module files.
-    \begin{itemize}
-        \item \texttt{dataset} -- folder containing the classes used for dataset manipulation
-            \begin{itemize}
-                \item \texttt{fips.py} -- file containing the \texttt{FIPSDataset} class, used to handle the main dataset.
-                \item \texttt{fips\_algorithm.py} -- file containing the \texttt{FIPSAlgorithmDataset} class, used to handle the algorithm implementations dataset.
-            \end{itemize}
-            Both these classes inherit from the \texttt{Dataset} class in \texttt{dataset.py}.
-        \item \texttt{certificate} -- folder containing the classes used for manipulation with certificate objects used in datasets
-            \begin{itemize}
-                \item \texttt{fips.py} -- file containing the \texttt{FIPSCertificate} class and \texttt{FIPSAlgorithm} as a subclass.
-            \end{itemize}
-            The \texttt{FIPSCertificate} class inherits from the \texttt{Certificate} class in \texttt{certificate.py}.
-        \item \texttt{configuration.py} -- class containing the global config loaded from the \texttt{YAML} file.
-        \item \texttt{cert\_rules.py} -- file containing the regular expressions used during the keyword extraction. The variables including \texttt{fips} in their name are used in the functionality described in this thesis.
-        \item \texttt{helpers.py} -- some of the helper functions used during the data extraction.
-    \end{itemize}
-    \item \texttt{examples} -- folder containing the provided entrypoints for \texttt{sec-certs}. Explained in \myref{Section}{entrypoint}.
-    \item \texttt{tests} -- folder containing tests to \texttt{sec-certs}. The files related to the FIPS 140-2 functionality contain \texttt{fips} in their name.
-\end{itemize}
-
-\section*{Basic usage}
-
-\texttt{sec-certs} is supposed to be used as a python module. We provided examples on the using of the CC and FIPS functionality in the \texttt{examples/} folder. The \texttt{fips\_oop\_demo.py} script provides a CLI and a main entrypoint for the FIPS 140-2 functionality of \texttt{sec-certs}. Further details of FIPS functionality are explained in \myref{Listing}{code}.
-
-\begin{lstlisting}[language=python,caption=Example of using FIPS 140-2 functionality of \texttt{sec-certs}, label={code}]
-    """
-    Load config YAML file and make it globally available in the 'config' variable. 
-    The example config file is available in 'sec-certs/settings.yaml' file. 
-    All presented values are required.
-    :param filepath     path to config YAML file
-    """
-    config.load(filepath="path/to/config/file")
-    """
-    Create empty dataset object. 
-    The 'FIPSDataset' class is implemented in 'sec-certs/dataset/fips.py'.
-    :param certs        Dictionary containing <certificate_id, 'FIPSCertificate'> pairs.
-    :param root_dir     Path to the directory where all the metadata will be saved. 
-    :param name         Name of the dataset.
-    :param description  Description of the dataset.
-    """
-    dataset = FIPSDataset(certs={}, root_dir="path/to/root/dataset/directory", 
-                        name='dataset_name', description='dataset description')
-    """
-    Extracts the information from CMVP web pages and populates the dataset.
-    This method provides the 'web_scan' functionality:
-        -   downloads the list of CMVP validated modules from the search pages
-        -   creates dataset entries
-        -   downloads HTML page and security policy document for each available module
-        -   extracts information from HTML pages
-    :param redo         Extract the information from webpages from scratch.
-    :param json_file    Optional - path to saved json file created during previous calculations. 
-                        If provided, the dataset is loaded from this file and is only updated.
-                        If not provided, the dataset is created all over again.
-                        Default value is "dataset.root_dir / 'fips_full_dataset.json'"
-    :param test         Optional - provides path to modified CMVP search page, used only in tests to check whether the functionality is correct for a subset of all certificates.
-    :param update_json  Optional - if true, the dataset in "dataset.root_dir / 'fips_full_dataset.json'" is updated at the end of this method.
-                        If False or not provided, the saved dataset is not updated.                    
-    """
-    dataset.get_certs_from_web(redo, json_file, test, update_json)
-    """
-    This method uses pdftotext to convert the security policy PDFs to text files.
-    :param update_json  Same functionality as in 'get_certs_from_web()' method.
-    """
-    dataset.convert_all_pdfs(update_json)
-    """
-    Extracts the information from converted security policy documents using regular 
-    expressions.
-    This method provides the 'pdf_scan' functionality:
-        -   extracts non-specific keywords used in further analyses
-        -   extracts FIPS 140-2 specific keywords used to find references
-        -   saves the modified files in dataset.root_dir / 'fragments/' directory
-    The extraction is done using multiprocessing. 
-    :param redo         Extract the keywords from converted security policies from scratch.
-    :param update_json  Same functionality as in 'get_certs_from_web()' method.
-    """
-    dataset.extract_keywords(redo, update_json)
-    """
-    This method is used to extract algorithm implementation IDs from tables in 
-    security policy PDFs.
-    The process may fail for some security policies, so a list of paths
-    to not parsed files is returned.
-    :param high_precision   This parameter specifies, whether to use a heuristic to find the pages with tables in the PDF, scanning only them. However, this is often not extensive and the results are not precise for some certificates.
-                            If 'True', the scan is performed on all pages of every PDF.
-                            If 'False', heuristics are used to find the pages containing tables.
-    :param update_json      Same functionality as in 'get_certs_from_web()' method.
-    :return                 List of paths of security policy PDFs that were not parsed.
-    """
-    not_decoded_files = dataset.extract_certs_from_tables(high_precision, update_json)
-    """
-    The algorithm information can be reused from previous runs and can be loaded in 
-    the 'get_certs_from_web()' method. However, to always work with the most recent 
-    information, it is recommended to always update the algorithm implementation dataset.
-    """
-    aset = FIPSAlgorithmDataset({}, Path(dataset.root_dir / 'web/algorithms'), 'algorithms', 'sample algs')
-    aset.get_certs_from_web()
-    dataset.algorithms = aset
-    """
-    This method is used to combine results from 'web_scan' and 'pdf_scan'.
-    This method is redone everytime, even though the results may be saved.
-    It implements the 'processed' functionality:
-        -   sanitizes and unifies the extracted algorithm implementation and module IDs
-        -   merges the results of 'web_scan' and 'pdf_scan'
-        -   removes false positives by using heuristics
-        -   finds the references for each certificate
-    The search for not found algorithms from web in the PDF is also ran here.
-    :param update_json      Same functionality as in 'get_certs_from_web()' method.
-    """
-    dataset.finalize_results(update_json)
-    """
-    This method is used to plot graphviz graphs of dependencies between the certificates.
-    Three graphs are plotted - one only from 'web_scan', one only from 'pdf_scan'
-    and one from processed results.
-    The graphs are saved in 'dataset.root_dir / <graph_type>.png', where <graph_type>
-    is one of ['full_graph', 'web_only_graph', 'pdf_only_graph'].
-    :param show     Display the graphs right after plotting.
-    """
-    dataset.plot_graphs(show)
-\end{lstlisting}
-
-\section{Entrypoint}\label{entrypoint}
-
-As we mentioned earlier, we provided \texttt{fips\_oop\_demo.py} as an entrypoint for the FIPS 140-2 functionality. The script provides CLI and logging for the functionality described in \myref{Listing}{code}.
-
-The script accepts following arguments, all of which are optional:
-\begin{itemize}
-    \item \texttt{-{}-config-file} -- specifies the path to the YAML config file
-    \item \texttt{-{}-json-file} -- specifies the path to the saved dataset from previous runs
-    \item \texttt{-{}-no-download-algs} -- use the cached algorithm dataset, do not update it from web
-    \item \texttt{-{}-redo-web-scan} -- flag, specifies whether to redo \texttt{web\_scan} information extraction from scratch
-    \item \texttt{-{}-redo-keyword-scan} -- flag, specifies whether to redo \texttt{pdf\_scan} information extraction from scratch
-    \item \texttt{-{}-higher-precision-results} -- flag, specifies whether to search all pages in PDFs for tables in order to obtain more precise results 
-\end{itemize}
-It is recommended to run the script without arguments the first time it is run.
-
-The full extraction and analysis process presented in \texttt{fips\_oop\_demo.py} takes four to six hours and about four gigabytes of disk space is occupied by downloaded metadata used in computations.
-
-More information on the \texttt{fips\_oop\_demo.py} entrypoint is available in the main README of \texttt{sec-certs}.
-
-\renewcommand{\thechapter}{b}
-
-\chapter{Data attachments}
-\begin{itemize}
-    \item \texttt{sec-certs} -- a snapshot of the \texttt{sec-certs} tool from the \texttt{sec-certs} github repository~\cite{sec-certs}.
-    \item \texttt{graphs} -- folder containing the dot graphs of CMVP cryptographic module references plotted using the \texttt{sec-certs} tool.
-\end{itemize}

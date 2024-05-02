@@ -25,11 +25,12 @@
   abcdefghijklmnopqrstuvwxyz%
 }
 \newlength{\textW}
-\setlength{\textW}{\widthof{\alphabet}* \real{2.8}} % 2.5
+\setlength{\textW}{\widthof{\alphabet}* \real{2.7}} % 2.5
 \geometry{textwidth=\textW,}
 \newcommand{\myref}[2]{\hyperref[#2]{#1~\ref*{#2}}}
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% Some of my favourite personal adjustments
+% Some of my favorite personal adjustments
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
 % These are the adjustments that I consider necessary for typesetting
@@ -59,8 +60,8 @@
 
 \usepackage[%
   colorlinks = true,
-  citecolor  = OliveGreen,
-  linkcolor  = Mahogany,
+  citecolor  = RoyalBlue,
+  linkcolor  = RoyalBlue,
   urlcolor   = RoyalBlue,
   unicode,
   ]{hyperref}
@@ -113,11 +114,11 @@
   % \setmainfont{Minion Pro}
   %  \setmainfont{Baskerville}
     \setmainfont{Palatino}
-    \setsansfont{IBM Plex Sans}
-    \setmonofont{IBM Plex Mono}
+    \setsansfont{Palatino}
+    \setmonofont{Source Code Pro}
 \else
   \usepackage[lf]{ebgaramond}
-  \usepackage[oldstyle,scale=0.7]{sourcecodepro}
+  \usepackage[oldstyle,scale=0.75]{sourcecodepro}
   \singlespacing
 \fi
 
@@ -134,6 +135,11 @@
 \makeindex
 \makeglossaries
 
+\setlength{\parindent}{0pt} % Removes the paragraph indentation
+\setlength{\parskip}{6pt} % Replace 10pt with the desired space
+
+\DeclareMathOperator{\relu}{ReLU}
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Incipit
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -149,24 +155,25 @@
     \include{Sources/Declaration}
     \include{Sources/Acknowledgements}
     \include{Sources/Abstract}
-    \tableofcontents
+    
+    % \tableofcontents
+    {\small\tableofcontents}
     % \listoffigures
     \glsaddall
     \printglossary[type=\acronymtype]
+
     \include{Sources/Introduction}
 
 \mainmatter
-
-    \include{Sources/DL-in-histo}
-    \include{Sources/RationAI}
-    \include{Sources/XAI}
-    \include{Sources/Experiment}
+  \include{Sources/DL-in-histo}
+  \include{Sources/RationAI}
+  \include{Sources/XAI}
+  \include{Sources/Experiment}
 
   \bookmarksetup{startatroot}
 
-
   \include{Sources/Conclusion}
-  % \include{Sources/Appendix}
+  \include{Sources/Appendix}
   \backmatter
   \printindex
   \begingroup

@@ -28,7 +28,7 @@
 
 \section*{GradCAM++ importance weights}\label{sec:grad-cam-plus-plus-weight-derivation}
 
-Without the loss of generality, let us fix layer $K$ with the highest activation $A^k_ij$.
+Without the loss of generality, let us fix layer $K$ with the highest activation $A^k_{ij}$.
 Since we utilize the GMP layer, all partial derivatives in \myref{Equation}{eq:grad-cam-pp-weights} will be zero, except for the one corresponding to the highest activation.
 As a result, we get rid of both sums, and the importance weight becomes 
 \begin{equation}
@@ -39,7 +39,7 @@ Authors already derived the activated score $Y^c = \exp(y^c)$ for us, and given 
 \begin{aligned}
   \frac{\partial Y^c}{\partial A_{ij}^k}       &= \exp(y^c) \frac{\partial y^c}{\partial A_{ij}^k} &= \exp(y^c) w_{ck}     \\
   \frac{\partial^2 Y^c}{\partial (A_{ij}^k)^2} &= \exp(y^c) (\frac{\partial y^c}{\partial A_{ij}^k})^2 &= \exp(y^c) (w_{ck})^2 \\
-  \frac{\partial^3 Y^c}{\partial (A_{ij}^k)^3} &= \exp(y^c) (\frac{\partial y^c}{\partial A_{ij}^k})^3 &= \exp(y^c) (w_{ck})^3
+  \frac{\partial^3 Y^c}{\partial (A_{ij}^k)^3} &= \exp(y^c) (\frac{\partial y^c}{\partial A_{ij}^k})^3 &= \exp(y^c) (w_{ck})^3.
 \end{aligned}
 \end{equation}
 

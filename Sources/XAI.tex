@@ -101,7 +101,7 @@ In recent years, a plethora of both global and local post-hoc explainability met
 For convolutional neural networks, the industry-wide standard is to visually highlight parts of an image, which are considered \emph{important} to the model. The result of such visualization is commonly referred to as a \emph{saliency map}, class activation map, or attribution map. There is no consensus on terminology, and we will use the term saliency map to describe any heatmap that identifies regions considered important by a post-hoc method. 
 
 The following subsections overview several explainability methods we benchmark in \myref{Chapter}{experiment}.
-We deliberately chose methods not covered in previous work by RationAI's team in [gallo, krajnansky, hruska].
+We deliberately chose methods not covered in previous work by RationAI's team in \cite{gallo, krajnansky-grad-cam}.
 Popular methods such as LIME, Deconvolution, or $\epsilon$-LRP  were either computationally too expensive or produced sub-par results, which are not deemed satisfactory \cite{gallo}.
 When choosing methods for this thesis, we focused on the observation of Gallo et al. in \cite{gallo} --- methods, which tend to attribute continuous regions of tiles scored higher in the previous benchmarks.
 Therefore, we focused on methods specifically created for explaining CNNs, leveraging their spatial memory ability.
@@ -126,9 +126,9 @@ Omitting auxiliary saliency map processing, occlusion takes anywhere from $13$ t
 \begin{figure}[!h]
     \begin{center}
     \begin{minipage}{1\textwidth}
-      \includegraphics[width=\textwidth]{img/occ-saliency.png}
+      \includegraphics[width=\textwidth]{img/occlusion.png}
     \end{minipage}
-    \caption{Sample of prostate tissue with occlusion generated saliency. Green areas denote parts important for the model, while red parts signify not pro-cancerous areas. Since saliency maps are generated on a tile level, they are further composed, and overlapping areas are averaged to produce slide-level saliency maps. The sigmoid function is applied to saliency maps before combining, as is reported in \cite{gallo} to positively affect the smoothing and stability of the explanations.}
+    \caption{Sample of prostate tissue with Occlusion generated saliency. Green areas denote parts important for the model, while red parts signify not pro-cancerous areas. Since saliency maps are generated on a tile level, they are further composed, and overlapping areas are averaged to produce slide-level saliency maps. The sigmoid function is applied to saliency maps before combining, as is reported in \cite{gallo} to positively affect the smoothing and stability of the explanations. We do not use produced saliency maps as they are since they tend to be very noisy, as depicted in the left picture. Instead, the saliency map is thresholded to include only the most salient features, as depicted on the right, with a threshold of $55$ percent.}
     \label{fig:occ-saliency}
     \end{center}
 \end{figure}
@@ -145,7 +145,7 @@ Our model features there a pooling layer instead.
 This difference does not affect the results overviewed in the following paragraphs, and we will model them using a convolutional layer as per the original paper. 
 
 Intuitively, CAM is a weighted sum of activation maps of the last convolutional layer.
-To formalize, consider a network with convolutional layer $L$ with $K$ activation maps $A^1, A^2, \cdots, A^K$, followed by a GAP layer and a single fully connected layer.
+To formalize, consider a network with convolutional layer $L$ with $K$ activation maps $A^1, A^2, \ldots, A^K$, followed by a GAP layer and a single fully connected layer.
 In the fully connected layer, we fix neuron denoting class $c$, for which we want to compute a saliency map.
 Recall \myref{Equation}{gap}, and that GAP reduces the value of each activation map $A^k$ to a single value $a^k$ --- the average of the activation map.
 The score of the network for class $c$ is then calculated as
@@ -174,9 +174,9 @@ Unlike CAM, GradCAM \cite{grad-cam} is a model-agnostic method that can explain 
 The idea is that since the convolutional layer holds spatial information about its activations, we can highlight the important ones using partial derivatives of the score $y^c$.
 
 We will use the same setting as for \myref{Equation}{eq:cam}, with $L$ being a fixed convolutional layer of our network with $K$ units whose activation maps are $A^1, A^2, ..., A^K$.
-GradCAM computes importance weight $i_{ck}$ for feature map $A^k$ as the average of partial derivatives of $y^c$ with respect to individual activations of $A^k$ \cite{grad-cam}:
+GradCAM computes importance weight $i_{ck}$ for feature map $A^k$ as the average of partial derivatives of $y^c$ with respect to individual activations of $A^k$ \cite{grad-cam}
 \begin{equation}\label{grad-cam-weights}
-    i_{ck} = \frac{1}{|A^k|} \sum_{i=0}^H \sum_{j=0}^C \frac{\partial y^c}{\partial\ A^k_{ij}}
+    i_{ck} = \frac{1}{|A^k|} \sum_{i=0}^H \sum_{j=0}^C \frac{\partial y^c}{\partial A^k_{ij}}.
 \end{equation}
 
 We substitute $i_{ck}$ for $w_{ck}$ in \myref{Equation}{eq:cam} and compute a weighted combination of activations and their respective importance to obtain a saliency map.
@@ -187,7 +187,7 @@ $\operatorname{ReLU}$ is applied over the weighted activations to get only posit
 Authors of GradCAM took the inspiration for using $\relu$ from Deconvolution and Guided Backpropagation, both post-hoc methods already covered in \cite{gallo}.
 In case the saliency map $S^c_{\text{GradCAM}}$ is smaller than the input grid, we up-sample it as in the case of $S^c_{\text{CAM}}$.
 
-GradCAM has been previously covered in \cite{hruska-grad-cam, krajnansky-grad-cam, bajger-grad-cam}, but as far as we are concerned, this method was not evaluated using a quantitative benchmark similar to one from \cite{gallo}. Moreover, as shown in \cite{bajger-grad-cam}, for our model, GradCAM saliency maps are identical to the ones generated by CAM, up to a constant factor of $\frac{1}{|A^k|}$.
+GradCAM has been previously covered in \cite{hruska-grad-cam, krajnansky-grad-cam, bajger-grad-cam}, but as far as we are concerned, this method was not evaluated using a quantitative benchmark similar to one from \cite{gallo}. Moreover, as shown in \cite{bajger-grad-cam}, for our model, GradCAM saliency maps are identical to the ones generated by CAM, up to a constant factor of ${1}/{|A^k|}$.
 \todo{rewrite this section about previous results}
 
 \subsection{GradCAM++}
@@ -210,28 +210,28 @@ They substitute weights from fully connected layer in \myref{Equation}{eq:gap-sc
 \begin{equation}\label{eq:grad-cam-pp-score}
     Y^c = \sum_{k=1}^K \left( \sum_{i=0}^H \sum_{j=0}^W \alpha^{ck}_{ij} \relu(\frac{\partial Y^c}{\partial A^k_{ij}}) \right) \left( \sum_{a=0}^H \sum_{b=0}^W A^{k}_{ab} \right)
 \end{equation}
-where $Y^c$ is a score $y^c$ put through exponential function. To express a weight $\alpha^{ck}_{ij}$, we need to take a partial derivative w.r.t. $A^k_{ij}$ twice. After that, we can rearrange the terms to obtain
+where $Y^c$ is a score $y^c$ put through the exponential function. To express a weight $\alpha^{ck}_{ij}$, we need to take a partial derivative w.r.t. $A^k_{ij}$ twice. After that, we can rearrange the terms to obtain
 \begin{equation}
     \alpha^{ck}_{ij} = \frac{\frac{\partial^2 Y^c}{(\partial A^k_{ij})^2}}{2\frac{\partial^2 Y^c}{(\partial A^k_{ij})^2} + \sum_{a=0}^H \sum_{b=0}^W A^{k}_{ab} \left( \frac{\partial^3 Y^c}{(\partial A^k_{ij})^3} \right)}.
 \end{equation}
 
-All that is left is to plug this expression into \myref{Equation}{eq:grad-cam-pp-weights}.
+All that is left is to plug this expression back into \myref{Equation}{eq:grad-cam-pp-weights}.
 This gives us the importance weights for activations, and the saliency map $S^c_{\text{GradCAM++}}$ is computed the same way as $S^c_{\text{GradCAM}}$.
 Thanks to the additional coefficient $\alpha^{ck}_{ij}$ for respective partial derivative, authors claim that all spatial coordinates corresponding to instances of class $c$ in the input data will be highlighted with equal importance in the resulting saliency map.
 
 As shown in \myref{Subsection}{subsec:cam}, two different methods can produce the same saliency map.
-We derive the particular values for coefficients $i_{ck}$ to avoid adding another one. The full derivative is presented in \myref{Section}{sec:grad-cam-plus-plus-weight-derivation} and yields
+To avoid adding a third one, we derive the particular values for importance weights $i_{ck}$.
+The full derivative is presented in \myref{Section}{sec:grad-cam-plus-plus-weight-derivation} and yields, for $A^k_{ij}$ being the highest activation in unit $k$.
 \begin{equation}
     i_{ck} = \frac{1}{2 + A^k_{ij}w_{ck}} \relu\bigl(\exp(y^c)w_{ck}\bigr).
 \end{equation}
-\todo{Tato zabava ked sa vynasobi s Aij, tak to odtial vypadne, cize technicky vzate by mali byt vsetky aktivacie rovnake}
 As a result, only activation maps corresponding to positive weights --- therefore, patterns detected as pro-cancerous --- are present in the final saliency map.
 We lack rationale about the term $A^k_{ij} w_{ck}$ in the denominator, as more profound activations will receive a smaller importance weight.
 Nevertheless, we have shown that for our architecture, GradCAM++ produces saliency maps that differ from CAM and GradCAM.
 The extent to which the activation maps will differ is not easy to estimate, and we will include GradCAM++ in evaluation in \myref{Chapter}{experiment}.
 
 
-\subsection{HiResCAM}
+\subsection{HiResCAM}\label{sub:hirescam}
 
 HiResCAM, introduced in \cite{hires-cam}, is another gradient-based model-agnostic method that builds upon GradCAM's success.
 The first step is the same as for GradCAM++ --- we need to compute partial derivatives of $y^c$ with respect to activation map $A^k$.
@@ -248,17 +248,17 @@ This way, individual activations are scaled according to their partial derivativ
 
 In addition to the method, the authors present proof of HiResCAM's capabilities.
 The proof demonstrates that for convolutional networks ending in one fully connected layer $L$, HiResCAM guarantees to visually highlight all parts of the input image that increase class score $y^c$, given we compute the saliency map for the convolutional layer preceding $L$ \cite{hires-cam}.
-Unfortunately, the proof cannot be extended for our model introduced in \myref{Section}{model}.
+Unfortunately, the proof does not cover our model introduced in \myref{Section}{model}.
 While the model ends in one fully connected layer, it is separated from the last convolutional layer by an intermediate global max pooling operation, which reduces each feature map to a single value.
-This breaks down the assumption that we can extract spatial information from the feature maps since such information will be destroyed in the GMP operation. 
+This breaks down the proof's assumption that we can extract spatial information from the feature maps in the FC layer, since such information will be destroyed in the GMP operation. 
 
-The authors also show that given a model with CAM architecture employing GAP, HiResCAM saliency collapses to produce results identical to the CAM method.
+The authors also show that given a model with CAM architecture employing GAP, saliency maps generated by HiResCAM collapse maps of the CAM method.
 This does not hold for models using the GMP layer.
 For our model, the partial derivative of $y^c$ with respect to $A^k_{ij}$ will be $w_{ck}$ iff $A^k_{ij}$ is the largest activation in $A^k$, and zero otherwise.
 \todo{Elaborate on this one}
 Therefore, the resulting activation map reflects only the most significant activation from each unit.
 This differs from saliency maps produced by CAM and GradCAM++, which do not discriminate against individual activations that do not contribute to the model's output but are evidence for a detected pattern.
-We believe that HiResCAM could better resemble how the Occlusion method produces the saliency maps since occluding features, albeit detected but not contributing to the output score, should not result in a high saliency for the given region.
+We believe that HiResCAM could better resemble how the Occlusion method produces the saliency maps since occluding features, albeit detected but not contributing to the output score because of GMP, should not produce a high saliency for the given region.
 
 \subsection{ScoreCAM}
 
@@ -273,11 +273,11 @@ where $\operatorname{upscale}$ is a function that resizes activation map $A^k$ t
 We get a score indicating how much network confidence changes if we only supply areas of the image where filter $F^k$ found a pattern it is trained to detect.
 We calculate the final saliency map using the respective increase in confidence as our weight for convolutional layer activation maps, yielding
 \begin{equation}
-    (S^c_{\text{ScoreCAM}})_{ij} = \relu\biggl(\sum_k c^k A^k_{ij}\biggr).
+    (S^c_{\text{ScoreCAM}})_{ij} = \relu\biggl(\sum_{k=1}^K c^k A^k_{ij}\biggr).
 \end{equation}
 
-As a result, we eliminate the dependency on partial derivatives.
-According to the conducted experiments in \cite{score-cam}, ScoreCAM can locate multiple objects within the same activation map, something considered harder to achieve due to our utilization of the GMP layer.
+%As a result, we eliminate the dependency on partial derivatives.
+%According to the conducted experiments in \cite{score-cam}, ScoreCAM can locate multiple objects within the same activation map, something considered harder to achieve due to our utilization of the GMP layer.
 % Authors mention that saliency maps computed by ScoreCAM are more "focused" than the ones computed by GradCAM++.
 % While having focused saliency maps is a desired property, comparing results visually and drawing conclusions is considered anecdotal evidence, and proper quantitative assessment must be done [].
 
@@ -287,13 +287,13 @@ Another gradient-free method, AblationCAM, introduced in \cite{ablation-cam}, ut
 AblationCAM computes how an individual activation map $A^k$ contributes to the final score $y^c$ by "removing" it from the score computation and observing a drop in models' confidence.
 The influence of the removal of feature map $A^k$ to the final score is defined as
 \begin{equation}\label{eq:ablation-cam-importance-weight}
-    i^c_k = \frac{y^c - y^c_k}{y^c}
+    d_{ck} = \frac{y^c - y^c_k}{y^c}
 \end{equation}
 where $y^c_k$ represents an output of the model, for which the activation $A^k$ is zeroed out.
 
 Similar to Occlusion and input features, if we remove activations important to the network when assessing the presence of class $c$, the score $y^c$ should drop. To obtain the final saliency map, we compute the ablation weights for the layer of interest, yielding the following equation
 \begin{equation}
-    S^c_{\text{AblationCAM}} = \relu(\sum_k i^c_k A_k).
+    (S^c_{\text{AblationCAM}})_{ij} = \relu(\sum_{k=1}^K d_{ck} A^k_{ij}).
 \end{equation}
 
 \subsection{Layer-Wise Relevance Propagation}
@@ -320,10 +320,11 @@ Parameters $y_j$ and $w_{ji}$ stand for neurons output and weight, respectively,
 \todo{are those really parameters?}
 
 According to the observation of Montavon et al. in \cite{lrp}, using solely LRP-$0$ leads to very noisy explanations.
-To tackle the noise, we add a small positive term $\epsilon$ to the denominator -- $\epsilon$ will absorb weak and contradictory contributions, preserving only the salient scores. 
+To tackle the noise, we add a small positive term $\epsilon$ to the denominator --- $\epsilon$ will absorb weak and contradictory contributions, preserving only the salient scores. 
 As a result, we typically get less noisy explanations.
-Gallo et al. used $\epsilon$ rule exclusively in \cite{gallo}.
-However, such explanations were still deemed scattered and noisy. To further enhance produced explanations, a $\gamma$ rule is used to favor positive contributions by using a coefficient applied only to the positive weights:
+Gallo et al. used LRP-$\epsilon$ rule exclusively in \cite{gallo}.
+However, such explanations were still deemed scattered and noisy.
+To further enhance produced explanations, we can use LRP-$\gamma$ rule to favor positive contributions by using a coefficient applied only to the positive weights:
 \begin{equation}
     z_{ji} = {a_j \cdot (w_{ji} \cdot \gamma w_{ji}^+)}.
 \end{equation}

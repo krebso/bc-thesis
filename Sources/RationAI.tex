@@ -39,12 +39,12 @@ In 2016, WHO refined the grading into so-called \emph{grade groups} \cite{who-gr
 \end{figure}
 
 \section{Dataset}\label{sec:dataset}
-
+\todo{level + priblizeni}
 Masaryk Memorial Cancer Institute provided the RationAI group with a pseudonymized hematoxylin/eosin-stained WSIs dataset.
 Each WSI contains $3$ to $5$ biopsies and is stored as a MIRAX uncompressed PNG of size $105,185 \times 221,772$ pixels.
 The dataset is stratified into training and test split, containing $264$ WSIs with cancer, $436$ without, $37$ WSIs with cancer, and $50$ without, respectively \cite{gallo}.
 \myref{Table}{tab:who_grade_distribution} shows the WHO grade group distribution.
-
+\todo{case vs. slide}
 \begin{table}
 \centering
 \ra{1.2}
@@ -86,9 +86,9 @@ A model trained by RationAI to perform cancer detection in tiled WSIs is a modif
 Loosely paraphrasing \cite{gallo}, the model aims to solve the following problem: \emph{Classify tiles according to the presence/absence of cancer in their central square area of $256 \times 256 $ pixels. Presence is determined by whether the central square overlaps with the annotation from the domain expert}. The model achieves a notably good score on the test split, reaching $100$\% slide-level prediction accuracy --- meaning the model correctly determines whether a WSI contains cancer for each of the test WSIs.
 
 However, blindly trusting the model in such a high-stake environment, as cancer detection undoubtedly is, based on accuracy, is not enough.
-To verify that the model bases its decisions on relevant features, \Citeauthor*{gallo} Gallo et at.\todo{fix smaller font} conducted an additional experiment, presenting annotated xPOI Dataset from \myref{Section}{xpoi-dataset} to a domain expert.
+To verify that the model bases its decisions on relevant features, Gallo et at.\todo{fix smaller font} conducted an additional experiment, presenting a subset of the dataset from \myref{Section}{sec:dataset} including regions of models' interest to a domain expert.
 Using the technique described in the \myref{Subsection}{occlusion}, Gallo et al. annotated those data to display models' areas of interest.
-The domain expert concluded that the model focuses on critical morphological features \cite{gallo}.
+The domain expert concluded that the model focuses on critical morphological features \cite{gallo} on which human pathologists would base their decisions.
 
 \begin{figure}
     \begin{center}

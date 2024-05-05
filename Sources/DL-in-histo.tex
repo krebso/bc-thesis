@@ -153,7 +153,7 @@ Convolution is a linear operation that chains the element-wise product of the fi
 \begin{equation}
     (F * I)_{ij} = b + \sum_{x=0}^{W} \sum_{y=0}^{H} \sum_{z=0}^{C} F_{xyz} \cdot I_{(i+x)(j+y)z}
 \end{equation}
-where $W$, $H$ are width and height of $F$ and $C$ is number of input channels. The bias term $b$ is used similarly as in the case of fully connected layers. Operation of convolution is visually depicted in \myref{Figure}{fig:cnn-convolution}.
+where $W$, $H$ are width and height of $F$ and $C$ is number of input channels. The bias term $b$ is used similarly as in the case of fully connected layers.
 
 The resulting activation map can be seen as a map of evidence for the presence of a shape detected by the filter in the input data.
 Sliding the filter through features gives us spatial invariance --- no matter where the learned pattern resides in the input, it will be detected and reflected in the respective activation map, something very hard to achieve using a fully connected layer.
@@ -164,18 +164,16 @@ The shape determines the receptive field's size -- how many input features the f
 In addition, we usually set two other parameters: \emph{padding} and \emph{stride}.
 Padding is a value we add as a border around the input features, allowing the filter to cover the edges and thus reducing information loss.
 Stride controls how much we shift the filter after each convolution \cite{cnns}.
-See \myref{Figure}{fig:cnn-convolution} for a visual representation of these concepts.
 
-
-\begin{figure}
-    \begin{center}
-    \begin{minipage}{0.75\textwidth}
-      \includegraphics[width=\textwidth]{img/cnn-conv.png}
-    \end{minipage}
-    \caption{Example of simple calculation within convolution layer. The filter detects a diagonal edge of 3 pixels in length. Stride and padding are set to $1$ pixel, and zero is used as the padded value. We omit the bias term from the calculation. The result is passed through the ReLU activation function.}
-    \label{fig:cnn-convolution}
-    \end{center}
-\end{figure}
+% \begin{figure}
+%     \begin{center}
+%     \begin{minipage}{0.75\textwidth}
+%       \includegraphics[width=\textwidth]{img/cnn-conv.png}
+%     \end{minipage}
+%     \caption{Example of simple calculation within convolution layer. The filter detects a diagonal edge of 3 pixels in length. Stride and padding are set to $1$ pixel, and zero is used as the padded value. We omit the bias term from the calculation. The result is passed through the ReLU activation function.}
+%     \label{fig:cnn-convolution}
+%     \end{center}
+% \end{figure}
 
 A convolutional layer consists of multiple units.
 Each unit has its filter and produces a unique activation map.
@@ -193,20 +191,20 @@ They progressively reduce the size of the input features, leading to a smaller n
 A pooling layer is typically placed after a convolutional one, iterating its activation maps and systematically applying a specific operation over its receptive field.
 We differentiate between two primary types of pooling: \emph{max} and \emph{average}.
 As their names imply, max pooling selects the maximum value within its receptive field, while average pooling computes the mean of the values.
-The pooling layer has its shape and stride.
-However, the dimensions are chosen more conservatively.
-A common choice is a $2 \times 2$ filter and stride of $2$, ensuring the pooled sectors do not overlap.
-According to the observations in \cite{cnns}, having a filter of size greater than $3 \times 3$ will most likely lead to a loss of the model's performance --- since such granularity may hide too many of the features detected by the network.
-
-\begin{figure}
-    \begin{center}
-    \begin{minipage}{0.5\textwidth}
-      \includegraphics[width=\textwidth]{img/cnn-pool.png}
-    \end{minipage}
-    \caption{Example of both max and average pooling layers. Both have filters of size $2x2$ and stride set to $2$, resulting in no overlap during computation. Notice that since each $2x2$ region is mapped to a single value, the new activation mask has a quarter of the features of the original.}
-    \label{fig:cnn-pooling}
-    \end{center}
-\end{figure}
+% The pooling layer has its shape and stride.
+% However, the dimensions are chosen more conservatively.
+% A common choice is a $2 \times 2$ filter and stride of $2$, ensuring the pooled sectors do not overlap.
+% According to the observations in \cite{cnns}, having a filter of size greater than $3 \times 3$ will most likely lead to a loss of the model's performance --- since such granularity may hide too many of the features detected by the network.
+% 
+% \begin{figure}
+%     \begin{center}
+%     \begin{minipage}{0.5\textwidth}
+%       \includegraphics[width=\textwidth]{img/cnn-pool.png}
+%     \end{minipage}
+%     \caption{Example of both max and average pooling layers. Both have filters of size $2x2$ and stride set to $2$, resulting in no overlap during computation. Notice that since each $2x2$ region is mapped to a single value, the new activation mask has a quarter of the features of the original.}
+%     \label{fig:cnn-pooling}
+%     \end{center}
+% \end{figure}
 
 \subsubsection{Global Pooling Layer}
 
@@ -224,5 +222,5 @@ Throughout this thesis, we will denote globally pooled activation map $A^k$ as $
 \end{equation}
 and for the global max pooling, the \myref{Equation}{gap} changes to simply
 \begin{equation}
-    a^k = \max(A^k).
+    a^k = \max_{i,j} A^k_{ij}.
 \end{equation}

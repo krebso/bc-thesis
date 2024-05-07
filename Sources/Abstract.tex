@@ -1,11 +1,12 @@
 \chapter*{Abstract}
 
-We aim to solve the problem of generating saliency maps to help understand the neural network predictions in a reasonable time.
-We overview several popular explainability methods producing visually similar results to the current, notably slow solution.
-We carefully establish exhaustive quantitative and qualitative benchmarks to verify the suitability of our candidate methods.
-Our presented methods achieve $2$ orders of magnitude faster computation time and $50$ times better GPU utilization without sacrificing faithfulness or localization capabilities.
+Our objective is to generate explanations to help understand prostate cancer presence predictions in a reasonable time.
+We examine several popular explainability methods producing visually similar results to the current, notably slow solution based on Occlusion.
+To ensure the suitability of our candidate methods, we carefully establish exhaustive quantitative and qualitative benchmarks.
+Our examined methods achieve $2$ orders of magnitude faster computation time and $50$ times better GPU utilization without sacrificing faithfulness or localization capabilities.
 Moreover, a domain expert deems two methods viable alternatives.
-Those methods allow us to generate the needed explanations for the utilized dataset in approximately $9$ hours, compared to the $3.3$ days needed using the current solution.
+With all auxiliary pipeline processing, methods selected as suitable allow us to generate explanations for the utilized dataset in approximately $9$ hours, compared to the $3.3$ days needed using Occlusion.
+\todo{once I have prop imple, this can be even faster}
 
 \section*{Keywords}
-Digital Histopathology, Deep Learning, Explainable Artificial Intelligence, Occlusion, CAM, HiResCAM, Performance, Faithfulness, Localization
+digital histopathology, convolutional neural networks, explainable artificial intelligence, occlusion, CAM, HiResCAM, performance, faithfulness, localization

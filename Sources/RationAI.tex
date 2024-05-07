@@ -26,7 +26,7 @@ It categorizes the growth of cancer cells into distinctive patterns based on how
 Several patterns and their descriptions have been refined later; today, we differ between 9 patterns. Complete enumeration and description of patterns can be found in \cite{gleason-patterns}.
 
 To calculate a Gleason score, the histopathologist determines the predominant and second most common Gleason pattern -- the final score is simply a sum of pattern category numbers. The International Society of Urological Pathology distinguishes between $5$ grades of prostate cancer. More on scoring and grading innuendos can be found in \cite{gleason-pattern-grading}.
-In 2016, WHO refined the grading into so-called \emph{grade groups} \cite{who-grade-groups}.
+In 2016, the World Health Organization refined the grading into so-called \emph{grade groups} \cite{who-grade-groups}.
 
 \begin{figure}
     \begin{center}
@@ -48,7 +48,7 @@ The dataset is stratified into training and test split, containing $264$ WSIs wi
 \begin{table}
 \centering
 \ra{1.2}
-\begin{tabular}{@{} l l l @{}}\toprule
+\begin{tabular}{@{} l r r @{}}\toprule
 WHO Grade Distribution & Training split & Test split \\ 
 \midrule
 Grade 1         & 38 cases            & 5 cases      \\
@@ -72,11 +72,6 @@ Such tiling is a well-established approach used industry-wide, as per [].
 WSIs contain several biopsies with blank spaces in between them.
 To chisel out only relevant parts of WSI, any tile with less than $50$\% of its area covered by tissue is discarded from training and testing dataset splits.
 Consequently, while all WSIs have the same size, their usable tile count differs.
-
-\subsection*{xPOI Dataset}\label{xpoi-dataset}
-
-The WSI dataset is vast, and to verify that models trained by the RationAI group focus on the important morphological features, \cite{gallo} sampled a small subset of this dataset to present to a domain expert upon model's evaluation.
-This dataset consists of $461$ tiles.\todo{check actual count and write something in there}.
 
 \section{Model}\label{model}
 

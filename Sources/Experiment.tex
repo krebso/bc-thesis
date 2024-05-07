@@ -1,17 +1,19 @@
 \chapter{Suitability Benchmark}\label{experiment}
 
-This chapter consists of four sections. First, we try to outline what a good explanation should fulfill. Then, we tackle the current problem of high computational resource utilization of the current solution. In the third section, we construct a quantitative benchmark, choosing suitable metrics alongside brief reasoning and evidence behind our choice. In the last section, we conduct a subjective evaluation by a domain expert using a previously established approach.
+This chapter consists of four sections. First, we try to outline what a good explanation should fulfill. Then, we tackle the current problem of high computational resource utilization of the current solution. In the third section, we construct a quantitative benchmark, choosing suitable metrics alongside brief reasoning and evidence behind our choice. In the last section, we conduct a subjective evaluation by a domain expert.
 
-We will use implementation from popular XAI-oriented machine learning libraries, \texttt{captum} (Occlusion, Composite-LRP), \texttt{torch-cam} (CAM) and \texttt{pytorch-grad-cam} (HiResCAM, GradCAM++, ScoreCAM, AblationCAM). All three libraries are publicly available on \texttt{github} and provide convenient interfaces, which we can easily unify in our pipeline.
+We will use implementations from XAI-oriented machine learning libraries, \texttt{captum} (Occlusion, Composite-LRP), \texttt{torch-cam} (CAM) and \texttt{pytorch-grad-cam} (HiResCAM, GradCAM++, ScoreCAM, AblationCAM). All three libraries are publicly available on \texttt{github} and provide convenient interfaces, which we can easily unify in our pipeline.
 
 CAM-based methods can compute saliency maps for arbitrary convolutional pooling layers in our network.
 Given the notion of hierarchical learning of representation across the network, attributing the lower layers does not make sense.
 While using lower layers 
+\todo{finish}
 
 \section{What makes a good explanation?}
 
-\emph{``Unfortunately, `explainability' is a nebulous and elusive concept that is hard to target.''} \cite{explainability-hard}
-\newline
+\begin{quote}
+    {\small``Unfortunately, `explainability' is a nebulous and elusive concept that is hard to target.'' \cite{explainability-hard}}
+\end{quote}
 
 Contemporary research does not provide a unified approach to define the "goodness" of an explanation.
 There are attempts to propose a set of properties a good explainability method should fulfill, but they are not aligned \cite{xai-functionality-grounded, explainability-hard, xai-meta-survey, xai-zhou-survey}.
@@ -57,15 +59,15 @@ To tackle this problem from both perspectives --- we first measure the time requ
 \centering
 \ra{1.2}
 \begin{tabular}{@{} l r r r @{}}\toprule
-Method & Avg. time per tile (s) & Time for slide (s) & Expected largest slide time (m) \\ 
+Method & Avg. time per tile (s) & Time for slide (m) & Expected largest slide time (m) \\ 
 \midrule
-CAM           & $0.04 \pm 0.04$ & $59.45$    & $2.73$ \\
-GradCAM++     & $0.08 \pm 0.00$ & $131.88$   & $6.05$ \\
-HiResCAM      & $0.08 \pm 0.00$ & $131.95$   & $6.06$ \\
-Composite-LRP & $0.11 \pm 0.00$ & $178.829$  & $8.21$ \\
-\textbf{Occlusion}     & $1.06 \pm 0.00$ & $1612.70$  & $74.07$ \\
-AblationCAM   & $9.72 \pm 0.00$ & $14583.50$ & $669.82$ \\
-ScoreCAM      & $9.76 \pm 0.00$ & $14629.98$ & $671.96$ \\
+CAM           & $0.04 \pm 0.04$ & $0.99$    & $2.73$ \\
+GradCAM++     & $0.08 \pm 0.00$ & $2.19$   & $6.05$ \\
+HiResCAM      & $0.08 \pm 0.00$ & $2.20$   & $6.06$ \\
+Composite-LRP & $0.11 \pm 0.00$ & $2.98$  & $8.21$ \\
+\textbf{Occlusion}     & $1.06 \pm 0.00$ & $26.87$  & $74.07$ \\
+AblationCAM   & $9.72 \pm 0.00$ & $243.06$ & $669.82$ \\
+ScoreCAM      & $9.76 \pm 0.00$ & $243.83$ & $671.96$ \\
 \bottomrule
 \end{tabular}
 \caption{
@@ -118,12 +120,12 @@ Moreover, all methods but Occlusion can be sufficiently run on the smallest GPU 
 \begin{tabular}{@{} l r r @{}}\toprule
 Method & Absolute GPU utilization (MB) & Relative Overhead (MB) \\ 
 \midrule
-Vanilla run             & $910$      & -       \\
-CAM                     & $1084$     & $174$   \\
-GradCAM++               & $1578$     & $668$   \\
-HiResCAM                & $1578$     & $668$   \\
-Composite-LRP           & $2476$     & $1566$  \\
-\textbf{Occlusion}      & $36308$    & $35398$ \\
+Baseline run       & $910$      & -       \\
+CAM                & $1084$     & $174$   \\
+GradCAM++          & $1,578$     & $668$   \\
+HiResCAM           & $1,578$     & $668$   \\
+Composite-LRP      & $2,476$     & $1,566$  \\
+\textbf{Occlusion} & $36,308$    & $35,398$ \\
 \bottomrule
 \end{tabular}
 \caption{
@@ -157,6 +159,7 @@ Although ROAR has gained in popularity, it has the significant downside of being
 As further shown by Rong et al. in \cite{road}, ROAR does not solve the problem of the so-called \emph{class information leakage} --- phenomenon when the uniformly-valued removed region reveals relevant class info through its shape.
 Rong et al. propose a method built on the foundations of ROAR, called Remove and Debias (ROAD).
 Instead of retraining the model, areas after removed features are specifically imputed to reduce the risk of class information leakage \cite{road}. Refer to the original paper for mathematical intrications of information theory behind the imputation.
+\todo{mention the false hope}
 
 To evaluate the performance of our methods, ROAD iteratively removes features from the most relevant to the least (MoRF order).
 After each removal, missing features are imputed using a noisy-linear imputer to reduce class information leakage \cite{road}.
@@ -172,7 +175,7 @@ Since our methods tend to cover larger areas of input tiles, imputing $85$ of th
 Moreover, in the production setting, the Occlusion saliency maps are thresholded to display anywhere from $55$ to $75$ of the most salient pixels.
 As this thesis aims to compare the given methods against the baseline generated by Occlusion, with all these factors in mind, we decided not to extend the perturbation beyond the $50$ percent of the most salient pixels.
 
-It is desired that the model's score should drop significantly as we start removing the features, and the rate slows down as we approach the higher percentages, signaling that the important parts were indeed removed in the beginning.
+It is desired that the model's score should drop significantly as we start removing the features, and the rate slows down as we approach the higher percentages, signaling that the important parts were indeed removed in the beginning \cite{road}.
 We evaluated our model using the \texttt{pytorch-grad-cam} package that provides the \texttt{NoisyLinearImputer} class.
 This class is designed to handle the imputation of missing values in the same manner as the original implementation from the ROAD paper.
 We did not use the original implementation from \cite{road}, as the interface did not fit into our data-processing pipeline.
@@ -322,16 +325,26 @@ CAM has comparable quantitative results to GradCAM++ while being faster.
 Unlike GradCAM++, saliency maps from CAM also contain negative regions, pointing to locations the model perceives as against cancer --- same as Occlusion.
 HiResCAM scored notably well when quantitatively comparing marked salient regions to the Occlusion ones.
 In this setting, the target audience is an experienced pathologist, MUDr. Rudolf Nenutil, CSc.
-He has a long track record of working with the national group, and his expertise was used for evaluation in \cite{gallo}.
+He has a long track record of working with the RationAI group, and his expertise was used for evaluation in \cite{gallo}.
 To subjectively assess the usefulness of the saliency maps, we give him the following assignment:
 
-\emph{
-In the attached URI, you will find a report with all test slides and saliency maps generated by our candidate methods.
-Open them in the WSI browser and subjectively assess whether they could be used instead of the Occlusion saliency maps.
-As for Occlusion, try to find a suitable threshold such that the saliency points to the relevant morphological features.
-Assess whether those methods point to features and patterns you understand.
-Saliency maps of CAM contain green and red regions, with the same meaning as in the case of Occlusion --- green areas denote pro-cancerous features, while red areas denote non-cancerous tissue.
-Saliency maps for HiresCAM are in yellow, depicting only the pro-cancerous areas.
-Please document your findings, noting where the saliency maps align well or poorly with your understanding of the tissue morphology.
-}
+\begin{doublebar}
+\begin{quote}
+In the attached URI, you will find a report with 87 test slides and saliency maps generated by two explainability methods:
+\begin{itemize}
+    \item Saliency maps of CAM contain green and red regions, with the same meaning as in the case of Occlusion --- green areas denote pro-cancerous features, while red areas denote non-cancerous tissue.
+    \item Saliency maps for HiresCAM are in yellow, depicting only the pro-cancerous areas.
+\end{itemize}
+Please determine whether CAM or HiresCAM saliency maps are a viable replacement for Occlusion:
+\begin{enumerate}
+    \item Open them in the WSI browser and subjectively assess whether they could be used instead of the Occlusion saliency maps.
+    \item As for Occlusion, find a suitable threshold such that the saliency points to the relevant morphological features.
+    \item Assess whether those methods point to features and patterns you understand.
+    \item Document your findings, noting slides where the saliency maps align well or poorly with your understanding of the tissue morphology.
+\end{enumerate}
+We do not expect you to go through all slides --- please do it to the extent that allows you to draw a confident conclusion about the suitability of candidate methods.
+\end{quote}
+\end{doublebar}
+We deliberately did not display the Occlusion maps to avoid biasing the domain expert.
+This section aims to assess how well the candidate maps represent known morphological patterns --- we already compared the similarity quantitatively.
 

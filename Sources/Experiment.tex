@@ -4,21 +4,24 @@ This chapter consists of four sections. First, we try to outline what a good exp
 
 We will use implementations from XAI-oriented machine learning libraries, \texttt{captum} (Occlusion, Composite-LRP), \texttt{torch-cam} (CAM) and \texttt{pytorch-grad-cam} (HiResCAM, GradCAM++, ScoreCAM, AblationCAM). All three libraries are publicly available on \texttt{github} and provide convenient interfaces, which we can easily unify in our pipeline.
 
-CAM-based methods can compute saliency maps for arbitrary convolutional pooling layers in our network.
-Given the notion of hierarchical learning of representation across the network, attributing the lower layers does not make sense.
-While using lower layers 
-\todo{finish}
+CAM-based methods can compute saliency maps for arbitrary convolutional or pooling layers in our network.
+Given the notion of hierarchical representation with increasing complexity towards deeper layers, attributing the lower layers does not make sense when trying to find concepts recognized by a domain expert.
+Instead, we examine the last convolutional and pooling layers.
+We decided to use the pooling layer based on the results from \myref{Appendix}{sec:conv-vs-pool}.
+
+For Composite-LRP, the configurations are countless. We based our setup on \myref{Figure}{fig:lrp-montavon}, but decided to replace the LRP-$\gamma$ rule for LRP-$\alpha\beta$ rule from \cite{lrp-alpha-beta}, which produced visually sharper results.
+Nevertheless, despite our efforts, the resulting saliency maps are still notably scattered, and we decided not to spend too much time exploring different options since we believe the method will not outperform Occlusion.
 
 \section{What makes a good explanation?}
 
 \begin{quote}
-    {\small``Unfortunately, `explainability' is a nebulous and elusive concept that is hard to target.'' \cite{explainability-hard}}
+    \emph{``Unfortunately, `explainability' is a nebulous and elusive concept that is hard to target.''} \cite{explainability-hard}
 \end{quote}
 
 Contemporary research does not provide a unified approach to define the "goodness" of an explanation.
 There are attempts to propose a set of properties a good explainability method should fulfill, but they are not aligned \cite{xai-functionality-grounded, explainability-hard, xai-meta-survey, xai-zhou-survey}.
 Moreover, some studies present contradictory results, rendering objective conclusions even more challenging \cite{xai-zhou-survey}.
-According to Doshi-Velez in \cite{xai-doshi}, "the field is crowded with evaluation methods, and there is no consensus on which are the “right” ones. 
+According to Doshi-Velez and Kim in \cite{xai-doshi}, "the field is crowded with evaluation methods, and there is no consensus on which are the “right” ones. 
 Much less, there is not even agreement on which criteria should be evaluated.".
 The challenge lies in the absence of ground truth for produced explanations, and therefore, we have no objective measure of grading the explanations \cite{xai-zhou-survey}.
 However, by carefully choosing metrics, we can avoid so-called "anecdotal evidence" and argue that certain explainability methods are sufficient given the audience and use case \cite{xai-anecdotal-evidence}.
@@ -31,10 +34,11 @@ We believe that for an explanation to be applicable to our use-case of generatin
 
 \section{Computational performance}
 
-For the method to actively assist pathologists, the explanations must be computed fast enough not to disrupt his workflow.
+For an explainability method to actively assist pathologists, the explanations must be computed fast enough not to disrupt his workflow.
 The main problem of the existing approach using Occlusion-based saliency is to generate explanations for an entire slide in a reasonable time.
 The current solution employs \texttt{python} implementation from the \texttt{captum} package.
-The problem with Occlusion is two-fold; either we perform one forward pass with the occluded tile at a time, needing XXX synchronous forward passes, or we batch several occluded tiles together, drastically raising GPU memory costs.
+The problem with Occlusion is two-fold; we perform one forward pass with the occluded tile at a time, needing $289$ synchronous forward passes, or we batch several occluded tiles together, drastically raising GPU memory costs.
+In either case, it is too slow to be used in real-time.
 To tackle this problem from both perspectives --- we first measure the time required to produce a single explanation and then observe how much GPU memory it needs.
 
 \subsection*{Time efficiency}
@@ -81,7 +85,6 @@ The third column represents the estimated time to explain the largest slide from
 }
 \label{tab:comp-time}
 \end{table}
-\todo{minutes}
 
 \myref{Table}{tab:comp-time} shows the superiority of CAM methods, which require a single forward pass to compute the saliency maps.
 Expectedly, ScoreCAM scored the worst.
@@ -135,7 +138,7 @@ GPU utilization of overviewed XAI methods. We use mode instead of mean, as we ob
 \end{table}
 
 
-\section{Quantitative evaluation}
+\section{Quantitative evaluation}\label{sec:quant}
 
 This section covers several entrenched metrics that capture our desired traits of explainability methods.
 We build on the work of \cite{gallo} by incorporating state-of-the-art metrics that address the limitations of previous approaches.
@@ -155,11 +158,9 @@ Employed metrics (Causal Deletion \cite{xai-causal-deletion} and Area Over Pertu
 
 Hooker et al. \cite{roar} introduced an alternative metric known as Remove and Retrain (ROAR), which involves removing (zeroing out) the identified important features and then retraining the model with the modified dataset --- removing the distribution shift.
 Although ROAR has gained in popularity, it has the significant downside of being computationally intensive, rendering it unacceptable for our use case.
-\todo{maybe say it is shit cause we do not know to what extent the performance deterioration is thanks to bad training and removed data}
 As further shown by Rong et al. in \cite{road}, ROAR does not solve the problem of the so-called \emph{class information leakage} --- phenomenon when the uniformly-valued removed region reveals relevant class info through its shape.
 Rong et al. propose a method built on the foundations of ROAR, called Remove and Debias (ROAD).
 Instead of retraining the model, areas after removed features are specifically imputed to reduce the risk of class information leakage \cite{road}. Refer to the original paper for mathematical intrications of information theory behind the imputation.
-\todo{mention the false hope}
 
 To evaluate the performance of our methods, ROAD iteratively removes features from the most relevant to the least (MoRF order).
 After each removal, missing features are imputed using a noisy-linear imputer to reduce class information leakage \cite{road}.
@@ -171,8 +172,9 @@ The function $\operatorname{perturb}_p$ takes the input image $x$, saliency map 
 
 As in one of the experiments in the original paper, we evaluate the methods at $10, 20, 30, 40$, and $50$ percent of the most salient pixels perturbed.
 While other experiments in \cite{road} feature imputation up to $85$ percent, it is computationally not feasible in our setting.
-Since our methods tend to cover larger areas of input tiles, imputing $85$ of the most salient pixels takes around \todo{add the final time}.
-Moreover, in the production setting, the Occlusion saliency maps are thresholded to display anywhere from $55$ to $75$ of the most salient pixels.
+Computing the scores for our $5$ percentages takes up to $4.5$ days for a single method.
+Since our methods tend to cover larger areas of input tiles, imputing $85$ of the most salient pixels takes around $11$ seconds for a single tile, prolonging the computation time by more than $3$ days for a single method.
+Moreover, in the production setting, the Occlusion saliency maps are thresholded to display anywhere from $55$ to $75$ of the most salient pixels, corresponding to the covered range of $25$ to $45$ most salient pixels imputed.
 As this thesis aims to compare the given methods against the baseline generated by Occlusion, with all these factors in mind, we decided not to extend the perturbation beyond the $50$ percent of the most salient pixels.
 
 It is desired that the model's score should drop significantly as we start removing the features, and the rate slows down as we approach the higher percentages, signaling that the important parts were indeed removed in the beginning \cite{road}.
@@ -180,26 +182,23 @@ We evaluated our model using the \texttt{pytorch-grad-cam} package that provides
 This class is designed to handle the imputation of missing values in the same manner as the original implementation from the ROAD paper.
 We did not use the original implementation from \cite{road}, as the interface did not fit into our data-processing pipeline.
 \myref{Figure}{fig:road-impute} shows how the \texttt{NoisyLinearImputer} imputes removed areas.
-Since this method relies on sensitivity, we will only use positive tiles from the test split of the dataset from \myref{Section}{sec:dataset}.
+Since this method relies on sensitivity, we will only use the $24858$ positive tiles from the test split of the dataset from \myref{Section}{sec:dataset}.
 To see the curve of the drop in the model's confidence, refer to \myref{Figure}{fig:road-curve}.
 A boxplot portraying the distribution of our results is presented in \myref{Figure}{fig:road-boxplot}.
 
 Our findings are consistent with the study conducted by Gallo et al. \cite{gallo} --- the faithfulness metric we utilized tends to prefer techniques that identify broader, continuous regions within the input tile.
 As shown in \myref{Figure}{fig:road-impute}, the tile imputed based on the explanation generated by Occlusion looks visually more distressed than the tile imputed according to the more scattered Composite-LRP method.
-This  HiResCAM, which scored worst out of all CAM-based methods since it is the most conservative regarding how much of a tile-produced saliency map covers.
-\todo{obrazok alebo to lepsie vysvetlit}
 According to \myref{Figure}{fig:road-boxplot}, CAM-based methods produce more consistent results than Occlusion-based saliency.
-Similar to $\varepsilon$-LRP in \cite{gallo}, Composite-LRP performs worse than Occlusion, rendering our effort to assign different relevance rules to produce more coherent saliency maps according to \cite{lrp} unsuccessful.
+Similar to $\varepsilon$-LRP in \cite{gallo}, Composite-LRP performs worse than Occlusion, rendering our effort to assign different relevance rules to produce more coherent saliency maps according to \cite{lrp, lrp-alpha-beta} unsuccessful.
 An interesting observation is that upon perturbation based on saliency maps produced by Occlusion and CAM, the models' confidence does not increase, which is not the case for the rest of the methods.
-We also posit that despite the authors of GradCAM++ and HiResCAM \cite{grad-cam, hires-cam} advertising their methods as more faithful than CAM/GradCAM, our results suggest otherwise.
+We also posit that despite the authors of GradCAM++ and HiResCAM \cite{grad-cam, hires-cam} advertising their methods as more faithful than CAM/GradCAM, our results suggest otherwise for our model and domain.
 
-\todo{legendu k ciaram}
 \begin{figure}
     \begin{center}
     \begin{minipage}{0.7\textwidth}
       \includegraphics[width=\textwidth]{img/road-curve.png}
     \end{minipage}
-    \caption{Curve visualizing mean drop in confidence of individual methods per imputed percentages of most salient pixels. Notice that looking only at the mean renders CAM and GradCAM++ as methods achieving similar performance.}
+    \caption{Curve visualizing mean drop in confidence of individual methods per imputed percentages of most salient pixels. Notice that looking only at the mean renders CAM and GradCAM++ as methods achieving similar performance. HiResCAM presents the desired behavior: the curve flattens once we start to impute larger parts on input. However, it achieves lower scores than other CAM-based methods.}
     \label{fig:road-curve}
     \end{center}
 \end{figure}
@@ -209,7 +208,7 @@ We also posit that despite the authors of GradCAM++ and HiResCAM \cite{grad-cam,
     \begin{minipage}{1\textwidth}
       \includegraphics[width=\textwidth]{img/road-boxplot.png}
     \end{minipage}
-    \caption{Boxplot of results for different percentages of ROAD method. We used the percentages from \cite{road}. ROAD ranks CAM methods over Occlusion and Composite-LRP. We can see that perturbation by CAM-based method explanations also decreases the model's confidence faster than the Occlusion method --- advocating for the CAM explanations to be more faithful. Scores for CAM methods also have less variance when significant parts of salient areas are removed. Notice the minimum values and that only CAM and Occlusion do not increase models' confidence upon evaluation of perturbed tile, while gradient-based CAMs and Composite-LRP do.}
+    \caption{Boxplot of results for different percentages of ROAD method. We used the percentages from \cite{road}. ROAD ranks CAM methods over Occlusion and Composite-LRP. We can see that perturbation by CAM-based method explanations also decreases the model's confidence faster than the Occlusion method --- advocating for the CAM explanations to be more faithful. Scores for CAM methods also have less spread when significant parts of salient areas are removed. Notice the minimum values and that only CAM and Occlusion do not increase models' confidence upon evaluation of perturbed tile, while gradient-based CAMs and Composite-LRP do.}
     \label{fig:road-boxplot}
     \end{center}
 \end{figure}
@@ -307,7 +306,7 @@ Composite-LRP consistently performs across all thresholds, supporting the observ
 
 \section{Domain expert assessment}
 
-This section presents a qualitative evaluation of produced explanations by domain experts.
+This section presents a qualitative evaluation of produced explanations by a domain expert.
 In \cite{gallo}, Gallo et al. first generated saliency maps for all test slides.
 Then, they sampled a subset of $461$ regions, where Occlusion suggested an area important for the model when deciding whether to be pro or against the presence of cancer.
 Originally, we wanted to present candidate saliency maps for all the $461$ original regions.
@@ -323,10 +322,12 @@ Since the pathologist's time is not to be wasted, we narrowed down the presented
 We decided to include explanations of two methods, CAM and HiResCAM.
 CAM has comparable quantitative results to GradCAM++ while being faster.
 Unlike GradCAM++, saliency maps from CAM also contain negative regions, pointing to locations the model perceives as against cancer --- same as Occlusion.
+Moreover, GradCAM++ reported very different results in \myref{Appendix}{sec:conv-vs-pool}, decreasing our trust in its internal mechanism.
 HiResCAM scored notably well when quantitatively comparing marked salient regions to the Occlusion ones.
+
 In this setting, the target audience is an experienced pathologist, MUDr. Rudolf Nenutil, CSc.
 He has a long track record of working with the RationAI group, and his expertise was used for evaluation in \cite{gallo}.
-To subjectively assess the usefulness of the saliency maps, we give him the following assignment:
+To subjectively assess the usefulness of the saliency maps, we gave him the following assignment:
 
 \begin{doublebar}
 \begin{quote}
@@ -345,6 +346,6 @@ Please determine whether CAM or HiresCAM saliency maps are a viable replacement 
 We do not expect you to go through all slides --- please do it to the extent that allows you to draw a confident conclusion about the suitability of candidate methods.
 \end{quote}
 \end{doublebar}
-We deliberately did not display the Occlusion maps to avoid biasing the domain expert.
-This section aims to assess how well the candidate maps represent known morphological patterns --- we already compared the similarity quantitatively.
+We deliberately did not display the Occlusion maps to avoid biasing MUDr. Nenutil.
+This section aims to assess how well the candidate maps represent known morphological patterns --- we already compared the Occlusion similarity quantitatively.
 

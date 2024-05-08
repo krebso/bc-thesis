@@ -9,7 +9,7 @@ We introduce feedforward artificial neural networks, later focusing on convoluti
 Histopathology is a discipline concerned with the study of diseases of tissue.
 Scope of histopathology involves, but is not limited to, cancer detection and prediction, infectious or inflammatory disease diagnostics, and the study of brain-degenerative diseases such as Parkinson's or Alzheimer's \cite{histopathology-cancer, histopathology-infectious, histopathology-inflammatory, histopathology-brain-degenerative}.
 
-Royal College of Pathology in \cite{histopathologist-role} introduces histopathologists as medically qualified physicians who inspect patient tissue samples.
+Royal College of Pathology in \cite{histopathologist-role} defines histopathologists as medically qualified physicians who inspect patient tissue samples.
 Their expertise is essential in identifying cellular and tissue anomalies that could indicate various medical conditions.
 Histopathologists often cooperate with other doctors, providing insights to help set the direction of further patient care.
 
@@ -20,8 +20,7 @@ The surgeon needs to extract tissue samples from the patient.
 A specialized laboratory then receives the extracted tissue for processing; technicians infuse the tissue samples with a mix of chemicals and embed them into a paraffin wax block.
 The paraffin block is then thinly sliced into thin sections, and technicians laminate those sections onto a glass slide.
 Glass slides are stained with hematoxylin/eosin (or another compound, depending on the use case, as per \cite{histopathology-staining}) to enhance the contrast between different cellular structures.
-After the lab processing, slides are delivered to a histopathologist for review.
-\todo{How to cite this?}
+After the lab processing, slides are delivered to a histopathologist for review \cite{histo-process}.
 
 While we cannot replace the surgeons performing the biopsy or lab workers staining and embedding the tissue, we can address the logistic challenges of moving glass slides to the histopathologists.
 Having a physical slide suffers from several inefficiencies. 
@@ -34,23 +33,23 @@ Such logistic pitfalls throttle the diagnosis process and lead to longer waiting
 Digital histopathology aims to reduce the logistic overhead caused by physical copies of glass slides.
 After the tissue is extracted and prepared, instead of shipping it to a histopathologist, it is scanned using specialized lenses, resulting in a high-resolution digital image called \emph{Whole Slide Image} (WSI) \cite{from-traditional-to-digital-histopathology}.
 This image is then uploaded to an aggregator server, enabling real-time slide sharing and parallel cooperation of multiple clinicians.
-Histopathologists then inspect WSI's in a dedicated browser on their computer monitors --- opposed to looking at the glass slide under a microscope \cite{digital-histopathology-process}. \myref{Figure}{fig:xopat} shows a WSI of prostate tissue sample displayed in a dedicated \emph{xOpat} browser developed by the RationAI group.
+Histopathologists then inspect WSI's in a dedicated browser on their computer monitors --- opposed to looking at the glass slide under a microscope \cite{digital-histopathology-process}. \myref{Figure}{fig:xopat} shows a WSI of prostate tissue sample displayed in a dedicated browser developed by the RationAI group.
 
 Even though contemporary digital pathology systems significantly speed up pathologists' day-to-day work, we can further optimize another productivity metric: pathologists' time spent inspecting WSIs.
 
 \begin{figure}
     \begin{center}
     \begin{minipage}{0.80\textwidth}
-      \frame{\includegraphics[width=\textwidth]{img/xopat.png}}
+      \fcolorbox{RoyalBlue}{white}{\includegraphics[width=\textwidth]{img/xopat.png}}
     \end{minipage}
-    \caption{xOpat [] WSI browser with a sample of prostate tissue. The histopathologist can move and zoom the tissue, allowing him to navigate the WSI quickly. Digitized copies allow for the layering of arbitrary annotations on top of the WSI, providing great collaborative capabilities. Different pathologists can mark cancerous regions and then display them on top of each other to see their agreement.}
+    \caption{xOpat \cite{xopat} WSI browser with a sample of prostate tissue. The histopathologist can move and zoom the tissue, allowing him to navigate the WSI quickly. Digitized copies allow for the layering of arbitrary annotations on top of the WSI, providing great collaborative capabilities. Different pathologists can mark cancerous regions and then display them on top of each other to see their agreement.}
     \label{fig:xopat}
     \end{center}
 \end{figure}
 
 \subsection*{Decision Support System}
 
-A computer system that aids humans in deciding while performing a particular task is called a decision support system. \todo{do I need to cite this? if so, just use the original paper, which is linked on Wikipedia}
+A computer system that aids humans in deciding while performing a particular task is called a decision support system.
 These systems are utilized across various applications, including high-stake environments such as investment banking, autonomous driving, or military and defense \cite{dss-finance, dss-autonomous-driving, dss-military-and-defense}. In digital histopathology, clinicians usually utilize such systems to help with operational processes \cite{digital-histopathology-process}.
 However, with deep learning in the spotlight of today's research, new possibilities emerge.
 
@@ -101,8 +100,8 @@ If all neurons in a given layer $l$ have incoming weights from all neurons in th
 
 Weights and biases are called trainable parameters, denoted as $\theta$.
 Deep learning aims to make the trainable parameters useful.
-Since a network computes a function $f$, with specific training, we can make the network learn to approximate any desired function $f^*$ within a certain tolerance \cite{cybenko}.\todo{toto nie je uplne spravne}
-During the training of a network, we leverage a large amount of data to adjust the trainable parameters to minimize the difference between $f$ and $f^*$.
+Since a network computes a function $f$, with specific training, we can make the network configure its parameters to approximate a desired function $f^*$ within a certain tolerance.
+To configure the parameters, we leverage a large amount of data to minimize the difference between $f$ and $f^*$.
 The difference is captured using loss function $\ell$, and minimizing $\ell$ is typically performed iteratively using backpropagation and training algorithms such as stochastic gradient descent.
 More on neural network training can be found in \cite{goodfellow}.
 

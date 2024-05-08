@@ -1,7 +1,15 @@
 \chapter{Introduction}\label{chap:introduction}
 
-Neural networks are on a verge to be employed in medical care. In order to aid doctors in practice, we need to be able to reason behind networks decisions.
+With deep learning in the spotlight of contemporary research, we begin to see it in a wide variety of applications.
+However, in the place where it could help the most, employed neural networks suffer from their ``black box'' tag and lack of insight behind network decisions.
 
-This thesis aims to shed light on which methods are suitable for such reasoning. We divide the text into four chapters. In the first, we briefly present field of digital histopathology and deep learning, with focus on convolutional neural networks. In the second chapter, we describe the domain of prostate cancer detection and how RationAI team helps pathologists to detect cancerous tissue with their model. In the third chapter, we dive into theory behind explaining deep neural networks -- we overview several methods, which could help us achieve our goal of performant explantion generation. In the last chapter, we present quantitative and qualitative evaluation strategy and we evaluate presented methods.
+In such critical areas as cancer detection, it is essential to have an accurate proxy that could shed light on the model's decision process.
 
-We propose a few technical remarks about current implementation of production pipeline, which will further accelerate the process of generating explanation heatmaps.
+This thesis aims to find methods suitable for such reasoning.
+Occlusion, a faithful method tested by Gallo et al. in \cite{gallo}, is too slow to be used in real time.
+Thus, we begin our search for a faster method that does not compromise the usability and faithfulness of produced explanations.
+
+To find such a method, we need to understand our domain and its limitations.
+Therefore, we begin with an overview of essential concepts and nomenclature.
+Afterward, we motivate the need for such explaining proxy and overview several well-established methods, which were carefully picked based on previous work from RationAI group in \cite{gallo, bajger-grad-cam, krajnansky-grad-cam, hruska-grad-cam}.
+To verify that overviewed methods are indeed suitable, we establish and evaluate them using tailored quantitative and qualitative benchmarks.

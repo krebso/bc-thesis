@@ -41,14 +41,14 @@ One can see that a \emph{capable} model may arrive at the desired output despite
 
 Instances such as these demonstrate that the understandability of a decision support system isn't just an issue for the end-user.
 It's also advantageous for the model's development cycle.
-Gaining insights into the factors influencing the model's decisions allows us to evaluate if its reasoning aligns with our expectations responsibly --- and take measures if not.
+Gaining insights into the factors influencing the model's decisions allows us to responsibly evaluate if its reasoning aligns with our expectations --- and take measures if not.
 
 \begin{figure}[!h]
     \begin{center}
     \begin{minipage}{1\textwidth}
       \includegraphics[width=\textwidth]{img/horse-tag.png}
     \end{minipage}
-    \caption{Experiment conducted by Samek et al. in \cite{xai-horse}. Their model was trained on the PASCAL-VOC dataset \cite{pascal-voc}. After the training, they found the presence of so-called \emph{spurious correlation}. Pictures of horses are classified solely on whether the bottom-left corner of an input image contains a source tag. If the source tag is manually added to an otherwise correctly classified image of a car -- the model changes its prediction, and the image is classified as a horse instead. Picture taken from \cite{xai-horse}.}
+    \caption{Experiment conducted by Samek et al. in \cite{xai-horse}. Their model was trained on the PASCAL-VOC dataset \cite{pascal-voc}. After the training, they found the presence of so-called \emph{spurious correlation}. Pictures of horses are classified solely on whether the bottom-left corner of an input image contains a source tag. If the source tag is manually added to an otherwise correctly classified image of a car --- the model changes its prediction, and the image is classified as a horse instead. Picture taken from \cite{xai-horse}.}
     \label{fig:horse-tag}
     \end{center}
 
@@ -65,7 +65,7 @@ Achieving the trust of both clinicians and patients is crucial to enabling indus
 Given certain applications, understanding the model is not only a moral obligation.
 In 2016, the European Union included the \emph{right to explanation} within the General Data Protection Regulation (GDPR).
 Specifically, Articles 13 and 14 give individuals the right to receive ``meaningful information about the logic involved'' when they are a part of an automatic decision-making process.
-This challenges the industry and implies we must take adequate measures to fully integrate DSSs based on deep learning.
+This implies we must take adequate measures to integrate DSSs based on deep learning.
 More on what Articles 13 and 14 mean for AI is to be found in a paper by Goodman and Flaxman \cite{xai-gdpr}.
 
 Another piece of legislation from the European Union is anticipated to be implemented in May or June of 2024.
@@ -84,9 +84,8 @@ To shed light on the internal processes of machine learning models, a sub-field 
 XAI techniques enable humans to build trust and manage machine learning-based decision support systems, a crucial part of integrating systems based on deep learning.
 The exact borders of the field are not firmly set, and the notion of what it means to explain a model is an ongoing matter of discussion \cite{xai-survey}.
 
-\todo{find citations, forgot to write down}
-
-Throughout this thesis, `XAI' will refer specifically to the subfield dedicated to advancing understandability in AI, while 'explainable artificial intelligence' will denote the attribute of machine learning models that enables a certain level of understandability. Arietta et al. \cite{arrieta-taxonomy} describe explainable artificial intelligence as: ``Given an audience, an explainable Artificial Intelligence is one that produces details or reasons to make its functioning clear or easy to understand.''.
+Throughout this thesis, `XAI' will refer to the subfield dedicated to advancing understandability in AI, and 'explainable artificial intelligence' will denote the attribute of machine learning models that enables a certain level of understandability.
+Arietta et al. \cite{arrieta-taxonomy} describe explainable artificial intelligence as: ``Given an audience, an explainable Artificial Intelligence is one that produces details or reasons to make its functioning clear or easy to understand.''.
 
 The field of XAI distinguishes between two means of making artificial intelligence understandable:
 \begin{enumerate}
@@ -134,7 +133,6 @@ Omitting auxiliary saliency map processing, occlusion takes anywhere from $13$ t
 \end{figure}
 
 \subsection{CAM \& GradCAM}\label{subsec:cam}
-\todo{they are the same thing up to a constant, so overview the GradCAM method here}
 
 Zhout et al. \cite{cam} show that introducing a GAP layer to a convolutional neural network has a welcome side-effect --- aside from regularization during training, it enhances network localization capabilities, despite being trained on image-level labels only --- without specifying wherein the input the object of interest resides.
 Their proposed method, called Class Activation Mapping (CAM), is used to visually highlight regions of input image used by the CNN to predict certain class $c$.
@@ -145,7 +143,7 @@ Our model features there a pooling layer instead.
 This difference does not affect the results overviewed in the following paragraphs, and we will model them using a convolutional layer as per the original paper. 
 
 Intuitively, CAM is a weighted sum of activation maps of the last convolutional layer.
-To formalize, consider a network with convolutional layer $L$ with $K$ activation maps $A^1, A^2, \ldots, A^K$, followed by a GAP layer and a single fully connected layer.
+Consider a network with convolutional layer with $K$ activation maps $A^1, A^2, \ldots, A^K$, followed by a GAP layer and a single fully connected layer.
 In the fully connected layer, we fix neuron denoting class $c$, for which we want to compute a saliency map.
 Recall \myref{Equation}{gap}, and that GAP reduces the value of each activation map $A^k$ to a single value $a^k$ --- the average of the activation map.
 The score of the network for class $c$ is then calculated as
@@ -153,22 +151,22 @@ The score of the network for class $c$ is then calculated as
     y^c = \sum_{k=1}^K w_{ck} a^k.
 \end{equation}
 
-To construct a class activation map for class $c$, we reverse-engineer the calculation of $y^c$. The saliency map is constructed out of individual mappings, and mapping for spatial element $(S^c_{\text{CAM}})_{ij}$ is calculated as a weighted sum of activation maps $A^k$
+To construct a CAM saliency map for class $c$, we reverse-engineer the calculation of $y^c$. The saliency map is constructed out of individual mappings, and mapping for spatial element $(S^c_{\text{CAM}})_{ij}$ is calculated as a weighted sum of activation maps $A^k$
 \begin{equation}\label{eq:cam}
     (S^c_{\text{CAM}})_{ij} = \sum_{k=1}^K w_{ck}  A^k_{ij}.
 \end{equation}
 To obtain saliency map $S^c_{\text{CAM}}$, we calculate mappings for all pairs $i, j$.
 The saliency map $S^c_{CAM}$ directly indicates the importance of the respective spatial locations.
-If pooling layers are present in the network, they lead to activations in the last convolutional layer having smaller dimensions than the input grid.
+If pooling layers are present in the network, they lead to the last convolutional layer having activation maps of smaller dimensions than the input grid.
 This is addressed by up-sampling the $S^c_{\text{CAM}}$ to the size of the original input image.
 
 The authors point out that this method is particularly useful for networks featuring the GAP layer.
 They claim that using GMP instead leads to the method pointing out the single most discriminatory location instead of all of them, as is the case for GAP.
 While this has been largely confirmed by their experiment on the ILSVRC dataset \cite{ilsvrc}, we believe that the method is worth considering for our use case.
 Models employed in the experiment by Zhou et al. \cite{cam} are trained to distinguish between $1000$ classes, with their last convolutional layer having $1024$ units.
-This configuration suggests a roughly one-to-one relationship between the activations produced by the network and the classes it aims to identify.
+This configuration suggests a roughly one-to-one relationship between the pooled activations and the classes the network aims to identify.
 In our setting, the last convolutional layer has $512$ units to identify one class --- we posit that even though we eventually only extract the most discriminative location from each activation map, having $512$ units should still yield robust localization performance.
-Our belief is supported by the fact that upon inspection of the weights of the fully connected layer of the model described in \myref{Section}{model}, $267$ out of $512$ weights are positive --- meaning corresponding activations are pro-cancerous.
+Our belief is supported by the fact that upon inspection of the weights of the fully connected layer of the model described in \myref{Section}{model}, $267$ weights are positive --- meaning corresponding pooled activations are pro-cancerous.
 
 Unlike CAM, GradCAM \cite{grad-cam} is a model-agnostic method that can explain various CNN architectures without needing a global pooling layer.
 The idea is that since the convolutional layer holds spatial information about its activations, we can highlight the important ones using partial derivatives of the score $y^c$.
@@ -187,32 +185,36 @@ $\operatorname{ReLU}$ is applied over the weighted activations to get only posit
 Authors of GradCAM took the inspiration for using $\relu$ from Deconvolution and Guided Backpropagation, both post-hoc methods already covered in \cite{gallo}.
 In case the saliency map $S^c_{\text{GradCAM}}$ is smaller than the input grid, we up-sample it as in the case of $S^c_{\text{CAM}}$.
 
-GradCAM has been previously covered in \cite{hruska-grad-cam, krajnansky-grad-cam, bajger-grad-cam}, but as far as we are concerned, this method was not evaluated using a quantitative benchmark similar to one from \cite{gallo}. Moreover, as shown in \cite{bajger-grad-cam}, for our model, GradCAM saliency maps are identical to the ones generated by CAM, up to a constant factor of ${1}/{|A^k|}$.
-\todo{rewrite this section about previous results}
+As shown in \cite{bajger-grad-cam}, for our model, GradCAM saliency maps are identical to the ones generated by CAM, up to a constant factor of ${1}/{|A^k|}$.
+This consistency arises from our choice of GMP as the global pooling layer, which renders all partial derivatives zero, except for the derivative corresponding to the maximum activation in a given activation map $A^k$, which thus equals $w_{ck}$.
 
-\subsection{GradCAM++}
-\todo{The function needs to be smooth (exp) so the 2nd and 3rd derivative are not 0 -- then it is NOT the same thing as CAM/GradCAM}
+GradCAM has been previously covered in \cite{hruska-grad-cam, krajnansky-grad-cam, bajger-grad-cam}, but as far as we are concerned, this method was not evaluated using a quantitative benchmark similar to one from \cite{gallo}.
+Since CAM produces saliency maps identical to GradCAM, we decided to include CAM in our benchmarks.
+
+\subsection{GradCAM++}\label{sub:gradcampp}
 
 GradCAM++ \cite{grad-cam-pp} is another gradient-based model-specific method to spatially attribute convolutional layer features for a given class.
 Like GradCAM, this method leverages gradients flowing through the network to assess individual activations' importance while adressing several of GradCAMs' imperfections.
 
-Chattopadhyay et al. \cite{grad-cam-pp} observed that if multiple occurrences of a class of interest $c$ are present in the input image, the localization capabilities of GradCAM worsen.
+Chattopadhyay et al. in \cite{grad-cam-pp} observed that if multiple occurrences of a class of interest $c$ are present in the input image, the localization capabilities of GradCAM worsen.
 According to the authors, this stems from using unweighted partial derivatives in \myref{Equation}{grad-cam-weights}.
 If there are multiple occurrences of class $c$, different feature maps may get activated, resulting in a diluted and faded saliency map.
 They proposed a generalized solution that is equivalent in terms of computational performance.
 First, they encode the importance weight $i_{ck}$ from \myref{Equation}{grad-cam-weights} as
 \begin{equation}\label{eq:grad-cam-pp-weights}
-    i_{ck} = \sum_i^H \sum_j^W \alpha^{ck}_{ij} \relu(\frac{\partial Y^c}{\partial A^k_{ij}}).
+    i_{ck} = \sum_i^H \sum_j^W \alpha^{ck}_{ij} \relu\bigl(\frac{\partial Y^c}{\partial A^k_{ij}}\bigr)
 \end{equation}
+adding a weight to each of the positive partial derivatives.
+Here, $Y^c$ denotes the score $y^c$ put through the exponential function.
 
 Then, they derive a method for expressing the gradient weights $a^{ck}_{ij}$ for all spatial locations in all activation maps.
 They substitute weights from fully connected layer in \myref{Equation}{eq:gap-score} for importance weights $i_{ck}$ from \myref{Equation}{eq:grad-cam-pp-weights}, yielding
 \begin{equation}\label{eq:grad-cam-pp-score}
-    Y^c = \sum_{k=1}^K \left( \sum_{i=0}^H \sum_{j=0}^W \alpha^{ck}_{ij} \relu(\frac{\partial Y^c}{\partial A^k_{ij}}) \right) \left( \sum_{a=0}^H \sum_{b=0}^W A^{k}_{ab} \right)
+    Y^c = \sum_{k=1}^K \biggl( \sum_{i=0}^H \sum_{j=0}^W \alpha^{ck}_{ij} \relu \bigl(\frac{\partial Y^c}{\partial A^k_{ij}}\bigr) \biggr) \biggl( \sum_{a=0}^H \sum_{b=0}^W A^{k}_{ab} \biggr)
 \end{equation}
-where $Y^c$ is a score $y^c$ put through the exponential function. To express a weight $\alpha^{ck}_{ij}$, we need to take a partial derivative w.r.t. $A^k_{ij}$ twice. After that, we can rearrange the terms to obtain
+To express a weight $\alpha^{ck}_{ij}$, we need to take a partial derivative w.r.t. $A^k_{ij}$ twice. After that, we can rearrange the terms to obtain
 \begin{equation}
-    \alpha^{ck}_{ij} = \frac{\frac{\partial^2 Y^c}{(\partial A^k_{ij})^2}}{2\frac{\partial^2 Y^c}{(\partial A^k_{ij})^2} + \sum_{a=0}^H \sum_{b=0}^W A^{k}_{ab} \left( \frac{\partial^3 Y^c}{(\partial A^k_{ij})^3} \right)}.
+    \alpha^{ck}_{ij} = \frac{\frac{\partial^2 Y^c}{(\partial A^k_{ij})^2}}{2\frac{\partial^2 Y^c}{(\partial A^k_{ij})^2} + \sum_{a=0}^H \sum_{b=0}^W A^{k}_{ab} \bigl( \frac{\partial^3 Y^c}{(\partial A^k_{ij})^3} \bigr)}.
 \end{equation}
 
 All that is left is to plug this expression back into \myref{Equation}{eq:grad-cam-pp-weights}.
@@ -220,16 +222,17 @@ This gives us the importance weights for activations, and the saliency map $S^c_
 Thanks to the additional coefficient $\alpha^{ck}_{ij}$ for respective partial derivative, authors claim that all spatial coordinates corresponding to instances of class $c$ in the input data will be highlighted with equal importance in the resulting saliency map.
 
 As shown in \myref{Subsection}{subsec:cam}, two different methods can produce the same saliency map.
-To avoid adding a third one, we derive the particular values for importance weights $i_{ck}$.
-The full derivative is presented in \myref{Section}{sec:grad-cam-plus-plus-weight-derivation} and yields, for $A^k_{ij}$ being the highest activation in unit $k$.
+We derive the particular values for GradCAM++ importance weights $i_{ck}$ to avoid adding a third one.
+The full derivative is presented in \myref{Section}{sec:grad-cam-plus-plus-weight-derivation} and yields
 \begin{equation}
-    i_{ck} = \frac{1}{2 + A^k_{ij}w_{ck}} \relu\bigl(\exp(y^c)w_{ck}\bigr).
+    i_{ck} = \frac{1}{2 + A^k_{ij}w_{ck}} \relu\bigl(\exp(y^c)w_{ck}\bigr)
 \end{equation}
+for $A^k_{ij}$ being the highest activation in unit $k$.
+
 As a result, only activation maps corresponding to positive weights --- therefore, patterns detected as pro-cancerous --- are present in the final saliency map.
 We lack rationale about the term $A^k_{ij} w_{ck}$ in the denominator, as more profound activations will receive a smaller importance weight.
 Nevertheless, we have shown that for our architecture, GradCAM++ produces saliency maps that differ from CAM and GradCAM.
 The extent to which the activation maps will differ is not easy to estimate, and we will include GradCAM++ in evaluation in \myref{Chapter}{experiment}.
-
 
 \subsection{HiResCAM}\label{sub:hirescam}
 
@@ -254,26 +257,25 @@ This breaks down the proof's assumption that we can extract spatial information 
 
 The authors also show that given a model with CAM architecture employing GAP, saliency maps generated by HiResCAM collapse maps of the CAM method.
 This does not hold for models using the GMP layer.
-For our model, the partial derivative of $y^c$ with respect to $A^k_{ij}$ will be $w_{ck}$ iff $A^k_{ij}$ is the largest activation in $A^k$, and zero otherwise.
-\todo{Elaborate on this one}
-Therefore, the resulting activation map reflects only the most significant activation from each unit.
+For our model, because of GMP, the partial derivative of $y^c$ with respect to $A^k_{ij}$ will be $w_{ck}$ iff $A^k_{ij}$ is the largest activation in $A^k$, and zero otherwise.
+Therefore, we compose the resulting saliency map only from the most significant activations in each unit.
 This differs from saliency maps produced by CAM and GradCAM++, which do not discriminate against individual activations that do not contribute to the model's output but are evidence for a detected pattern.
 We believe that HiResCAM could better resemble how the Occlusion method produces the saliency maps since occluding features, albeit detected but not contributing to the output score because of GMP, should not produce a high saliency for the given region.
 
 \subsection{ScoreCAM}
 
-\todo{add what is the baseline}
+% \todo{add what is the baseline}
 To bridge the gap between perturbation-based and gradient-based methods, Wang and Wang \cite{score-cam} introduced ScoreCAM to tackle GradCAM's flaws from different perspectives.
 Unlike it is the case for previous CAM-based methods, ScoreCAM does not rely on partial derivatives to compute the saliency.
 Instead, authors rely on a so-called increase in confidence, which is, given input $x$, baseline $x_b$, and activation $A^k$, defined as:
 \begin{equation}
-    c^k = f\bigl(x \odot \operatorname{upscale}(A^k)\bigr) - f(x_b)
+    c_k = f\bigl(x \odot \operatorname{upscale}(A^k)\bigr) - f(x_b)
 \end{equation}
 where $\operatorname{upscale}$ is a function that resizes activation map $A^k$ to the input grid size and scales it to range $[0, 1]$.
 We get a score indicating how much network confidence changes if we only supply areas of the image where filter $F^k$ found a pattern it is trained to detect.
 We calculate the final saliency map using the respective increase in confidence as our weight for convolutional layer activation maps, yielding
 \begin{equation}
-    (S^c_{\text{ScoreCAM}})_{ij} = \relu\biggl(\sum_{k=1}^K c^k A^k_{ij}\biggr).
+    (S^c_{\text{ScoreCAM}})_{ij} = \relu\biggl(\sum_{k=1}^K c_k A^k_{ij}\biggr).
 \end{equation}
 
 %As a result, we eliminate the dependency on partial derivatives.
@@ -293,7 +295,7 @@ where $y^c_k$ represents an output of the model, for which the activation $A^k$ 
 
 Similar to Occlusion and input features, if we remove activations important to the network when assessing the presence of class $c$, the score $y^c$ should drop. To obtain the final saliency map, we compute the ablation weights for the layer of interest, yielding the following equation
 \begin{equation}
-    (S^c_{\text{AblationCAM}})_{ij} = \relu(\sum_{k=1}^K d_{ck} A^k_{ij}).
+    (S^c_{\text{AblationCAM}})_{ij} = \relu \biggl(\sum_{k=1}^K d_{ck} A^k_{ij}\biggr).
 \end{equation}
 
 \subsection{Layer-Wise Relevance Propagation}
@@ -322,13 +324,13 @@ Parameters $y_j$ and $w_{ji}$ stand for neurons output and weight, respectively,
 According to the observation of Montavon et al. in \cite{lrp}, using solely LRP-$0$ leads to very noisy explanations.
 To tackle the noise, we add a small positive term $\epsilon$ to the denominator --- $\epsilon$ will absorb weak and contradictory contributions, preserving only the salient scores. 
 As a result, we typically get less noisy explanations.
-Gallo et al. used LRP-$\epsilon$ rule exclusively in \cite{gallo}.
+Gallo et al. used the LRP-$\epsilon$ rule exclusively in \cite{gallo}.
 However, such explanations were still deemed scattered and noisy.
-To further enhance produced explanations, we can use LRP-$\gamma$ rule to favor positive contributions by using a coefficient applied only to the positive weights:
+To further enhance produced explanations, we can use the LRP-$\gamma$ rule to favor positive contributions by using a coefficient applied only to the positive weights:
 \begin{equation}
     z_{ji} = {a_j \cdot (w_{ji} \cdot \gamma w_{ji}^+)}.
 \end{equation}
-The $\gamma$ rule draws from the $\epsilon$ rule and keeps the $\epsilon$ term in the denominator.
+The $\gamma$ rule draws from the LRP-$\epsilon$ rule and keeps the $\epsilon$ term in the denominator.
 Figure \ref{fig:lrp-montavon} shows how multiple rules can be composed to visually enhance explanations.
 
 \begin{figure}[!h]

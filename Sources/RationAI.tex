@@ -31,7 +31,8 @@ In 2016, the World Health Organization refined the grading into so-called \emph{
 \begin{figure}
     \begin{center}
     \begin{minipage}{1\textwidth}
-      \frame{\includegraphics[width=\textwidth]{img/gp-classification.png}}
+    \fcolorbox{RoyalBlue}{white}
+      {\includegraphics[width=\textwidth]{img/gp-classification.png}}
     \end{minipage}
     \caption{Example of Gleason Patterns ranked from $1$ to $5$. Pattern $1$ represents a healthy stroma --- ``cells and tissues that support and give structure to organs, glands, or other tissues in the body'', per definition from \cite{nci-stroma}. Pattern $5$ represents tissue with the highest risk of cancer. Sourced from \cite{gleason-pattern-description}}
     \label{fig:gp}
@@ -39,12 +40,13 @@ In 2016, the World Health Organization refined the grading into so-called \emph{
 \end{figure}
 
 \section{Dataset}\label{sec:dataset}
-\todo{level + priblizeni}
+
 Masaryk Memorial Cancer Institute provided the RationAI group with a pseudonymized hematoxylin/eosin-stained WSIs dataset.
-Each WSI contains $3$ to $5$ biopsies and is stored as a MIRAX uncompressed PNG of size $105,185 \times 221,772$ pixels.
+Each WSI contains $3$ to $5$ biopsies and is stored as an uncompressed PNG of size $105,185 \times 221,772$ pixels.
 The dataset is stratified into training and test split, containing $264$ WSIs with cancer, $436$ without, $37$ WSIs with cancer, and $50$ without, respectively \cite{gallo}.
+To mark cancerous areas, domain experts manually annotated areas of WSIs containing adenocarcinomas -- annotations are polygons encapsulating cancerous regions.
 \myref{Table}{tab:who_grade_distribution} shows the WHO grade group distribution.
-\todo{case vs. slide}
+
 \begin{table}
 \centering
 \ra{1.2}
@@ -58,19 +60,20 @@ Grade 4         & 9 cases             & 1 case       \\
 Grade 5         & 10 cases            & 2 case       \\
 \bottomrule
 \end{tabular}
-\caption{WHO grade distributions for Training and Test split of prostate WSI dataset.}
+\caption{WHO grade distributions for Training and Test split of prostate WSI dataset. The test split consists of $87$ biopsies from 10 patients and aims to ``represent different Gleason patterns
+and types of infiltration'' \cite{gallo}, loosely copying the distribution of the Train split. While each case comes from a patient who has been positively diagnosed, some of the biopsies do not contain cancer, and thus, the ratio of positive/negative is $37/50$.}
 \label{tab:who_grade_distribution}
 \end{table}
 
-\todo{in matejs paper, there is something about the distribution negatively affecting some results.}
-To mark cancerous areas, domain experts manually annotated areas of WSIs containing adenocarcinomas -- annotations are polygons encapsulating cancerous regions.
+WSIs come with a so-called pyramid structure consisting of multiple layers of the same image at different resolutions, each representing a deeper magnification level.
+As a user zooms in on a particular area of the slide, higher-resolution layers of the pyramid are rendered, providing more detail without compromising loading times.
 Because processing the whole WSI at once is computationally expensive, we tile the WSIs to decrease memory requirements.
 Each WSI is split into overlapping tiles of size $512 \times 512$ pixels.
 An overlap of $256$ pixels is used between two consecutive tiles to counter the possibility of severing critical patterns.
-Such tiling is a well-established approach used industry-wide, as per [].
+We cut out tiles at a resolution of $0.344$ \si{\micro\meter} per pixel, corresponding to a $10$ times magnification.
 
-WSIs contain several biopsies with blank spaces in between them.
-To chisel out only relevant parts of WSI, any tile with less than $50$\% of its area covered by tissue is discarded from training and testing dataset splits.
+As WSIs contain several biopsies with blank spaces in between them, we chisel out only relevant parts.
+Any tile with less than $50$\% of its area covered by tissue is discarded from training and testing dataset splits.
 Consequently, while all WSIs have the same size, their usable tile count differs.
 
 \section{Model}\label{model}
@@ -78,10 +81,10 @@ Consequently, while all WSIs have the same size, their usable tile count differs
 A model trained by RationAI to perform cancer detection in tiled WSIs is a modified version of the well-known CNN architecture VGG16, introduced in \cite{vgg16}.
 \myref{Figure}{fig:rationai-vgg16} portrays the full model breakdown.
 
-Loosely paraphrasing \cite{gallo}, the model aims to solve the following problem: \emph{Classify tiles according to the presence/absence of cancer in their central square area of $256 \times 256 $ pixels. Presence is determined by whether the central square overlaps with the annotation from the domain expert}. The model achieves a notably good score on the test split, reaching $100$\% slide-level prediction accuracy --- meaning the model correctly determines whether a WSI contains cancer for each of the test WSIs.
+Loosely paraphrasing \cite{gallo}, the model aims to solve the following problem: \emph{Classify tiles according to the presence/absence of cancer in their central square area of $256 \times 256 $ pixels. Presence is determined by whether the central square overlaps with the annotation from the domain expert}. The model achieves a notably good score on the test split, reaching $100$\% slide-level prediction accuracy --- meaning the model correctly determines whether a WSI contains cancer for each test WSI.
 
 However, blindly trusting the model in such a high-stake environment, as cancer detection undoubtedly is, based on accuracy, is not enough.
-To verify that the model bases its decisions on relevant features, Gallo et at.\todo{fix smaller font} conducted an additional experiment, presenting a subset of the dataset from \myref{Section}{sec:dataset} including regions of models' interest to a domain expert.
+To verify that the model bases its decisions on relevant features, Gallo et at. conducted in \cite{gallo} an additional experiment, presenting a subset of the dataset from \myref{Section}{sec:dataset} including regions of models' interest to a domain expert.
 Using the technique described in the \myref{Subsection}{occlusion}, Gallo et al. annotated those data to display models' areas of interest.
 The domain expert concluded that the model focuses on critical morphological features \cite{gallo} on which human pathologists would base their decisions.
 
@@ -90,7 +93,7 @@ The domain expert concluded that the model focuses on critical morphological fea
     \begin{minipage}{0.75\textwidth}
       \includegraphics[width=\textwidth]{img/nn-arch.png}
     \end{minipage}
-    \caption{Architecture of Prostate Cancer Binary Classifier model utilized by the RationAI group. The model is based on VGG16, introduced by Simonyan and Zisserman in \cite{vgg16}. They originally trained their VGG16 model to classify $1000$ classes from the ILSVRC dataset \cite{ilsvrc} and utilized three FC layers before applying softmax on the last one. RationAIs' solution places global max pooling before a single FC layer, reducing each of the $512$ pooled activation maps to a single value. Sigmoid is applied to the output of the FC layer to squish the raw value in the range $(0, 1)$. This can be seen as an extension of the logit model, with condensed activation maps as independent variables. Therefore, we can interpret the final output as a probability of pro-cancer markers in a given tile's central $256 \times 256$ pixel square.}
+    \caption{Architecture of Prostate Cancer Binary Classifier model utilized by the RationAI group. The model is based on VGG16, introduced by Simonyan and Zisserman in \cite{vgg16}. They originally trained their VGG16 model to classify $1000$ classes from the ILSVRC dataset \cite{ilsvrc} and utilized three FC layers before applying softmax on the last one. RationAIs' solution places global max pooling before a single FC layer, reducing each of the $512$ pooled activation maps to a single value. Sigmoid is applied to the output of the FC layer to squish the raw value in the range $(0, 1)$. Therefore, we can interpret the final output as a probability of pro-cancer markers in a given tile's central $256 \times 256$ pixel square.}
     \label{fig:rationai-vgg16}
     \end{center}
 \end{figure}

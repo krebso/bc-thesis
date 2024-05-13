@@ -1,95 +1,95 @@
 \chapter{Deep Learning in Digital Histopathology}
 
-We begin by introducing the field of histopathology and its concerns alongside tools and methods used in contemporary clinical practice.
-We show how digitization helped to reduce the logistical complexity of histopathologists' workflow and how decision support systems can further reduce the required human labor.
-We introduce feedforward artificial neural networks, later focusing on convolutional networks, which are exceptional at tackling various computer vision problems.
+This chapter provides a broad overview of the areas that comprise the subject of this thesis.
+We begin by introducing the field of histopathology and its concerns, as well as the tools used in contemporary clinical practice, followed by how digitization has helped to reduce the logistical complexity of the histopathologist's workflow and how decision support systems can further reduce the amount of human labor required.
+Finally, we review feedforward artificial neural networks, focusing on convolutional networks, which are particularly suited to various computer vision problems.
 
 \section{Histopathology}
 
-Histopathology is a discipline concerned with the study of diseases of tissue.
-Scope of histopathology involves, but is not limited to, cancer detection and prediction, infectious or inflammatory disease diagnostics, and the study of brain-degenerative diseases such as Parkinson's or Alzheimer's \cite{histopathology-cancer, histopathology-infectious, histopathology-inflammatory, histopathology-brain-degenerative}.
+Histopathology is a discipline concerned with the study of diseases of tissues.
+The scope of histopathology includes, but is not limited to, the detection and prediction of cancer, the diagnosis of infectious or inflammatory diseases, and the study of brain-degenerative diseases such as Parkinson's or Alzheimer's \cite{histopathology-cancer, histopathology-infectious, histopathology-inflammatory, histopathology-brain-degenerative}.
 
-Royal College of Pathology in \cite{histopathologist-role} defines histopathologists as medically qualified physicians who inspect patient tissue samples.
-Their expertise is essential in identifying cellular and tissue anomalies that could indicate various medical conditions.
-Histopathologists often cooperate with other doctors, providing insights to help set the direction of further patient care.
+The Royal College of Pathology in \cite{histopathologist-role} defines histopathologists as medically qualified doctors who examine tissue samples from patients.
+Their expertise is essential in identifying cellular and tissue anomalies that may indicate various medical conditions.
+Histopathologists often work in collaboration with other physicians, providing insights that help guide the direction of further patient care.
 
 \section{Temporal and Spatial Limitations of Traditional Histopathology}
 
-Traditionally, a tedious logistic process involving several people is necessary to get tissue from a patient to a histopathologist.
+Traditionally, getting tissue from a patient to a histopathologist involves a lengthy logistical process involving several people.
 The surgeon needs to extract tissue samples from the patient.
 A specialized laboratory then receives the extracted tissue for processing; technicians infuse the tissue samples with a mix of chemicals and embed them into a paraffin wax block.
-The paraffin block is then thinly sliced into thin sections, and technicians laminate those sections onto a glass slide.
+The paraffin block is then sliced into thin sections, and technicians laminate those sections onto a glass slide.
 Glass slides are stained with hematoxylin/eosin (or another compound, depending on the use case, as per \cite{histopathology-staining}) to enhance the contrast between different cellular structures.
-After the lab processing, slides are delivered to a histopathologist for review \cite{histo-process}.
+After laboratory processing, the slides are sent to a histopathologist for review \cite{histo-process}.
 
-While we cannot replace the surgeons performing the biopsy or lab workers staining and embedding the tissue, we can address the logistic challenges of moving glass slides to the histopathologists.
-Having a physical slide suffers from several inefficiencies. 
-Only one histopathologist can study a slide at a time. If a second opinion from a different histopathologist is required, a designated person must convey the glass slide to the respective clinic.
-Such logistic pitfalls throttle the diagnosis process and lead to longer waiting times for a patient \cite{from-traditional-to-digital-histopathology}.
+While we cannot replace the surgeons who perform the biopsy or the laboratory workers who stain and embed the tissue, we can address the logistic challenges of moving glass slides to histopathologists.
+A physical slide suffers from several inefficiencies. 
+Only one or two histopathologists can study a slide at a time. If a second opinion from a different histopathologist is required, a designated person must transport the glass slide to the respective clinic.
+Such logistic pitfalls slow down the diagnostic process and lead to longer waiting times for a patient \cite{from-traditional-to-digital-histopathology}.
 
 \section{Digital Histopathology}
-% https://pathsocjournals.onlinelibrary.wiley.com/doi/10.1002/path.5388
 
 Digital histopathology aims to reduce the logistic overhead caused by physical copies of glass slides.
-After the tissue is extracted and prepared, instead of shipping it to a histopathologist, it is scanned using specialized lenses, resulting in a high-resolution digital image called \emph{Whole Slide Image} (WSI) \cite{from-traditional-to-digital-histopathology}.
-This image is then uploaded to an aggregator server, enabling real-time slide sharing and parallel cooperation of multiple clinicians.
-Histopathologists then inspect WSI's in a dedicated browser on their computer monitors --- opposed to looking at the glass slide under a microscope \cite{digital-histopathology-process}. \myref{Figure}{fig:xopat} shows a WSI of prostate tissue sample displayed in a dedicated browser developed by the RationAI group.
+After the tissue has been extracted and prepared, instead of being sent to a histopathologist, it is scanned using special lenses, resulting in a high-resolution digital image called \emph{Whole Slide Image} (WSI) \cite{from-traditional-to-digital-histopathology}.
+This image is then uploaded to an aggregator server, enabling real-time slide sharing and parallel collaboration of multiple clinicians.
+Histopathologists then examine WSI's in a dedicated browser on their computer monitors --- rather than looking at the glass slide under a microscope \cite{digital-histopathology-process}. \myref{Figure}{fig:xopat} shows a WSI of a prostate tissue sample displayed in a dedicated browser developed by the RationAI group.
 
-Even though contemporary digital pathology systems significantly speed up pathologists' day-to-day work, we can further optimize another productivity metric: pathologists' time spent inspecting WSIs.
+Although contemporary digital pathology systems significantly speed up pathologist's day-to-day work, we can further optimize another productivity metric: the time a pathologist spends examining WSIs.
 
 \begin{figure}
     \begin{center}
-    \begin{minipage}{0.80\textwidth}
+    \begin{minipage}{0.90\textwidth}
       \fcolorbox{RoyalBlue}{white}{\includegraphics[width=\textwidth]{img/xopat.png}}
     \end{minipage}
-    \caption{xOpat \cite{xopat} WSI browser with a sample of prostate tissue. The histopathologist can move and zoom the tissue, allowing him to navigate the WSI quickly. Digitized copies allow for the layering of arbitrary annotations on top of the WSI, providing great collaborative capabilities. Different pathologists can mark cancerous regions and then display them on top of each other to see their agreement.}
+    \caption{xOpat \cite{xopat} WSI browser with a sample of prostate tissue. The histopathologist can move and zoom the tissue, allowing him to navigate the WSI quickly. Digitized copies allow for the layering of arbitrary annotations on top of the WSI, providing great collaborative capabilities. For example, different pathologists can mark cancerous regions and then display them on top of each other to see their agreement.}
     \label{fig:xopat}
     \end{center}
 \end{figure}
 
 \subsection*{Decision Support System}
 
-A computer system that aids humans in deciding while performing a particular task is called a decision support system.
-These systems are utilized across various applications, including high-stake environments such as investment banking, autonomous driving, or military and defense \cite{dss-finance, dss-autonomous-driving, dss-military-and-defense}. In digital histopathology, clinicians usually utilize such systems to help with operational processes \cite{digital-histopathology-process}.
-However, with deep learning in the spotlight of today's research, new possibilities emerge.
+A decision support system is a computer system that assists humans in making decisions while performing a particular task.
+These systems are used in various domains, including high-stake environments such as investment banking, autonomous driving, or military and defense \cite{dss-finance, dss-autonomous-driving, dss-military-and-defense}. In digital histopathology, clinicians typically use such systems to support perational processes \cite{digital-histopathology-process}.
+However, with deep learning in the spotlight of today's research, new possibilities are emerging.
 
-Systems based on deep learning could enhance the tissue diagnostic process by assisting diagnosis or discovering previously unrecognized features in large sets of data that are incomprehensible to a single expert \cite{dss-digital-histopathology}. 
-Researchers and various companies are actively trying to employ machine learning systems in such a fashion. 
-Those systems often provide real-time results and domain-expert-like performance, demonstrating that further research can significantly improve contemporary processes \cite{deep-learning-in-histopathology}.
+Systems based on deep learning could improve the tissue diagnostic process by assisting diagnosis or discovering previously unrecognized features in large sets of data that are beyond the comprehension of a single expert \cite{dss-digital-histopathology}. 
+Researchers and various companies are actively trying to use machine learning systems in this way. 
+These systems often provide real-time results and domain-expert-like performance, demonstrating that further research can significantly improve current processes \cite{deep-learning-in-histopathology}.
 
 \section{Deep Learning}\label{section:dl}
 
-The area of machine learning encapsulating neural networks (NNs) is called deep learning (DL).
-Methods and algorithms employed by DL achieve remarkable results across various domains, including computer vision, games, or weather forecast \cite{alexnet, alphago, weather}.
-Introduced by McCulloch and Pitts in \cite{mcculloch-pitts} to create a computational unit resembling a neuron in the human brain, neural networks have come a long way to the prominent place they occupy today.
+The branch of machine learning that encapsulates neural networks (NNs) is called deep learning (DL).
+The methods and algorithms used by DL achieve remarkable results in various fields such as computer vision, games, or weather forecast \cite{alexnet, alphago, weather}.
+% Introduced by McCulloch and Pitts in \cite{mcculloch-pitts} to create a computational unit similar to a neuron in the human brain, neural networks have come a long way to the prominent place they occupy today.
 
 \subsection*{Feedforward Neural Network}\label{feedforward-nn}
 
-Feedforward networks are considered the starting point of contemporary DL models.
-They get their name from a one-directional flow of information inside the network.
-We can see feedforward networks as a function $f$ that maps real-valued input vector $x$ from input space to a value $y$ from output space \cite{goodfellow}.
+Feedforward networks are considered the starting point of modern DL models.
+They get their name from the unidirectional flow of information within the network.
+We can think of feedforward networks as a function $f$ that maps real-valued input vector $x$ from input space to a value $y$ from output space \cite{goodfellow}.
 Throughout this thesis, we will only consider this type of network.
 
-A common approach to examining neural network architectures is to see them as a sequence of layers.
+A common approach to studying neural network architectures is to see them as a sequence of layers.
 Each layer $l$ resembles an intermediate function $f^l$.
 Let our network be a composition of $L$ layers numbered from $1$ to $L$.
 For any given input vector $x$, the computation performed by the network can be expressed as a composition of its intermediate layer functions, yielding
 \begin{equation}
     f(x) = f^L(f^{L-1}(\cdots f^1(x))).
 \end{equation}
-In this notation, layer $1$ is the input layer, which receives the input vector $x$. The final or $L$-th layer is the output layer, which returns the network's prediction or decision $y$. All in-between layers are called hidden layers and transform one internal representation to another \cite{goodfellow}.
+In this notation, layer $1$ is the input layer, which receives the input vector $x$.
+The last or $L$-th layer is the output layer, which returns the network's prediction or decision $y$.
+All intermediate layers are called hidden layers and transform one internal representation into another \cite{goodfellow}.
 
-Even though \cite{cybenko} essentially shows that one hidden layer is all you need, neural networks typically employ multiple hidden layers.
-The motivation is that we can see each layer as if it captures specific abstractions or representations from its input.
-Deeper layers can, therefore, build more complex representations by utilizing abstractions captured by previous layers.
+Although \cite{cybenko} essentially shows that one hidden layer is all you need, neural networks typically employ multiple hidden layers.
+The motivation is that we think of each layer as capturing certain abstractions or representations from its input.
+Deeper layers can, therefore, build more complex representations using abstractions captured by previous layers.
 
-Multi-layer Perceptron (MLP) is a foundational architecture in the history of feedforward neural networks.
+Multi-layer Perceptron (MLP) is a fundamental architecture in the history of feedforward neural networks.
 In an MLP, the basic building block is a neuron.
-Neurons are arranged into layers to form the final network.
-A neuron receives input signals (input features $x$), processes them, and outputs its signal ($y$), which is passed to subsequent neurons in the following layer.
-The processing consists of computing inner potential $\xi$, a weighted average of the neuron's inputs.
+Neurons are arranged in layers to form the final network.
+A neuron receives input signals (input features $x$), processes them, and outputs its signal ($y$), which is passed on to subsequent neurons in the following layer.
+The processing consists of calculating the inner potential $\xi$, a weighted average of the neuron's inputs.
 The inner potential is then passed to the activation function, denoted as $\sigma$. 
-% \footnote{Heaviside step function was the first activation function used. This led to several problems [], and activation functions are a vital part of contemporary because of their importance.}, 
 Given a neuron $i$ with activation function $\sigma_i$ expecting $K$ input signals, the output signal $y_i$ is expressed as
 \begin{equation}
     y_i = \sigma_i(b_i + \sum_{k=1}^K w_{ik}x_k)
@@ -102,79 +102,42 @@ Weights and biases are called trainable parameters, denoted as $\theta$.
 Deep learning aims to make the trainable parameters useful.
 Since a network computes a function $f$, with specific training, we can make the network configure its parameters to approximate a desired function $f^*$ within a certain tolerance.
 To configure the parameters, we leverage a large amount of data to minimize the difference between $f$ and $f^*$.
-The difference is captured using loss function $\ell$, and minimizing $\ell$ is typically performed iteratively using backpropagation and training algorithms such as stochastic gradient descent.
+The difference is captured by a loss function $\ell$, and minimizing $\ell$ is typically performed iteratively using backpropagation and training algorithms such as stochastic gradient descent.
 More on neural network training can be found in \cite{goodfellow}.
 
-% Although a deep dive into training is out of the scope of this thesis, we need to familiarize ourselves with the notion of partial derivatives.
-% Partial derivatives are commonly used to find a direction against which we move certain weight $w$ to minimize the $\ell$ if all other parameters remain fixed.
-% We denote the partial derivative of $\ell$ with respect to parameter $w$ as $\frac{\partial \ell}{\partial w}$.
-% Building on the concept of partial derivatives, we can compute the gradient.
-% In the context of a deep learning model's loss function, the gradient $\nabla_{\theta}\ell$ is a vector of partial derivatives of $\ell$ with respect to all the parameters within the model
-% \begin{equation}
-%     \nabla_{\theta}\ell = \left( \frac{\partial \ell}{\partial w_1}, \frac{\partial \ell}{\partial w_2}, \cdots, \frac{\partial \ell}{\partial w_{|\theta|}} \right).
-% \end{equation}
-% This gradient points in the direction of the steepest ascent in the loss function's value.
-% Thus, to minimize, we update the parameters in the opposite direction of the gradient.
-% As we will see in Chapter 3, partial derivatives can also be leveraged to compute importance of features or networks parameters.
-% \todo{ref}
-% %% goodfellow kniha
-
-% \begin{figure}
-%     \begin{center}
-%     \begin{minipage}{.75\textwidth}
-%       \includegraphics[width=\textwidth]{img/nn.png}
-%     \end{minipage}
-%     \caption{Architecture of an MLP with one hidden layer. Circles represent layer neurons. Edges represent layer weights. Biases are omitted for simplicity. Notice that each neuron in the hidden and output layer shares weight with all neurons in the previous layer -- therefore, layers are fully connected.}
-%     \label{fig:simple-mlp}
-%     \end{center}
-% \end{figure}
-
-Even though MLPs demonstrate impressive results on tasks previously deemed impossible for computers, they come with certain setbacks.
-If we only use FC layers, contemporary architectures such as AlexNet \cite{alexnet} would have an unimaginable number of trainable parameters.
+Even though MLPs demonstrate impressive results on tasks previously deemed impossible for computers, they have certain drawbacks.
+If we used only FC layers, contemporary architectures such as AlexNet \cite{alexnet} would have an unimaginable number of trainable parameters.
 This led to the development of new architectures tailored to specific domain needs.
-Despite the shift from using FC layers only, MLP stood its ground and, to this day, is an essential part of various state-of-the-art neural network architectures \cite{alexnet}.
+Despite the move away from using models comprised only of FC layers, MLP stood its ground and is still an essential part of several state-of-the-art neural network architectures \cite{alexnet}.
 
 \subsection*{Convolutional Neural Network}
-Convolutional neural networks (CNNs) focus on working with grid-like data.
+Convolutional Neural Networks (CNNs) focus on working with grid-like data.
 Therefore, their input $x$ typically comes in the form of a multidimensional array of shape $H \times W \times C$, where $H$ and $W$ stand for height and width respectively, and $C$ is the number of channels ($1$ for grayscale images, $3$ for RGB images).
-CNNs were introduced specifically to solve various computer vision problems and add two additional layer types --- convolutional and pooling.
-These layers help to capture patterns in input features, as well as reduce the size of the network \cite{cnns}. 
-%% - https://arxiv.org/pdf/1511.08458.pdf
-
-%% TODO: Why it suits them for image processing
+CNNs have been introduced specifically to solve various computer vision problems and add two additional layer types --- convolutional and pooling.
+These layers help to capture patterns in the input features and reduce the size of the network \cite{cnns}. 
 
 \subsubsection{Convolutional Layer}
 
-The convolutional layer utilizes trainable filters (kernels) to search for visual patterns in its features.
+The convolutional layer uses trainable filters (kernels) to search for visual patterns in its features.
 The filter is typically smaller in width and height than the input but spans all the input channels.
-Instead of interacting with the whole input at once using weighted connections, the filter $F$ is systematically slid across the input, and the filter weights convolve with the corresponding input data segments, yielding a two-dimensional \emph{activation map} $A$ \cite{goodfellow}.
-Convolution is a linear operation that chains the element-wise product of the filter and receptive field over all channels and then sums the products into one value. Given a filter $F$ and input $I$, spatial activation $A_{ij}$ is computed as 
+Rather than interacting with the entire input at once using weighted connections, the filter $F$ is systematically slid across the input, and the filter weights convolve with the corresponding input data segments, resulting in a two-dimensional \emph{activation map} $A$ \cite{goodfellow}.
+Convolution is a linear operation that chains the element-wise product of the filter and receptive field over all channels and then sums the products into one value. Given a filter $F$ and input $I$, the spatial activation $A_{ij}$ is computed as 
 \begin{equation}
     (F * I)_{ij} = b + \sum_{x=0}^{W} \sum_{y=0}^{H} \sum_{z=0}^{C} F_{xyz} \cdot I_{(i+x)(j+y)z}
 \end{equation}
 where $W$, $H$ are width and height of $F$ and $C$ is number of input channels. The bias term $b$ is used similarly as in the case of fully connected layers.
 
-The resulting activation map can be seen as a map of evidence for the presence of a shape detected by the filter in the input data.
-Sliding the filter through features gives us spatial invariance --- no matter where the learned pattern resides in the input, it will be detected and reflected in the respective activation map, something very hard to achieve using a fully connected layer.
-Therefore, we commonly say that the filter has \emph{shared weights} \cite{goodfellow}.
+The resulting activation map can be thought of as a map of evidence for the presence of a shape detected by the filter in the input data.
+Sliding the filter through features gives us spatial invariance --- no matter where the learned pattern resides in the input, it will be detected and reflected in the corresponding activation map, something very hard to achieve using a fully connected layer.
+Therefore, we commonly say the filter has \emph{shared weights}, as per \cite{goodfellow}.
 
-When incorporating a convolutional layer into a neural network, the crucial parameter to define is the filters' shape.
-The shape determines the receptive field's size -- how many input features the filter can see at one given position.
+When incorporating a convolutional layer into a neural network, the critical parameter to define is the shape of the filter.
+The shape determines the size of the receptive field -- how many input features the filter can see at a given position.
 In addition, we usually set two other parameters: \emph{padding} and \emph{stride}.
-Padding is a value we add as a border around the input features, allowing the filter to cover the edges and thus reducing information loss.
-Stride controls how much we shift the filter after each convolution \cite{cnns}.
+Padding is a value we add as a border around the input features, allowing the filter to cover the edges and thus reduce information loss.
+Stride controls how much we move the filter after each convolution \cite{cnns}.
 
-% \begin{figure}
-%     \begin{center}
-%     \begin{minipage}{0.75\textwidth}
-%       \includegraphics[width=\textwidth]{img/cnn-conv.png}
-%     \end{minipage}
-%     \caption{Example of simple calculation within convolution layer. The filter detects a diagonal edge of 3 pixels in length. Stride and padding are set to $1$ pixel, and zero is used as the padded value. We omit the bias term from the calculation. The result is passed through the ReLU activation function.}
-%     \label{fig:cnn-convolution}
-%     \end{center}
-% \end{figure}
-
-A convolutional layer consists of multiple units.
+A convolutional layer typically consists of several units.
 Each unit has its filter and produces a unique activation map.
 The idea is that each filter learns to recognize a different pattern during training --- and each unit is a map of evidence of those patterns.
 This gives a single layer the capability to detect multiple patterns, and, similarly to its fully connected counterpart, it allows subsequent layers of the network to build upon captured abstractions and ultimately "understand" and represent high-level concepts.
@@ -184,31 +147,17 @@ It is important to note that sharing weights has not only effects of identifying
 
 \subsubsection{Pooling Layer}
 
-To prevent overfitting, pooling layers are employed to additionally distill captured patterns.
+To avoid overfitting the network, pooling layers are employed to additionally distill captured patterns.
 They progressively reduce the size of the input features, leading to a smaller number of model parameters and reduced computational time \cite{cnns}.
 
 A pooling layer is typically placed after a convolutional one, iterating its activation maps and systematically applying a specific operation over its receptive field.
 We differentiate between two primary types of pooling: \emph{max} and \emph{average}.
-As their names imply, max pooling selects the maximum value within its receptive field, while average pooling computes the mean of the values.
-% The pooling layer has its shape and stride.
-% However, the dimensions are chosen more conservatively.
-% A common choice is a $2 \times 2$ filter and stride of $2$, ensuring the pooled sectors do not overlap.
-% According to the observations in \cite{cnns}, having a filter of size greater than $3 \times 3$ will most likely lead to a loss of the model's performance --- since such granularity may hide too many of the features detected by the network.
-% 
-% \begin{figure}
-%     \begin{center}
-%     \begin{minipage}{0.5\textwidth}
-%       \includegraphics[width=\textwidth]{img/cnn-pool.png}
-%     \end{minipage}
-%     \caption{Example of both max and average pooling layers. Both have filters of size $2x2$ and stride set to $2$, resulting in no overlap during computation. Notice that since each $2x2$ region is mapped to a single value, the new activation mask has a quarter of the features of the original.}
-%     \label{fig:cnn-pooling}
-%     \end{center}
-% \end{figure}
+As their names suggest, max pooling selects the maximum value within its receptive field, while average pooling calculates the average of the values.
 
 \subsubsection{Global Pooling Layer}
 
 Given that our network comprises only convolutional and pooling layers, we are not bound to any specific input size.
-Nonetheless, it is common practice to introduce fully connected layers towards the end of the network, and they require a fixed-size number of input features \cite{cnns}.
+However, it is common practice to introduce fully connected layers towards the end of the network, requiring a fixed number of input features \cite{cnns}.
 To meet this requirement, we use global pooling layers.
 
 Like standard pooling, global pooling comes in two forms: max and average.

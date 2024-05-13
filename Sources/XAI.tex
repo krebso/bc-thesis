@@ -95,7 +95,7 @@ The field of XAI distinguishes between two means of making artificial intelligen
 
 In recent years, a plethora of both global and local post-hoc explainability methods have been introduced to help grasp the decision process of deep neural networks. Post-hoc methods can be further divided into two groups. Model-specific methods are designed to explain only models with specific features and capabilities -- such as attention-based models or convolutional neural networks. On the contrary, model-agnostic methods can explain arbitrary machine learning models \cite{arrieta-taxonomy}.
 
-\section{Making CNN's Understandable}
+\section{Making CNN's Understandable}\label{sec:xai-cnn}
 
 For convolutional neural networks, the industry-wide standard is to visually highlight parts of an image, which are considered \emph{important} to the model. The result of such visualization is commonly referred to as a \emph{saliency map}, class activation map, or attribution map. There is no consensus on terminology, and we will use the term saliency map to describe any heatmap that identifies regions considered important by a post-hoc method. 
 
@@ -312,14 +312,15 @@ The process of propagating relevance $R_j$ from $j$ to $i$ is captured by the fo
 \end{equation}
 where $z_{ij}$ models to which extent neuron $i$ contributed to neuron $j$'s activation.
 The extent $z_{ij}$ is derived by various rules, further described in \cite{lrp}.
-The choice of rules is largely left to experimentation, however, Montavon et al. in \cite{lrp} provide a blueprint for choosing layers when working with VGG-16 based network.
+The choice of rules is largely left to experimentation.
+However, Montavon et al. in \cite{lrp} provide a blueprint for choosing layers when working with VGG-16-based network.
 
 The main building block is the LRP-$0$ rule, where the extent
 \begin{equation}
     z_{ji} = y_i w_{ji}.
 \end{equation}
 Parameters $y_j$ and $w_{ji}$ stand for neurons output and weight, respectively, as defined in \myref{Section}{section:dl}.
-\todo{are those really parameters?}
+% \todo{are those really parameters?}
 
 According to the observation of Montavon et al. in \cite{lrp}, using solely LRP-$0$ leads to very noisy explanations.
 To tackle the noise, we add a small positive term $\epsilon$ to the denominator --- $\epsilon$ will absorb weak and contradictory contributions, preserving only the salient scores. 

@@ -2,12 +2,12 @@
 
 This chapter consists of four sections. First, we try to outline what a good explanation should fulfill. Then, we tackle the current problem of high computational resource utilization of the current solution. In the third section, we construct a quantitative benchmark, choosing suitable metrics alongside brief reasoning and evidence behind our choice. In the last section, we conduct a subjective evaluation by a domain expert.
 
-We will use implementations from XAI-oriented machine learning libraries, \texttt{captum} (Occlusion, Composite-LRP), \texttt{torch-cam} (CAM) and \texttt{pytorch-grad-cam} (HiResCAM, GradCAM++, ScoreCAM, AblationCAM). All three libraries are publicly available on \texttt{github} and provide convenient interfaces, which we can easily unify in our pipeline.
+We will use implementations from XAI-oriented machine learning libraries, \texttt{captum}\footnote{\url{https://github.com/pytorch/captum}} (Occlusion, Composite-LRP), \texttt{torch-cam}\footnote{\url{https://github.com/frgfm/torch-cam/}} (CAM), and \texttt{pytorch-grad-cam}\footnote{\url{https://github.com/jacobgil/pytorch-grad-cam}} (HiResCAM, GradCAM++, ScoreCAM, AblationCAM). All three libraries are publicly available on \texttt{github} and provide convenient interfaces, which we can easily unify in our pipeline.
 
-CAM-based methods can compute saliency maps for arbitrary convolutional or pooling layers in our network.
+CAM-based methods can compute saliency maps for our network's arbitrary convolutional or pooling layers.
 Given the notion of hierarchical representation with increasing complexity towards deeper layers, attributing the lower layers does not make sense when trying to find concepts recognized by a domain expert.
 Instead, we examine the last convolutional and pooling layers.
-We decided to use the pooling layer based on the results from \myref{Appendix}{sec:conv-vs-pool}.
+We used the pooling layer based on the results from \myref{Appendix}{sec:conv-vs-pool}.
 
 For Composite-LRP, the configurations are countless. We based our setup on \myref{Figure}{fig:lrp-montavon}, but decided to replace the LRP-$\gamma$ rule for LRP-$\alpha\beta$ rule from \cite{lrp-alpha-beta}, which produced visually sharper results.
 Nevertheless, despite our efforts, the resulting saliency maps are still notably scattered, and we decided not to spend too much time exploring different options since we believe the method will not outperform Occlusion.
@@ -19,15 +19,15 @@ Nevertheless, despite our efforts, the resulting saliency maps are still notably
 \end{quote}
 
 Contemporary research does not provide a unified approach to define the "goodness" of an explanation.
-There are attempts to propose a set of properties a good explainability method should fulfill, but they are not aligned \cite{xai-functionality-grounded, explainability-hard, xai-meta-survey, xai-zhou-survey}.
+There are attempts to propose a set of properties a good explainability method should fulfill. Still, they are not aligned \cite{xai-functionality-grounded, explainability-hard, xai-meta-survey, xai-zhou-survey}.
 Moreover, some studies present contradictory results, rendering objective conclusions even more challenging \cite{xai-zhou-survey}.
 According to Doshi-Velez and Kim in \cite{xai-doshi}, "the field is crowded with evaluation methods, and there is no consensus on which are the “right” ones. 
 Much less, there is not even agreement on which criteria should be evaluated.".
 The challenge lies in the absence of ground truth for produced explanations, and therefore, we have no objective measure of grading the explanations \cite{xai-zhou-survey}.
-However, by carefully choosing metrics, we can avoid so-called "anecdotal evidence" and argue that certain explainability methods are sufficient given the audience and use case \cite{xai-anecdotal-evidence}.
-We believe that for an explanation to be applicable to our use-case of generating slide-level explanations, it needs to be:
+However, by carefully choosing metrics, we can avoid so-called "anecdotal evidence" and argue that specific explainability methods are sufficient given the audience and use case \cite{xai-anecdotal-evidence}.
+We believe that for an explanation to be suitable to our use-case of generating slide-level explanations, it needs to be:
 \begin{enumerate}
-    \item Performant: This is the main bottleneck of the current solution. We do not care how good a method is without reasonable performance since it cannot be utilized for practical purposes.
+    \item Performant: This is the main bottleneck of the current solution. We do not care how good a method is without reasonable performance since we cannot utilize it for practical purposes.
     \item Faithful: Ideally, we want to ensure that the explainability method only highlights the relevant parts of the input tile.
     \item Useful: We need the explanations to be presented to domain experts so that it is understandable for them. If they do not understand the explanation, it is of little value. 
 \end{enumerate}
@@ -43,7 +43,7 @@ To tackle this problem from both perspectives --- we first measure the time requ
 
 \subsection*{Time efficiency}
 
- We let each method fully explain the averagely-sized WSI of 1499 tiles from the test set.
+ We let each method fully explain the averagely-sized WSI of $1,499$ tiles from the test set.
  Although we aim to achieve good slide-level performance, we measure the time required for individual tile-level explanations instead.
  During the generation of slide-level explanations, there are a lot of auxiliary operations to stitch tile-level saliency maps together.
  The method and its implementation are not responsible for these operations.
@@ -76,7 +76,7 @@ ScoreCAM      & $9.76 \pm 0.00$ & $243.83$ & $671.96$ \\
 \end{tabular}
 \caption{
 Time efficiency of overviewed XAI methods.
-Methods are ordered from the fastest to the slowest.
+We ordered methods from the fastest to the slowest.
 Entry for Occlusion is in bold to visually delimit the methods into faster and slower than the current solution.
 Unsurprisingly, methods that require a single pass to compute activation maps' importance were the fastest, while the methods perturbing either input or model internals scored slower since they require multiple forward passes to estimate the importance.
 We could solve this, as in the case of Occlusion, by batching multiple perturbed inputs together, but the libraries do not offer such an option.
@@ -88,11 +88,11 @@ The third column represents the estimated time to explain the largest slide from
 
 \myref{Table}{tab:comp-time} shows the superiority of CAM methods, which require a single forward pass to compute the saliency maps.
 Expectedly, ScoreCAM scored the worst.
-This stems from the fact that for each of the $512$ activation maps of the last layer of our model, ScoreCAM runs a separate forward pass with a perturbed input tile.
+The time requirement stems from the fact that for each of the $512$ activation maps of the last layer of our model, ScoreCAM runs a separate forward pass with a perturbed input tile.
 The problem of multiple forward passes is tamed by batching in the case of Occlusion, where most of the overhead comes from the creation of perturbed tiles.
 What surprised us was the time AblationCAM needed to compute a single explanation.
 \myref{Equation}{eq:ablation-cam-importance-weight} shows that the importance weights in the case of AblationCAM are computed by perturbing models internals --- systematically zeroing out activations across layer units.
-In the case of our model, computing importance weight for unit $k$ means setting the pooled activation $a^k$ to zero --- output $y^c_k$ is simply a linear combination of pooled activations, omitting the $a^k$, which we would expect to be computed reasonably fast.
+In the case of our model, computing importance weight for unit $k$ means setting the pooled activation $a^k$ to zero --- output $y^c_k$ is simply a linear combination of pooled activations, omitting the $a^k$, which we would expect the library compute reasonably fast.
 
 Since both AblationCAM and ScoreCAM performed notably worse than Occlusion and did not bring us closer to finding a performant XAI method, we decided not to include them in further benchmarks.
 
@@ -103,20 +103,20 @@ The demand a method places on GPU resources is crucial for production deployment
 High GPU utilization by one method can limit the number of processes that can run in parallel, which, in turn, may increase deployment costs due to the need for additional GPU cards.
 Since neural networks are generally expensive in terms of computational power, their usage inevitably leads to increased carbon emissions.
 Sustainability, nowadays a crucial concern in technology development and deployment, should be thoughtfully weighed when considering the future use and advancement of deep learning models.
-We are not aware of any previous work trying to focus on GPU utilization of explainability methods, but given EU regulations on AI from \myref{Section}{sec:need-for-xai}, we believe that it should be evaluated accordingly.
+We are unaware of any previous work focusing on GPU utilization of explainability methods. Still, given EU regulations on AI from \myref{Section}{sec:need-for-xai}, we posit that we should evaluate it accordingly.
 Not considering those requirements could negatively affect deployed models since being unable to facilitate given restrictions may require them to be brought down.
 
-Like the Time Efficiency metric, we let each method explain a single WSI of $1499$ tiles.
+Like the Time Efficiency metric, we let each method explain a single WSI of $1,499$ tiles.
 We monitor the GPU usage by running the \texttt{nvidia-smi} executable in a separate process, forwarding its output every $500$ milliseconds to a CSV file.
 \myref{Table}{tab:gpu-util} presents the utilization of a single A40 GPU card, while computing the explanations.
-Note that we cannot exactly distinguish which portion of the GPU memory the XAI method uses since we also store the model on GPU.
+Note that we cannot precisely distinguish which portion of the GPU memory the XAI method uses since we also store the model on GPU.
 For this reason, we conducted one run without computing any explanations to serve as a baseline.
 We did all of the runs using a batch size of one in an attempt not to discriminate any method.
 We expect all methods to score better than Occlusion since none relies on internal batching.
 
 The results in \myref{Table}{tab:gpu-util} confirm our expectations that none of the methods except Occlusion noticeably exhaust the GPU.
-Therefore, we can run multiple processes simultaneously on a single card instance.
-Moreover, all methods but Occlusion can be sufficiently run on the smallest GPU the RationAI group has at hand, having a capacity of $10$GB.
+Therefore, we can run multiple processes simultaneously on a single card instance using one of our candidate methods.
+Moreover, the smallest GPU RationAI has at hand, with a capacity of $10$GB, is enough to facilitate all benchmarked methods, which is not the case for Occlusion.
 \begin{table}
 \centering
 \ra{1.2}
@@ -132,7 +132,7 @@ Composite-LRP      & $2,476$     & $1,566$  \\
 \bottomrule
 \end{tabular}
 \caption{
-GPU utilization of overviewed XAI methods. We use mode instead of mean, as we observed that after two GPU memory utilization snapshots, the number stays the same up until the end of the benchmark. Column Absolute GPU utilization captures the raw output of \texttt{nvidia-smi} command, while column Relative Overhead corresponds to the additional consumed memory on top of the normal model's requirements. All values are reported in megabytes. All methods scored notably better than Occlusion, which we attribute mainly to not running batched forward passes. CAM achieved the lowest utilization since it only multiplies activation maps with FC layer weights. GradCAM++ and HiResCAM need to compute and retain certain gradients, which require more memory than vanilla pass. Composite-LRP runs one full backward pass equivalent and needs to retain forward pass activations to compute neuron relevance.
+GPU utilization of overviewed XAI methods. We use mode instead of mean, as we observed that after two GPU memory utilization snapshots, the number stays the same up until the end of the benchmark. Column Absolute GPU utilization captures the raw output of \texttt{nvidia-smi} command, while column Relative Overhead corresponds to the additional consumed memory on top of the standard model's requirements. All values reported are in megabytes. All methods scored notably better than Occlusion, which we attribute mainly to not running batched forward passes. CAM achieved the lowest utilization since it only multiplies activation maps with FC layer weights. GradCAM++ and HiResCAM need to compute and retain specific gradients, which require more memory than vanilla pass. Composite-LRP runs one complete backward pass equivalent and needs to hold the forward pass activations to compute relevance scores.
 }
 \label{tab:gpu-util}
 \end{table}
@@ -146,17 +146,17 @@ Refining previously used metrics aims to provide a more robust and reliable benc
 
 \subsection*{Faithfulness}
 
-An established approach to assess whether the explainability method points to the relevant part of the input is to perturb the image, such that we remove features perceived as important by the model and back-fill removed areas with certain fixed value --- similar to how occlusion estimates feature importance --- and observe how model's confidence changes.
+An established approach to assess whether the explainability method points to the relevant part of the input is to perturb the image, such that we remove features perceived as important by the model and back-fill removed areas with specific fixed value --- similar to how occlusion estimates feature importance --- and observe how model's confidence changes.
 However, the literature suggests that this perturbation approach, which involves filling the removed areas with zeros or the mean pixel value, could be flawed.
 The perturbed input might include artifacts that induce a shift in the data distribution, compromising the reliability of such metrics since we cannot tell to what extent the change in the model's confidence stems from introduced artifacts compared to the initial relevance of removed features \cite{roar}.
 
 Experiments in \cite{gallo} utilize methods prone to introducing such unintentional artifacts.
 Notably, Occlusion and Deep-Taylor Decomposition \cite{xai-dtd} received the highest scores.
-This is aligned with the observation by Hsieh et al. in \cite{xai-hsieh-occ-dtd} --- that such metrics may favor methods that rely on the same mechanism when estimating the importance of input features.
-Since Occlusion estimates feature importance by a drop in the model's confidence by perturbing the input image with a patch --- when we later remove the region corresponding to a high attribution, the model's score will inevitably drop.
+This result is aligned with the observation by Hsieh et al. in \cite{xai-hsieh-occ-dtd} --- that such metrics may favor methods that rely on the exact mechanism when estimating the importance of input features.
+Since Occlusion estimates feature importance by a drop in the model's confidence by perturbing the input image with a patch --- when we later remove a highly salient region, the model's score will inevitably drop.
 Employed metrics (Causal Deletion \cite{xai-causal-deletion} and Area Over Perturbation Curve \cite{xai-aopc}) also did not produce aligned results, confirming findings in \cite{roar}.
 
-Hooker et al. \cite{roar} introduced an alternative metric known as Remove and Retrain (ROAR), which involves removing (zeroing out) the identified important features and then retraining the model with the modified dataset --- removing the distribution shift.
+Hooker et al. \cite{roar} introduced an alternative metric known as Remove and Retrain (ROAR), which involves removing (zeroing out) the identified markant features and then retraining the model with the modified dataset --- removing the distribution shift.
 Although ROAR has gained in popularity, it has the significant downside of being computationally intensive, rendering it unacceptable for our use case.
 As further shown by Rong et al. in \cite{road}, ROAR does not solve the problem of the so-called \emph{class information leakage} --- phenomenon when the uniformly-valued removed region reveals relevant class info through its shape.
 Rong et al. propose a method built on the foundations of ROAR, called Remove and Debias (ROAD).
@@ -174,17 +174,17 @@ As in one of the experiments in the original paper, we evaluate the methods at $
 While other experiments in \cite{road} feature imputation up to $85$ percent, it is computationally not feasible in our setting.
 Computing the scores for our $5$ percentages takes up to $4.5$ days for a single method.
 Since our methods tend to cover larger areas of input tiles, imputing $85$ of the most salient pixels takes around $11$ seconds for a single tile, prolonging the computation time by more than $3$ days for a single method.
-Moreover, in the production setting, the Occlusion saliency maps are thresholded to display anywhere from $55$ to $75$ of the most salient pixels, corresponding to the covered range of $25$ to $45$ most salient pixels imputed.
+Moreover, in the production setting, the Occlusion saliency maps are thresholded to cut-off anywhere from $55$ to $75$ of the most salient pixels, corresponding to the covered range of $25$ to $45$ most salient pixels imputed.
 As this thesis aims to compare the given methods against the baseline generated by Occlusion, with all these factors in mind, we decided not to extend the perturbation beyond the $50$ percent of the most salient pixels.
 
-It is desired that the model's score should drop significantly as we start removing the features, and the rate slows down as we approach the higher percentages, signaling that the important parts were indeed removed in the beginning \cite{road}.
+We want the model's score to drop significantly as we start removing the features, and the rate slows down as we approach the higher percentages, signaling that the key areas were indeed imputed in the beginning \cite{road}.
 We evaluated our model using the \texttt{pytorch-grad-cam} package that provides the \texttt{NoisyLinearImputer} class.
 This class is designed to handle the imputation of missing values in the same manner as the original implementation from the ROAD paper.
 We did not use the original implementation from \cite{road}, as the interface did not fit into our data-processing pipeline.
 \myref{Figure}{fig:road-impute} shows how the \texttt{NoisyLinearImputer} imputes removed areas.
-Since this method relies on sensitivity, we will only use the $24858$ positive tiles from the test split of the dataset from \myref{Section}{sec:dataset}.
+Since this method relies on sensitivity, we will only use the $24,858$ positive tiles from the test split of the dataset from \myref{Section}{sec:dataset}.
 To see the curve of the drop in the model's confidence, refer to \myref{Figure}{fig:road-curve}.
-A boxplot portraying the distribution of our results is presented in \myref{Figure}{fig:road-boxplot}.
+We present a boxplot portraying the distribution of our results in \myref{Figure}{fig:road-boxplot}.
 
 Our findings are consistent with the study conducted by Gallo et al. \cite{gallo} --- the faithfulness metric we utilized tends to prefer techniques that identify broader, continuous regions within the input tile.
 As shown in \myref{Figure}{fig:road-impute}, the tile imputed based on the explanation generated by Occlusion looks visually more distressed than the tile imputed according to the more scattered Composite-LRP method.
@@ -198,7 +198,7 @@ We also posit that despite the authors of GradCAM++ and HiResCAM \cite{grad-cam,
     \begin{minipage}{0.7\textwidth}
       \includegraphics[width=\textwidth]{img/road-curve.png}
     \end{minipage}
-    \caption{Curve visualizing mean drop in confidence of individual methods per imputed percentages of most salient pixels. Notice that looking only at the mean renders CAM and GradCAM++ as methods achieving similar performance. HiResCAM presents the desired behavior: the curve flattens once we start to impute larger parts on input. However, it achieves lower scores than other CAM-based methods.}
+    \caption{Curve visualizing mean drop in confidence of individual methods per imputed percentages of most salient pixels. Notice that looking only at the mean renders CAM and GradCAM++ as methods achieving similar performance. HiResCAM presents the desired behavior: the curve flattens once we start to impute larger parts on input. However, it achieves lower scores than other CAM-based methods. Composite-LRP underperforms Occlusion, aligned with our prior expectations and findings from \cite{gallo}.}
     \label{fig:road-curve}
     \end{center}
 \end{figure}
@@ -218,23 +218,23 @@ We also posit that despite the authors of GradCAM++ and HiResCAM \cite{grad-cam,
     \begin{minipage}{0.8\textwidth}
       \includegraphics[width=\textwidth]{img/road-impute.png}
     \end{minipage}
-    \caption{Upper row depicts attributions for Occlusion and Composite-LRP for the same tile. The bottom row shows a visualization of the tile imputed based on the $20$ percent of the most salient attribution pixels. While \texttt{NoisyLinearImputer} removes continuous regions based on the Occlusion attribution, the scattered Composite-LRP attribution and following imputation lead to a tile visually very similar to the original one. As a result, methods producing less-scattered explanations received higher scores, in agreement with results from \cite{gallo}. Images featuring attributions are presented in black and white to increase the visual contrast between the tile and the explanation. It is important to acknowledge that ROAD favors methods that cover larger areas of the tile --- because, at the same threshold, larger parts of the tile will be imputed. However, the visualization may be misleading, as LRP positively attributed more than $58$ percent of the displayed tile.}
+    \caption{Upper row depicts attributions for Occlusion and Composite-LRP for the same tile. The bottom row shows a visualization of the tile imputed based on the $20$ percent of the most salient attribution pixels. While \texttt{NoisyLinearImputer} removes continuous regions based on the Occlusion attribution, the scattered Composite-LRP attribution and following imputation lead to a tile visually very similar to the original one. As a result, methods producing less-scattered explanations received higher scores, in agreement with results from \cite{gallo}. Images featuring attributions are presented in black and white to increase the visual contrast between the tile and the explanation. It is important to acknowledge that ROAD favors methods that cover larger areas of the tile --- because, at the same threshold, we impute larger parts of the tile. However, the visualization may be misleading, as LRP positively attributed more than $58$ percent of the displayed tile.}
     \label{fig:road-impute}
     \end{center}
 \end{figure}
 
 \subsection*{Localization}
 
-The faithfulness metric tells us how well the explainability method attributes important locations.
+The faithfulness metric tells us how well the explainability method attributes locations principal for models' decisions.
 In addition, we want to ensure that these locations resemble what pathologists would classify as adenocarcinoma.
-To measure how well the output of a given method matches the pathologists' annotation, Gallo et al. \cite{gallo} utilized the Effective Heat Ratio (EHR) \cite{ehr} metric.
+To measure how well the output of a given method matches the pathologists' annotation, Gallo et al. utilized the Effective Heat Ratio (EHR) \cite{ehr} metric in \cite{gallo}.
 EHR relies on ground truth bounding boxes, which encapsulate objects of interest.
 Because of our specific use case, we argue that EHR is not the most suitable method.
 Given a bounding box, by design, EHR favors methods that cover larger annotation areas with strong saliency.
-This is not necessarily desired, as the bounding box only marks the rough location of cancerous tissue --- precise pixel-level borders are difficult to follow \cite{gallo, annotation-agreement} and such precise annotation would likely vary from pathologist to pathologist \cite{annotation-agreement}.
+Such merits are not necessarily desired, as the bounding box only marks the rough location of cancerous tissue --- precise pixel-level borders are challenging to follow \cite{gallo, annotation-agreement}, and such precise annotation would likely vary from pathologist to pathologist \cite{annotation-agreement}.
 Therefore, EHR discriminates metrics that could potentially point to cancerous markers but do not attribute healthy surrounding tissue included in the annotation.
 
-We will use what we consider a simpler technique called Weighting Game from \cite{weighting-game}, instead.
+Instead, we will use what we consider a more straightforward technique called Weighting Game from \cite{weighting-game}.
 It builds upon the established Pointing Game metric \cite{pointing-game}, which looks at whether the most salient pixel falls into the bounding box.
 Unlike the Pointing Game, which gives us just binary information about the accuracy of a given method, the Weighting Game calculates the ratio of the mass of the saliency map $S$ within the bounding box to the total mass of the $S$ \cite{weighting-game}.
 Compared to EHR, this does not disqualify methods that highlight smaller parts of the annotated area, and we believe it gives us a fair measure of how the explanation holds compared to the pathologist's annotation.
@@ -243,21 +243,21 @@ Given a tile $x$, annotation in the form of binary mask depicting the annotated 
     r = \frac{\operatorname{\text{mass}}(S \odot A)}{\operatorname{\text{mass}}(S)}.
 \end{equation}
 In the Weighting Game paper \cite{weighting-game}, authors first blur the mask a little by convolving it with a $3 \times 3$ filter to counter possible imprecision given a pixel-level ground truth bounding boxes.
-We decided to omit this explicit blurring step since, given our domain, the annotations are implicitly not ground truth for exact borders of cancerous tissue, and such imprecisions are already counted for given the more rough polygonal shape.
+We decided to omit this blurring step since, given our domain, the annotations are implicitly not ground truth for exact borders of cancerous tissue, and we already account for such imprecisions with the more rough polygonal shape.
 
-It is important to understand the role of this metric in our benchmark.
+It is essential to understand the role of this metric in our benchmark.
 Post-hoc XAI methods serve as a proxy between a model and its user.
-The model may have its flaws and hidden biases, and therefore, we cannot disregard a method solely on a bad Weighting Game score.
+The model may have flaws and hidden biases, so we cannot disregard a method solely on a bad Weighting Game score.
 Such a method may still reveal important information and help to facilitate such flaws and biases.
-However, our model is believed to have an excellent performance, rigorously verified with a domain expert in \cite{gallo}.
+However, we believe our model to have an excellent performance, rigorously verified with a domain expert in \cite{gallo}.
 Therefore, we see this metric as a bridge between the quantitative faithfulness metric and qualitative but inherently subjective domain expert assessment.
 
-\myref{Figure}{fig:weighting-game-boxplot} depicts rations distribution per positive tiles in the test part of our dataset.
+\myref{Figure}{fig:weighting-game-boxplot} depicts the ratio distribution per positive tiles in the test part of our dataset.
 Since we threshold Occlusion saliency maps when looking at the WSIs in the browser, we evaluate across different percentages of the most salient pixels kept.
 Gradient-based CAMs outperform Occlusion across all thresholds, advocating for the positive influence of gradient on localization capabilities.
 CAM performs similarly, slowly catching up as we keep only the most salient attributions.
 Notice that the score for Composite-LRP improves very slowly.
-This likely means that Composite-LRP tends to strongly attribute features that do not fall within the annotated region, and these attributions are preserved even upon keeping only the very most salient regions.
+This slow improvement likely means that Composite-LRP tends to greatly attribute features that do not fall within the annotated region, and these attributions are preserved even upon keeping only the very most salient areas.
 
 
 \begin{figure}
@@ -265,21 +265,21 @@ This likely means that Composite-LRP tends to strongly attribute features that d
     \begin{minipage}{1\textwidth}
       \includegraphics[width=\textwidth]{img/weighting-game-boxplot.png}
     \end{minipage}
-    \caption{Boxplot of the Weighting Game rations across different percentages of the most salient pixels kept. Notice the very good localization capabilities of gradient-based CAMs from the very beginning. This is not surprising in the case of HiResCAM since it only averages over the strongest activations, rendering the saliency map more conservative regarding how much of the tile they cover. However, we expected CAM to have similar performance to GradCAM++. T}
+    \caption{Boxplot of the Weighting Game ratios w.r.t annotations across different percentages of the most salient pixels kept. Notice the excellent localization capabilities of gradient-based CAMs from the very beginning. This is not surprising in the case of HiResCAM since it only averages over the strongest activations, rendering the saliency map more conservative regarding how much of the tile they cover. However, we expected CAM to perform similarly to GradCAM++. When we visually inspected where this difference stems from, we found that CAM tends to be more liberal with the tile coverage. However, areas, where those two methods differ, tend to receive small saliency, and CAM catches up on GradCAM++ when taking only the most salient regions into account.}
     \label{fig:weighting-game-boxplot}
     \end{center}
 \end{figure}
 
 \subsection*{Usefulness}
 
-The usefulness of an explanation in the context of deep learning models is inherently subjective, as it can vary significantly depending on the individual's perspective and context --- the audience's background, expertise, and purpose of use all play critical roles in determining the perceived utility of an explanation \cite{xai-doshi} --- something hard to capture by a quantitative metric.
+The usefulness of an explanation in the context of deep learning models is necessarily subjective, as it varies depending on the individual's perspective and context --- the audience's background, expertise, and purpose of use all play critical roles in determining the perceived utility of an explanation \cite{xai-doshi} --- something hard to capture by a quantitative metric.
 
 Fortunately, we know that a solution based on Occlusion produces semantically correct saliency maps aligned with features recognized by pathologists \cite{gallo}.
 Thus, we will employ the Weighting Game metric to assess how well candidate methods' saliency maps resemble the Occlusion ones.
-Therefore, to create an Occlusion-based annotation, we convert the Occlusion saliency map to a binary mask, where positive values get the value of $1$.
-In practice, during their analysis, the pathologist adjusts the saliency threshold of the displayed explanations to fall between approximately $55$ to $75$.
-Since Occlusion-based annotations cannot be considered a ground truth for relevant morphological features, we will give the candidate methods the benefit of the doubt, creating the annotations at the lower bound of the threshold, $55$ percent.
-Then, we use this thresholded binary saliency map as annotation $A$ in \myref{Equation}{eq:wg}.
+During analysis, the pathologist adjusts the saliency threshold of the displayed explanations to fall between approximately $55$ and $75$ of the most salient pixels.
+Since Occlusion-based annotations cannot be considered a ground truth for relevant morphological features, we will give the candidate methods the benefit of the doubt, creating the Occlusion annotations at the lower bound of the threshold, $55$ percent.
+To create an Occlusion-based annotation, we convert the thresholded Occlusion saliency map to a binary mask, where positive values get the value of $1$.
+Then, we use this binary mask map as annotation $A$ in \myref{Equation}{eq:wg}.
 
 We do not perceive this metric as adding to candidate methods' faithfulness or localization capabilities.
 Instead, its purpose is twofold.
@@ -288,8 +288,8 @@ Second, it enables us to evaluate how the pathologist subjectively perceives can
 
 \myref{Figure}{fig:occ-weighting-game-boxplot} depicts the distribution of Weighting Game ratios across different thresholds for candidate saliency maps.
 HiResCAM agrees well with Occlusion-based annotation.
-This aligns with our a priori expectation from \myref{Subsection}{sub:hirescam} that Occlusion will attribute mostly regions corresponding to the highest activation maps values since only those are taken into account because of GMP.
-Despite GradCAM++ and CAM producing visually similar results, GradCAM++ saliency maps tend to hit better areas attributed by Occlusion.
+The agreement aligns with our a priori expectation from \myref{Subsection}{sub:hirescam} that Occlusion will attribute mainly regions corresponding to the highest activation maps values since only those are considered when computing the final score because of GMP.
+Despite GradCAM++ and CAM producing visually similar results, GradCAM++ saliency maps tend to better hit areas marked by Occlusion.
 However, CAM starts to catch up towards the higher thresholds for kept pixels.
 Composite-LRP consistently performs across all thresholds, supporting the observation that it attributes regions not considered important by other methods.
 
@@ -299,7 +299,7 @@ Composite-LRP consistently performs across all thresholds, supporting the observ
     \begin{minipage}{1\textwidth}
       \includegraphics[width=\textwidth]{img/occlusion-weighting-game-boxplot.png}
     \end{minipage}
-    \caption{Boxplot of Weighting Game ratios, when we take $55$ percents of the most salient pixels from Occlusion saliency map as the bounding box. Notice that HiResCAM achieves high ratios very consistently. We attribute the high score to the conservativeness of areas covered by its saliency maps and our expectation from \myref{Subsection}{sub:hirescam}. Despite the similar performance of CAM and GradCAM++ in both faithfulness and localization metrics, GradCAM++ tends to better resemble the Occlusion-based annotation, up until taking only the very most salient pixels from respective saliency maps.}
+    \caption{Boxplot of Weighting Game ratios, when we take $55$ percents of the most salient pixels from Occlusion saliency map as the bounding box. Notice that HiResCAM achieves high ratios very consistently. We attribute the high score to the conservativeness of areas covered by its saliency maps and our expectation from \myref{Subsection}{sub:hirescam}. Despite the similar performance of CAM and GradCAM++ in faithfulness and localization metrics, GradCAM++ tends to better resemble the Occlusion-based annotation until taking only the most salient pixels from respective saliency maps.}
     \label{fig:occ-weighting-game-boxplot}
     \end{center}
 \end{figure}
@@ -309,7 +309,7 @@ Composite-LRP consistently performs across all thresholds, supporting the observ
 This section presents a qualitative evaluation of produced explanations by a domain expert.
 In \cite{gallo}, Gallo et al. first generated saliency maps for all test slides.
 Then, they sampled a subset of $461$ regions, where Occlusion suggested an area important for the model when deciding whether to be pro or against the presence of cancer.
-Originally, we wanted to present candidate saliency maps for all the $461$ original regions.
+Initially, we wanted to present candidate saliency maps for all the $461$ original regions.
 However, this would implicitly handicap methods, which focus on different, albeit still relevant, parts of the WSI. 
 Another option was to produce saliency maps of candidate methods for the test set and try to sample new areas of interest. However, we could not use the original approach since it also relied on negative attributions, something we do not have for HiResCAM and GradCAM++.
 Moreover, such random sampling could also be unfair, as the distribution of different morphological features would likely vary across different samples.
@@ -326,7 +326,7 @@ Moreover, GradCAM++ reported very different results in \myref{Appendix}{sec:conv
 HiResCAM scored notably well when quantitatively comparing marked salient regions to the Occlusion ones.
 
 In this setting, the target audience is an experienced pathologist, MUDr. Rudolf Nenutil, CSc.
-He has a long track record of working with the RationAI group, and his expertise was used for evaluation in \cite{gallo}.
+He has a long track record of working with the RationAI group, and Gallo et al. used his expertise for evaluation in \cite{gallo}.
 To subjectively assess the usefulness of the saliency maps, we gave him the following assignment:
 
 \begin{doublebar}
@@ -349,3 +349,67 @@ We do not expect you to go through all slides --- please do it to the extent tha
 We deliberately did not display the Occlusion maps to avoid biasing MUDr. Nenutil.
 This section aims to assess how well the candidate maps represent known morphological patterns --- we already compared the Occlusion similarity quantitatively.
 
+MUDr. Nenutil gave us a presentation in which he annotated areas of interest for our model proxied by CAM and HiResCAM.
+He used the notion of \emph{xPatterns} --- ``seven prominent patterns, four
+typically forming pro-cancer morphological features and three typical
+for non-cancer tissue'' --- from \cite{gallo}.
+
+CAM detects $4/4$ pro-cancer and $3/3$ non-cancer xPatterns.
+HiResCAM, comprised only of positive saliency, can detect $4/4$ pro-cancer xPatterns identified in \cite{gallo}.
+Both methods detecting the same pro-cancer patterns aligns with their theoretical background presented in \myref{Section}{sec:xai-cnn}.
+\myref{Figure}{fig:both-pos} and \myref{Figure}{fig:both-nuclear-density} show positive patterns detected by CAM and HiResCAM.
+We present negative xPatterns identified by CAM in \myref{Figure}{fig:cam-neg}.
+All saliency maps in presented images are thresholded, such that we display only the $70$ percent of the most salient pixels.
+
+According to the subjective evaluation by MUDr. Nenutil, ``CAM is more sensitive to `High nuclear density' positive pattern'' while ``HiresCAM is more sensitive to `Single chain of nuclei' and `Larger nucleus with perinuclear halo' patterns, which results in much more false positive labels''.
+This observation is illustrated in \myref{Figure}{fig:both-pos}, and we posit it positively advocates for the model's trustworthiness. 
+Those two methods help to show that while the model correctly perceives most features as negative, it can still detect and recognize a feature advocating for cancer.
+However, given other contextual information, it is disregarded, and the model rightly classifies the tile as non-cancerous, as depicted in \myref{Figure}{fig:ruda-annot}.
+
+\begin{figure}
+    \begin{center}
+    \begin{minipage}{1\textwidth}
+    \fcolorbox{RoyalBlue}{white}
+      {\includegraphics[width=0.49\textwidth]{img/cam-pos.png}
+      \includegraphics[width=0.49\textwidth]{img/hirescam-pos.png}}
+    \end{minipage}
+    \caption{The Image on the left shows annotated CAM saliency maps; HiResCAM is on the right. Both methods successfully detect and report $3$ positive xPatterns from \cite{gallo}. Notice that in areas where CAM reports negative attributions due to a larger presence of healthy tissue, HiResCAM still correctly points out relevant morphological features, namely larger nuclei with perinuclear halos. Images taken from MUDr. Nenutil's presentation, included in supplementary materials.}
+    \label{fig:both-pos}
+    \end{center}
+\end{figure}
+
+\begin{figure}
+    \begin{center}
+    \begin{minipage}{1\textwidth}
+    \fcolorbox{RoyalBlue}{white}
+      {\includegraphics[width=0.49\textwidth]{img/cam-nuclear-density.png}
+      \includegraphics[width=0.49\textwidth]{img/hirescam-nuclear-density.png}}
+    \end{minipage}
+    \caption{Coverage of ``High nuclear density'' xPattern from \cite{gallo}. MUDr. Nenutil assessed that CAM, on the left, is more sensitive to this particular xPattern. This stems from HiResCAM's inner mechanism of preserving only the strongest activation per activation map. Therefore, although the activation maps are largely filled with positive values, most are not reflected in the resulting saliency map, and the map looks diluted and scattered.}
+    \label{fig:both-nuclear-density}
+    \end{center}
+\end{figure}
+
+\begin{figure}
+    \begin{center}
+    \begin{minipage}{0.8\textwidth}
+    \fcolorbox{RoyalBlue}{white}
+      {\includegraphics[width=\textwidth]{img/cam-neg.png}}
+    \end{minipage}
+    \caption{CAM is able to correctly detect presence of $3/3$ negative xPatterns from \cite{gallo}. Identifying negative attributions is often overlooked in other CAM-based methods. We believe this stems from the fact that given a classifier trained to distinguish among hundreds of classes, information about what in the given image advocates \emph{against} the class of interest may be very hard to interpret. In our binary classifier setting, we show that having a proxy displaying negative attribution may produce a comprehensible result aligned with the concepts relevant to a domain expert.}
+    \label{fig:cam-neg}
+    \end{center}
+\end{figure}
+
+\begin{figure}
+    \begin{center}
+    \begin{minipage}{1\textwidth}
+    \fcolorbox{RoyalBlue}{white}
+      {\includegraphics[width=\textwidth]{img/ruda-annot.png}}
+    \end{minipage}
+    \caption{
+    Image with annotation from MUDr. Nenutil, depicting cancerous and non-cancerous areas. Both CAM and HiResCAM assign positive saliency to the cancerous area, with both methods highlighting the same features. In the non-cancerous part, CAM indicates the prevalence of features considered against the presence of cancer by our model. However, since we take only positive values when summing up activation maps in the case of HiResCAM, it can still detect positive patterns in the non-cancerous area. We posit that combining those methods can help us debug the model and quickly differentiate between situations when the model fails to detect a pattern versus when the pattern got detected, but the model disregards it because of surrounding healthy tissue.
+    }
+    \label{fig:ruda-annot}
+    \end{center}
+\end{figure}

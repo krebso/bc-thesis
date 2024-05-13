@@ -2,44 +2,20 @@
 \renewcommand{\thechapter}{A}
 \chapter{Appendix}
 
-\definecolor{codegreen}{rgb}{0,0.6,0}
-\definecolor{codegray}{rgb}{0.5,0.5,0.5}
-\definecolor{codepurple}{rgb}{0.58,0,0.82}
-\definecolor{backcolour}{rgb}{0.95,0.95,0.92}
-
-\lstdefinestyle{mystyle}{
-    backgroundcolor=\color{white},   
-    commentstyle=\color{codegreen},
-    keywordstyle=\color{magenta},
-    numberstyle=\tiny\color{codegray},
-    stringstyle=\color{codepurple},
-    basicstyle=\ttfamily\footnotesize,
-    breakatwhitespace=false,         
-    breaklines=true,                 
-    captionpos=b,                    
-    keepspaces=true,                          
-    showspaces=false,                
-    showstringspaces=false,
-    showtabs=false,                  
-    tabsize=2
-}
-
-\lstset{style=mystyle}
-
 \section*{GradCAM++ importance weights}\label{sec:grad-cam-plus-plus-weight-derivation}
 
-Without the loss of generality, let us fix layer $K$ with the highest activation $A^k_{ij}$.
+Without the loss of generality, let us fix unit $k$ with the highest activation $A^k_{ij}$.
 Since we utilize the GMP layer, all partial derivatives in \myref{Equation}{eq:grad-cam-pp-weights} will be zero, except for the one corresponding to the highest activation.
-As a result, we get rid of both sums, and the importance weight becomes 
+As a result, we can dismiss both sums, and the importance weight becomes 
 \begin{equation}
     i_{ck} = \alpha^{ck}_{ij} \relu(\frac{\partial Y^c}{\partial A^k_{ij}}).
 \end{equation}
 Authors already derived the activated score $Y^c = \exp(y^c)$ for us, and given the architecture of our model, the following set of equations holds:
 \begin{equation}
 \begin{aligned}
-  \frac{\partial Y^c}{\partial A_{ij}^k}       &= \exp(y^c) \frac{\partial y^c}{\partial A_{ij}^k} &= \exp(y^c) w_{ck}     \\
-  \frac{\partial^2 Y^c}{\partial (A_{ij}^k)^2} &= \exp(y^c) (\frac{\partial y^c}{\partial A_{ij}^k})^2 &= \exp(y^c) (w_{ck})^2 \\
-  \frac{\partial^3 Y^c}{\partial (A_{ij}^k)^3} &= \exp(y^c) (\frac{\partial y^c}{\partial A_{ij}^k})^3 &= \exp(y^c) (w_{ck})^3.
+  \frac{\partial Y^c}{\partial A_{ij}^k}       &= \exp(y^c) \frac{\partial y^c}{\partial A_{ij}^k}     &&= \exp(y^c) w_{ck}     \\
+  \frac{\partial^2 Y^c}{\partial (A_{ij}^k)^2} &= \exp(y^c) (\frac{\partial y^c}{\partial A_{ij}^k})^2 &&= \exp(y^c) (w_{ck})^2 \\
+  \frac{\partial^3 Y^c}{\partial (A_{ij}^k)^3} &= \exp(y^c) (\frac{\partial y^c}{\partial A_{ij}^k})^3 &&= \exp(y^c) (w_{ck})^3.
 \end{aligned}
 \end{equation}
 
@@ -55,7 +31,7 @@ and subsequently
 \section*{Convolutional Versus Pooling Layer for CAM-Based Methods}\label{sec:conv-vs-pool}
 
 This thesis aims to find a performant explainability method that produces saliency maps similar to Occlusion.
-While it seems natural to compute the saliency maps for the last convolutional layer, we decided to spend some time exploring our options.
+While it seems natural to compute the saliency maps for the last convolutional layer, we decided to explore our options.
 
 The last convolutional layer produces $512$ activation maps, each comprising $32 \times 32$ activations.
 When we upsample weighted activation map $A^k$ to the size of $512 \times 512$ pixels, each spatial activation corresponds to a $16 \times 16$ portion of the upsampled activation map.
@@ -70,7 +46,7 @@ The distribution of ROAD ratios is depicted in \myref{Figure}{fig:road-conv-vs-p
 
 Based on the results, we decided to continue with saliency maps computed with respect to the pooling layer.
 There is a negligible difference for CAM, and we posit the pooled saliency maps as more similar to Occlusion.
-The same goes for HiResCAM; although the convolutional layer receives a much smaller spread, the saliency maps tend to be more scattered and blurred.
+The same goes for HiResCAM; although the convolutional layer receives a much smaller ratios spread, the saliency maps tend to be more scattered and blurred.
 For GradCAM++, using the convolutional layer is not an option.
 Because of the indirect proportion between activation strength and resulting importance weight, the less important regions are marked as more salient when computing the saliency map with respect to the last convolutional layer.
 As we impute more of the area blurred based on the saliency strength, the actual important regions are taken into account, and the model's score for perturbed images starts to drop.
@@ -99,10 +75,13 @@ The difference for GradCAM++ regions imputed by the ROAD metric is shown in \myr
 
 \begin{figure}
     \begin{center}
-    \begin{minipage}{0.75\textwidth}
+    \begin{minipage}{0.7\textwidth}
       \includegraphics[width=\textwidth]{img/gradcampp-road-conv-vs-pool.png}
     \end{minipage}
-    \caption{Visualization of different imputation results when we use the convolutional instead of the pooling layer. On the original tile, the model accurately reports $0.98$ confidence for the presence of cancer. Both Occlusion and GradCAM++ w.r.t pooling layer accurately point to the relevant locations in the bottom, and the confidence on perturbed tile drops to almost $0$. For GradCAM++ w.r.t. convolutional layer, the saliency map significantly differs from the other two, and the models' confidence stays the same. We used \texttt{pytorch-grad-cam}'s implementation of visualizing the perturbed input, hence the discoloration.}
+    \caption{Visualization of different imputation results when we use the convolutional instead of the pooling layer for GradCAM++. On the original tile, the model accurately reports $0.98$ confidence for the presence of cancer. Both Occlusion and GradCAM++ w.r.t pooling layer accurately point to the relevant locations in the bottom, and the confidence on perturbed tile drops to almost $0$. For GradCAM++ w.r.t. convolutional layer, the saliency map significantly differs from the other two, and the models' confidence stays the same. We used \texttt{pytorch-grad-cam}'s implementation of visualizing the perturbed input, hence the discoloration.}
     \label{fig:gradcampp-road-conv-vs-pool}
     \end{center}
 \end{figure}
+
+\section{Implementation}
+

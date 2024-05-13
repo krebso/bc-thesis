@@ -1,5 +1,17 @@
-\addcontentsline{toc}{chapter}{Conclusion}
 \chapter*{Conclusion}
+\addcontentsline{toc}{chapter}{Conclusion}
 
-clustering, find what spikes activations in data, present to pathologist, annotate individual activation maps, then we will know what the model detected, while not necessarily training it for the task
+The main goal of this thesis was to find a suitably fast method which could replace Occlusion.
+This body of work builds upon previous research done by the RationAI group in \cite{gallo, bajger-grad-cam, krajnansky-grad-cam, hruska-grad-cam}.
+We reviewed the achieved results and focused on previously outlined perspective directions.
+To measure the suitability of candidate methods, we designed a comprehensive quantitative benchmark with specific domain requirements in mind.
+As a result, we presented two methods that outperformed Occlusion to the domain expert.
+He concluded that both methods focus on all relevant morphological features detected by Occlusion.
+Thus, to maximize efficiency, we incorporated the custom implementation of both methods to the \texttt{HistoPipe} repository, bringing down the required time to generate slide-level saliency maps for all $87$ test WSI's from $3.3$ days to $2$ hours.
 
+\subsection*{Future Work}
+
+Bajger has shown in \cite{bajger-grad-cam} that using clustering methods in combination with CAM/GradCAM shows promising results.
+We want to extend his findings and try to segment different patterns using such clustered activation maps.
+Given a dataset compiled by domain experts to resemble different Gleason patterns, we can look at which activation maps have prominent activations when looking at these patterns.
+Suppose there is a degree of separation of concerns between groups of convolutional units. In that case, we can predict not only the presence of cancerous tissue but also the severity of the patterns detected --- without any additional training or modification to the model architecture.

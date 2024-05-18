@@ -1,7 +1,9 @@
 \chapter{Deep Learning in Digital Histopathology}
 
+\todo{better intro}
 This chapter provides a broad overview of the areas that comprise the subject of this thesis.
-We begin by introducing the field of histopathology and its concerns, as well as the tools used in contemporary clinical practice, followed by how digitization has helped to reduce the logistical complexity of the histopathologist's workflow and how decision support systems can further reduce the amount of human labor required.
+We begin by introducing the field of histopathology and its concerns, as well as the tools used in contemporary clinical practice.
+We illustrate how digitization has helped reduce the logistical complexity of the histopathologist's workflow and how decision support systems can further reduce the amount of human labor required.
 Finally, we review feedforward artificial neural networks, focusing on convolutional networks, which are particularly suited to various computer vision problems.
 
 \section{Histopathology}
@@ -30,20 +32,17 @@ Such logistic pitfalls slow down the diagnostic process and lead to longer waiti
 \section{Digital Histopathology}
 
 Digital histopathology aims to reduce the logistic overhead caused by physical copies of glass slides.
-After the tissue has been extracted and prepared, instead of being sent to a histopathologist, it is scanned using special lenses, resulting in a high-resolution digital image called \emph{Whole Slide Image} (WSI) \cite{from-traditional-to-digital-histopathology}.
+After the tissue has been extracted and prepared, instead of being sent to a histopathologist, it is scanned using special lenses, resulting in a high-resolution digital image called Whole Slide Image (WSI) \cite{from-traditional-to-digital-histopathology}.
 This image is then uploaded to an aggregator server, enabling real-time slide sharing and parallel collaboration of multiple clinicians.
 Histopathologists then examine WSI's in a dedicated browser on their computer monitors --- rather than looking at the glass slide under a microscope \cite{digital-histopathology-process}. \myref{Figure}{fig:xopat} shows a WSI of a prostate tissue sample displayed in a dedicated browser developed by the RationAI group.
 
 Although contemporary digital pathology systems significantly speed up pathologist's day-to-day work, we can further optimize another productivity metric: the time a pathologist spends examining WSIs.
 
-\begin{figure}
-    \begin{center}
-    \begin{minipage}{0.90\textwidth}
-      \fcolorbox{RoyalBlue}{white}{\includegraphics[width=\textwidth]{img/xopat.png}}
-    \end{minipage}
+\begin{figure}[t]
+    \centering
+    \fcolorbox{RoyalBlue}{white}{\includegraphics[width=0.97\textwidth]{img/xopat.png}}
     \caption{xOpat \cite{xopat} WSI browser with a sample of prostate tissue. The histopathologist can move and zoom the tissue, allowing him to navigate the WSI quickly. Digitized copies allow for the layering of arbitrary annotations on top of the WSI, providing great collaborative capabilities. For example, different pathologists can mark cancerous regions and then display them on top of each other to see their agreement.}
     \label{fig:xopat}
-    \end{center}
 \end{figure}
 
 \subsection*{Decision Support System}
@@ -59,14 +58,13 @@ These systems often provide real-time results and domain-expert-like performance
 \section{Deep Learning}\label{section:dl}
 
 The branch of machine learning that encapsulates neural networks (NNs) is called deep learning (DL).
-The methods and algorithms used by DL achieve remarkable results in various fields such as computer vision, games, or weather forecast \cite{alexnet, alphago, weather}.
-% Introduced by McCulloch and Pitts in \cite{mcculloch-pitts} to create a computational unit similar to a neuron in the human brain, neural networks have come a long way to the prominent place they occupy today.
+The methods and algorithms used by DL achieve remarkable results in various fields such as computer vision, games, or weather forecast \cite{alexnet, alphago, weather}. The following parts provide an overview of the necessary concepts used in this work and are drawn from the work of Goodfellow et al. in \cite{goodfellow}.
 
 \subsection*{Feedforward Neural Network}\label{feedforward-nn}
 
 Feedforward networks are considered the starting point of modern DL models.
 They get their name from the unidirectional flow of information within the network.
-We can think of feedforward networks as a function $f$ that maps real-valued input vector $x$ from input space to a value $y$ from output space \cite{goodfellow}.
+We can think of feedforward networks as a function $f$ that maps input vector $x$ from input space to a value $y$ from output space \cite{goodfellow}.
 Throughout this thesis, we will only consider this type of network.
 
 A common approach to studying neural network architectures is to see them as a sequence of layers.
@@ -78,7 +76,7 @@ For any given input vector $x$, the computation performed by the network can be 
 \end{equation}
 In this notation, layer $1$ is the input layer, which receives the input vector $x$.
 The last or $L$-th layer is the output layer, which returns the network's prediction or decision $y$.
-All intermediate layers are called hidden layers and transform one internal representation into another \cite{goodfellow}.
+All intermediate layers are called hidden layers and transform one internal representation into another.
 
 Although \cite{cybenko} essentially shows that one hidden layer is all you need, neural networks typically employ multiple hidden layers.
 The motivation is that we think of each layer as capturing certain abstractions or representations from its input.
@@ -95,7 +93,7 @@ Given a neuron $i$ with activation function $\sigma_i$ expecting $K$ input signa
     y_i = \sigma_i(b_i + \sum_{k=1}^K w_{ik}x_k)
 \end{equation}
 where weight $w_{ik}$ connects $k$-th input feature to the neuron $i$ and $b_i$ is a constant bias term, improving the neuron's modeling capabilities.
-If all neurons in a given layer $l$ have incoming weights from all neurons in the previous layer, we say that $l$ is fully connected (FC) \cite{goodfellow}.
+If all neurons in a given layer $l$ have incoming weights from all neurons in the previous layer, we say that $l$ is fully connected (FC).
 % \myref{Figure}{fig:simple-mlp} depicts a small MLP with one hidden layer.
 
 Weights and biases are called trainable parameters, denoted as $\theta$.
@@ -106,15 +104,15 @@ The difference is captured by a loss function $\ell$, and minimizing $\ell$ is t
 More on neural network training can be found in \cite{goodfellow}.
 
 Even though MLPs demonstrate impressive results on tasks previously deemed impossible for computers, they have certain drawbacks.
-If we used only FC layers, contemporary architectures such as AlexNet \cite{alexnet} would have an unimaginable number of trainable parameters.
+If we used only FC layers, contemporary architectures such as AlexNet from \cite{alexnet} would have an unimaginable number of trainable parameters.
 This led to the development of new architectures tailored to specific domain needs.
-Despite the move away from using models comprised only of FC layers, MLP stood its ground and is still an essential part of several state-of-the-art neural network architectures \cite{alexnet}.
+Despite the move away from using models comprised only of FC layers, MLP stood its ground and is still an essential part of several state-of-the-art neural network architectures.
 
 \subsection*{Convolutional Neural Network}
 Convolutional Neural Networks (CNNs) focus on working with grid-like data.
 Therefore, their input $x$ typically comes in the form of a multidimensional array of shape $H \times W \times C$, where $H$ and $W$ stand for height and width respectively, and $C$ is the number of channels ($1$ for grayscale images, $3$ for RGB images).
 CNNs have been introduced specifically to solve various computer vision problems and add two additional layer types --- convolutional and pooling.
-These layers help to capture patterns in the input features and reduce the size of the network \cite{cnns}. 
+These layers help capture patterns in the input features and reduce the size of the network \cite{cnns}. 
 
 \subsubsection{Convolutional Layer}
 
@@ -168,7 +166,7 @@ Throughout this thesis, we will denote globally pooled activation map $A^k$ as $
 \begin{equation}\label{gap}
     a^k = \frac{1}{|A^k|} \sum_{i=0}^H \sum_{j=0}^W A^k_{ij}
 \end{equation}
-and for the global max pooling, the \myref{Equation}{gap} changes to simply
+and for the global max pooling (GMP), the \myref{Equation}{gap} changes to
 \begin{equation}
     a^k = \max_{i,j} A^k_{ij}.
 \end{equation}

@@ -1,17 +1,18 @@
 \chapter*{Conclusion}
 \addcontentsline{toc}{chapter}{Conclusion}
 
-The main goal of this thesis was to find a suitably fast method which could replace Occlusion.
+\todo{praise me for the GPU utilization}
+The main goal of this thesis was to find a suitably fast method that could replace Occlusion.
 This body of work builds upon previous research done by the RationAI group in \cite{gallo, bajger-grad-cam, krajnansky-grad-cam, hruska-grad-cam}.
 We reviewed the achieved results and focused on previously outlined perspective directions.
 To measure the suitability of candidate methods, we designed a comprehensive quantitative benchmark with specific domain requirements in mind.
-As a result, we presented two methods that outperformed Occlusion to the domain expert.
+As a result, we presented two methods that outperformed Occlusion to a domain expert.
 He concluded that both methods focus on all relevant morphological features detected by Occlusion.
-Thus, to maximize efficiency, we incorporated the custom implementation of both methods to the \texttt{HistoPipe} repository, bringing down the required time to generate slide-level saliency maps for all $87$ test WSI's from $3.3$ days to $2$ hours.
+Thus, we consider CAM in combination with HiResCAM viable alternatives, and to maximize efficiency, we incorporated the custom implementation of both methods to the \texttt{HistoPipe} repository, reducing the time required to generate slide-level saliency maps for all $87$ test WSI's from $3.3$ days to $2$ hours.
 
 \subsection*{Future Work}
 
-Bajger has shown in \cite{bajger-grad-cam} that using clustering methods in combination with CAM/GradCAM shows promising results.
-We want to extend his findings and try to segment different patterns using such clustered activation maps.
+Bajger has shown in \cite{bajger-grad-cam} that using clustering methods in combination with CAM/GradCAM gives promising results.
+We want to extend his results and try to segment different patterns using such clustered activation maps.
 Given a dataset compiled by domain experts to resemble different Gleason patterns, we can look at which activation maps have prominent activations when looking at these patterns.
-Suppose there is a degree of separation of concerns between groups of convolutional units. In that case, we can predict not only the presence of cancerous tissue but also the severity of the patterns detected --- without any additional training or modification to the model architecture.
+Suppose there is a degree of separation of activations between groups of convolutional units upon seeing different patterns. In this case, we can predict not only the presence of cancerous tissue but also the severity of the patterns detected --- without any additional training or modification to the model architecture.

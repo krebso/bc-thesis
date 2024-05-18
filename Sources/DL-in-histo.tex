@@ -58,13 +58,13 @@ These systems often provide real-time results and domain-expert-like performance
 \section{Deep Learning}\label{section:dl}
 
 The branch of machine learning that encapsulates neural networks (NNs) is called deep learning (DL).
-The methods and algorithms used by DL achieve remarkable results in various fields such as computer vision, games, or weather forecast \cite{alexnet, alphago, weather}. The following parts provide an overview of the necessary concepts used in this work and are drawn from the work of Goodfellow et al. in \cite{goodfellow}.
+The methods and algorithms used by DL achieve remarkable results in various fields such as computer vision, games, or weather forecast \cite{alexnet, alphago, weather}. The following parts provide an overview of the necessary concepts used in this work and are drawn from the work of Goodfellow et al. \cite{goodfellow}.
 
 \subsection*{Feedforward Neural Network}\label{feedforward-nn}
 
 Feedforward networks are considered the starting point of modern DL models.
 They get their name from the unidirectional flow of information within the network.
-We can think of feedforward networks as a function $f$ that maps input vector $x$ from input space to a value $y$ from output space \cite{goodfellow}.
+We can think of feedforward networks as a function $f$ that maps input vector $x$ from input space to a value $y$ from output space.
 Throughout this thesis, we will only consider this type of network.
 
 A common approach to studying neural network architectures is to see them as a sequence of layers.
@@ -118,7 +118,7 @@ These layers help capture patterns in the input features and reduce the size of 
 
 The convolutional layer uses trainable filters (kernels) to search for visual patterns in its features.
 The filter is typically smaller in width and height than the input but spans all the input channels.
-Rather than interacting with the entire input at once using weighted connections, the filter $F$ is systematically slid across the input, and the filter weights convolve with the corresponding input data segments, resulting in a two-dimensional \emph{activation map} $A$ \cite{goodfellow}.
+Rather than interacting with the entire input at once using weighted connections, the filter $F$ is systematically slid across the input, and the filter weights convolve with the corresponding input data segments, resulting in a two-dimensional \emph{activation map} $A$.
 Convolution is a linear operation that chains the element-wise product of the filter and receptive field over all channels and then sums the products into one value. Given a filter $F$ and input $I$, the spatial activation $A_{ij}$ is computed as 
 \begin{equation}
     (F * I)_{ij} = b + \sum_{x=0}^{W} \sum_{y=0}^{H} \sum_{z=0}^{C} F_{xyz} \cdot I_{(i+x)(j+y)z}
@@ -133,7 +133,7 @@ When incorporating a convolutional layer into a neural network, the critical par
 The shape determines the size of the receptive field -- how many input features the filter can see at a given position.
 In addition, we usually set two other parameters: \emph{padding} and \emph{stride}.
 Padding is a value we add as a border around the input features, allowing the filter to cover the edges and thus reduce information loss.
-Stride controls how much we move the filter after each convolution \cite{cnns}.
+Stride controls how much we move the filter after each convolution.
 
 A convolutional layer typically consists of several units.
 Each unit has its filter and produces a unique activation map.
@@ -141,7 +141,7 @@ The idea is that each filter learns to recognize a different pattern during trai
 This gives a single layer the capability to detect multiple patterns, and, similarly to its fully connected counterpart, it allows subsequent layers of the network to build upon captured abstractions and ultimately "understand" and represent high-level concepts.
 Given a layer with $n$ units, we will denote $k$-th filter as $F^k$ and $k$-th activation map as $A^k$.
 
-It is important to note that sharing weights has not only effects of identifying patterns regardless of their position in the input -- it also reduces the number of parameters we have in a network \cite{cnns}.
+It is important to note that sharing weights has not only effects of identifying patterns regardless of their position in the input -- it also reduces the number of parameters we have in a network.
 
 \subsubsection{Pooling Layer}
 

@@ -5,7 +5,7 @@ We start with the motivation for understanding the decisions of neural networks 
 We continue with a review of several explainability methods suitable for our domain and task.
 This will serve as a basis for the next chapter, where we evaluate selected methods against our benchmark.
 
-In contemporary literature, several terms are used to address the incomprehensibility of ML models. Arrieta et al. in \cite{arrieta-taxonomy} distinguish the following idioms:
+In contemporary literature, several terms are used to address the incomprehensibility of ML models. Arrieta et al. \cite{arrieta-taxonomy} distinguish the following idioms:
 
 \begin{enumerate}
     \item Understandability: Characteristic of a model to make a human understand its function without any need for explaining its internal structure or the algorithmic means by which the model processes data internally
@@ -31,7 +31,7 @@ According to \cite{arrieta-taxonomy, xai-survey}, this increasing size and compl
 
 Distrust does not only stem from a lack of insight into the model's internal reasoning.
 In some cases, the flawless performance of machine learning models may result from a systematic bias in training and evaluation data.
-A common example is an experiment by Ribeiro et al. in \cite{xai-husky}, where they deliberately trained a classifier to distinguish between wolves and huskies.
+A common example is an experiment by Ribeiro et al. \cite{xai-husky}, where they deliberately trained a classifier to distinguish between wolves and huskies.
 They constructed the dataset so that images of wolves consistently featured snow in the background, whereas images of huskies did not.
 This led the classifier to base its decisions on the presence of snow in the image rather than the animal itself. 
 
@@ -47,7 +47,7 @@ By gaining insight into the factors that influence the model's decisions, we can
     \begin{minipage}{1\textwidth}
       \includegraphics[width=\textwidth]{img/horse-tag.png}
     \end{minipage}
-    \caption{Experiment conducted by Samek et al. in \cite{xai-horse}. Their model was trained on the PASCAL-VOC dataset \cite{pascal-voc}. After the training, they found the presence of so-called \emph{spurious correlation}. Pictures of horses are classified solely on whether the bottom-left corner of an input image contains a source tag. If the source tag is manually added to an otherwise correctly classified image of a car --- the model changes its prediction, and the image is classified as a horse instead. Picture taken from \cite{xai-horse}.}
+    \caption{Experiment conducted by Samek et al. \cite{xai-horse}. Their model was trained on the PASCAL-VOC dataset \cite{pascal-voc}. After the training, they found the presence of so-called \emph{spurious correlation}. Pictures of horses are classified solely on whether the bottom-left corner of an input image contains a source tag. If the source tag is manually added to an otherwise correctly classified image of a car --- the model changes its prediction, and the image is classified as a horse instead. Picture taken from \cite{xai-horse}.}
     \label{fig:horse-tag}
     \end{center}
 
@@ -93,7 +93,7 @@ The field of XAI distinguishes between two means of making artificial intelligen
 \end{enumerate}
 
 In recent years, a plethora of both global and local post-hoc explainability methods have been introduced to help grasp the decision process of deep neural networks.
-According to the taxonomy proposed by Arietta et al. in \cite{arrieta-taxonomy}, post-hoc methods can be further divided into two groups. 
+According to the taxonomy proposed by Arietta et al. \cite{arrieta-taxonomy}, post-hoc methods can be further divided into two groups. 
 Model-specific methods are designed to explain only models with specific features and capabilities -- such as attention-based models or convolutional neural networks.
 Conversely, model-agnostic methods are capable of explaining arbitrary machine-learning models.
 
@@ -107,7 +107,7 @@ There is no consensus on terminology, and we will use the terms saliency map and
 The following subsections overview several explainability methods that we benchmark in \myref{Chapter}{experiment}.
 We deliberately chose methods not covered in \cite{gallo}.
 Methods such as LIME \cite{xai-husky}, Deconvolution \cite{deconvolution}, or $\epsilon$-LRP \cite{lrp}  were either computationally too expensive or produced sub-par results, which are not deemed satisfactory \cite{gallo}.
-When choosing methods for this thesis, we focused on the observation of Gallo et al. in \cite{gallo} --- methods, which tend to attribute continuous regions of tiles scored higher in the previous benchmarks.
+When choosing methods for this thesis, we focused on the observation of Gallo et al. \cite{gallo} --- methods, which tend to attribute continuous regions of tiles scored higher in the previous benchmarks.
 Therefore, we focused on methods specifically created for explaining CNNs, leveraging their spatial memory ability, some of which were overviewed in \cite{krajnansky-grad-cam, bajger-grad-cam, hruska-grad-cam}.
 
 \subsection{Occlusion}\label{occlusion}
@@ -311,7 +311,7 @@ The process of propagating relevance $R_j$ from $j$ to $i$ is captured by the fo
 where $z_{ij}$ models to which extent neuron $i$ contributed to neuron $j$'s activation.
 The extent $z_{ij}$ is derived by various rules, further described in \cite{lrp}.
 The choice of rules is largely left to experimentation.
-However, Montavon et al. in \cite{lrp} provide a blueprint for choosing layers when working with VGG-16-based network.
+However, Montavon et al. \cite{lrp} provide a blueprint for choosing layers when working with a VGG-16-based network.
 
 The main building block is the LRP-$0$ rule, where the extent
 \begin{equation}
@@ -320,7 +320,7 @@ The main building block is the LRP-$0$ rule, where the extent
 Parameters $y_j$ and $w_{ji}$ stand for neurons output and weight, respectively, as defined in \myref{Section}{section:dl}.
 % \todo{are those really parameters?}
 
-According to the observation of Montavon et al. in \cite{lrp}, using solely LRP-$0$ leads to very noisy explanations.
+According to the observation of Montavon et al. \cite{lrp}, using solely LRP-$0$ leads to very noisy explanations.
 To tackle the noise, we add a small positive term $\epsilon$ to the denominator --- $\epsilon$ will absorb weak and contradictory contributions, preserving only the salient scores. 
 As a result, we typically get less noisy explanations.
 Gallo et al. used the LRP-$\epsilon$ rule exclusively in \cite{gallo}.
@@ -337,7 +337,7 @@ Figure \ref{fig:lrp-montavon} shows how multiple rules can be composed to visual
     \begin{minipage}{1\textwidth}
       \includegraphics[width=\textwidth]{img/lrp-montavon.png}
     \end{minipage}
-    \caption{Image show explanation results after different combinations of rules are applied. Notice that combining multiple rules yields a visually more coherent saliency map. According to Montavon et al. in \cite{lrp}, using LRP-$0$ in the upper layers is beneficial to combat the entanglement of different concepts represented by the network. LRP-$\epsilon$ in the middle layer helps to propagate only the most salient activations, while LRP-$\gamma$ in the lower layer ensures uniform relevance spread. Image taken from \cite{lrp}.}
+    \caption{Image show explanation results after different combinations of rules are applied. Notice that combining multiple rules yields a visually more coherent saliency map. According to Montavon et al. \cite{lrp}, using LRP-$0$ in the upper layers is beneficial to combat the entanglement of different concepts represented by the network. LRP-$\epsilon$ in the middle layer helps to propagate only the most salient activations, while LRP-$\gamma$ in the lower layer ensures uniform relevance spread. Image taken from \cite{lrp}.}
     \label{fig:lrp-montavon}
     \end{center}
 \end{figure}

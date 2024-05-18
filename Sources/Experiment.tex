@@ -171,7 +171,7 @@ Used metrics (Causal Deletion \cite{xai-causal-deletion} and Area Over Perturbat
 
 Hooker et al. \cite{roar} introduced an alternative metric known as Remove and Retrain (ROAR), which involves removing (zeroing out) the identified important features and then retraining the model with the modified dataset.
 Although ROAR has gained in popularity, it has the disadvantage of being computationally expensive, rendering it unacceptable for our use case.
-As further shown by Rong et al. in \cite{road}, ROAR does not solve the problem of the so-called \emph{class information leakage} --- the phenomenon when the uniformly-valued removed region reveals relevant class information through its shape.
+As further shown by Rong et al. \cite{road}, ROAR does not solve the problem of the so-called \emph{class information leakage} --- the phenomenon when the uniformly-valued removed region reveals relevant class information through its shape.
 Rong et al. propose a method that builds on the foundations of ROAR, called Remove and Debias (ROAD).
 Instead of retraining the model, regions after removed features are specifically imputed to reduce the risk of class information leakage \cite{road}.
 Refer to \cite{road} for mathematical intrications of information theory behind the imputation.

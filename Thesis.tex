@@ -42,7 +42,7 @@
 \usepackage{etoolbox}
 \usepackage{listings}
 
-\usepackage[binary-units=true]{siunitx}
+\usepackage{siunitx}
 
 \sisetup{%
   detect-all           = true,
@@ -50,7 +50,7 @@
   detect-mode          = true,
   detect-shape         = true,
   detect-weight        = true,
-  detect-inline-weight = math,
+  % detect-inline-weight = math,
 }
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -101,6 +101,7 @@
   sortcites    = true,
   style        = iso-numeric,
   ]{biblatex}
+\usepackage{xurl}
 
 \input{bibliography-mimosis}
 \addbibresource{Thesis.bib}
@@ -123,16 +124,23 @@
 
 \renewcommand{\th}{\textsuperscript{\textup{th}}\xspace}
 
+\newacronym{AI}{AI}{Artificial Intellingence}
 \newacronym{CAM}{CAM}{Class Activation Map}
 \newacronym{DL}{DL}{Deep Learning}
+\newacronym{ML}{ML}{Machine Learning}
 \newacronym{GAP}{GAP}{Global Average Pooling}
 \newacronym{GMP}{GMP}{Global Max Pooling}
 \newacronym{LRP}{LRP}{Layer-Wise Relevance Propagation}
 \newacronym{XAI}{XAI}{Explainable Artificial Intelligence}
 \newacronym{CNN}{CNN}{Convolutional Neural Network}
-\newacronym{NN}{CNN}{Neural Network}
+\newacronym{NN}{NN}{Neural Network}
 \newacronym{WSI}{WSI}{Whole Slide Image}
 \newacronym{FC}{FC}{Fully Connected}
+\newacronym{GPU}{GPU}{Graphics Processing Unit}
+\newacronym{RAM}{RAM}{Random-Access Memory}
+\newacronym{ROAR}{ROAR}{Remove and Retrain}
+\newacronym{ROAD}{ROAD}{Remove and Debias}
+
 
 \usepackage{textcomp}
 \usepackage{tikz}
@@ -141,6 +149,8 @@
 
 \usepackage{caption}
 \captionsetup{format=plain, width=0.85\textwidth, labelfont=bf}
+
+\usepackage{svg}
 
 \newmdenv[
   topline=false,
@@ -164,11 +174,14 @@
 
 \DeclareMathOperator{\relu}{ReLU}
 
+\hyphenation{RationAI}
+\hyphenation{pseu-do-nym-ized}
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Incipit
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\title{Effectiveness of Interpretation Techniques For Deep Networks in Digital Histopathology}
+\title{Interpretation Techniques for Deep Neural Networks in Digital Histopathology}
 \author{Martin Krebs}
 
 % This ensures that the subsequent sections are being included as root

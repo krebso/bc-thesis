@@ -8,16 +8,16 @@
 
 Without the loss of generality, let us fix unit $k$ with the highest activation $A^k_{ij}$.
 Since we utilize the GMP layer, all partial derivatives in \myref{Equation}{eq:grad-cam-pp-weights} will be zero, except for the one corresponding to the highest activation.
-As a result, we can dismiss both sums, and the partial derivative weight becomes 
+As a result, we can dismiss both sums, and the importance weight becomes 
 \begin{equation}
-    i_{ck} = \alpha^{ck}_{ij} \relu(\frac{\partial Y^c}{\partial A^k_{ij}}).
+    i_{ck} = \alpha^{ck}_{ij} \relu\biggl(\frac{\partial Y^c}{\partial A^k_{ij}}\biggr).
 \end{equation}
 Authors already derived the activated score $Y^c = \exp(y^c)$ for us, and given the architecture of our model, the following set of equations holds:
 \begin{equation}
 \begin{aligned}
   \frac{\partial Y^c}{\partial A_{ij}^k}       &= \exp(y^c) \frac{\partial y^c}{\partial A_{ij}^k}     &&= \exp(y^c) w_{ck}     \\
-  \frac{\partial^2 Y^c}{\partial (A_{ij}^k)^2} &= \exp(y^c) \bigl(\frac{\partial y^c}{\partial A_{ij}^k}\bigr)^2 &&= \exp(y^c) (w_{ck})^2 \\
-  \frac{\partial^3 Y^c}{\partial (A_{ij}^k)^3} &= \exp(y^c) \bigl(\frac{\partial y^c}{\partial A_{ij}^k}\bigr)^3 &&= \exp(y^c) (w_{ck})^3.
+  \frac{\partial^2 Y^c}{\partial (A_{ij}^k)^2} &= \exp(y^c) \biggl(\frac{\partial y^c}{\partial A_{ij}^k}\biggr)^2 &&= \exp(y^c) (w_{ck})^2 \\
+  \frac{\partial^3 Y^c}{\partial (A_{ij}^k)^3} &= \exp(y^c) \biggl(\frac{\partial y^c}{\partial A_{ij}^k}\biggr)^3 &&= \exp(y^c) (w_{ck})^3.
 \end{aligned}
 \end{equation}
 
@@ -48,7 +48,7 @@ Thus, we conducted an additional experiment to compare both approaches using the
 The distribution of ROAD ratios is shown in \myref{Figure}{fig:road-conv-vs-pool}, and a visual comparison of both approaches is presented in \myref{Figure}{fig:conv-vs-pool}
 
 Based on the results, we decided to continue with the saliency maps computed with respect to the pooling layer.
-There is a negligible difference for CAM, and we posit the pooled saliency maps as more similar to Occlusion.
+There is a negligible difference for CAM, and we posit the pooled saliency maps as visually more similar to Occlusion.
 The same is true for HiResCAM; although the convolutional layer receives a much smaller ratio spread, the saliency maps tend to be more scattered and blurred.
 For GradCAM++, using the convolutional layer is not an option.
 Due to the inverse proportion between activation strength and the resulting importance weight, the less important regions are marked as more salient when the saliency map is computed for the last convolutional layer.
@@ -82,10 +82,10 @@ The difference for GradCAM++ regions imputed by the ROAD metric is shown in \myr
     Visual comparison of saliency maps produced by CAM methods w.r.t. to the last pooling and the last convolutional layer of our model on a randomly selected tile.
     The underlying tile is shown in black and white to increase visual contrast.
     Note that Occlusion falls within the annotation boundaries, except for the top right corner.
-    However, artifacts like this are removed using thresholding in the WSI browser.
+    Artifacts like this are removed using thresholding in the WSI browser.
     GradCAM++ is completely different when attributing the convolutional layer, focusing mostly on parts of the image that Occlusion and the annotation consider irrelevant.
     This changes once we compute the saliency maps w.r.t. the pooling layer.
-    HiResCAM produces visually similar results, and despite producing similar results for this tile, the pooling saliency maps tend to cover larger and less scattered areas of the input tile.
+    HiResCAM produces visually similar results, and despite producing almost identical saliency maps for this tile, the pooling saliency maps tend to cover larger and less scattered areas of the input tile.
     CAM is very liberal about the area covered, and the saliency maps are similar.
     However, the pooling one is easier to threshold because of the greater difference in saliency outside and inside the annotated area.
     }
@@ -101,7 +101,7 @@ The difference for GradCAM++ regions imputed by the ROAD metric is shown in \myr
     \caption{
     Visualization of different imputation results when we use the convolutional instead of the pooling layer for GradCAM++.
     On the original tile, the model accurately reports a confidence of $0.98$ for the presence of cancer.
-    Both Occlusion and GradCAM++ w.r.t pooling layer accurately point to the relevant locations in the bottom of the tile, and the confidence on the perturbed tile drops to almost $0$.
+    Both Occlusion and GradCAM++ w.r.t pooling layer accurately point to the relevant locations at the bottom of the tile, and the confidence on the perturbed tile drops to almost $0$.
     For GradCAM++ w.r.t. convolutional layer, the saliency map attributes different regions, and the confidence of our model on the perturbed image remains the same.
     We used \texttt{pytorch-grad-cam}'s implementation of visualizing the perturbed input, hence the discoloration.
     }
@@ -111,6 +111,10 @@ The difference for GradCAM++ regions imputed by the ROAD metric is shown in \myr
 
 \pagebreak
 
-\section{Implementation}\label{sec:imple}
+\section{Supplementary Materials}\label{sec:imple}
 
-The source code of the benchmark, as well as the custom implementation of both CAM and HiResCAM, can be found in the \texttt{prostate-cancer} repository included in the supplementary materials. The source code is required to be run on the RationAI group's cluster, which has access to the test WSIs used for evaluation. Please visit the \texttt{README.md} file for installation and usage instructions. The \texttt{README.md} file also contains links to WSI with overlayed saliency maps available for inspection, given access rights issued by the RationAI group.
+The source code of the benchmark, as well as the custom implementation of both CAM and HiResCAM, can be found in the \texttt{prostate-cancer.zip} archive included in the supplementary materials. The source code is required to be run on the RationAI group's computational cluster, which has access to the test WSIs used for evaluation. Please visit the \texttt{README.md} file for installation and usage instructions. The \texttt{README.md} file also contains links to WSI with overlayed saliency maps available for inspection, given access rights issued by the RationAI group.
+
+Archive \texttt{domain\_expert\_review.zip} contains the presentation with results from MUDr. Nenutil.
+
+Jupyter notebook used to generate visualizations is included in the \texttt{evaluation.zip} archive. This archive also includes the used data.

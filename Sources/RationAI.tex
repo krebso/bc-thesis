@@ -1,10 +1,11 @@
 \chapter{Prostate Cancer Detection Setting}
 
-According to the Masaryk Memorial Cancer Institute in \cite{mmci-prostate-cancer}, prostate cancer is the most common oncological disease among men in the Czech Republic, with approximately $8$ thousand new cases reported each year.
-In the global context, experts estimate $1,276,106$ of new cases appeared in $2018$ alone, per \cite{world-prostate-cancer}.
+According to the Masaryk Memorial Cancer Institute \cite{mmci-prostate-cancer}, prostate cancer is the most common oncological disease among men in the Czech Republic, with approximately $8$ thousand new cases reported each year.
+In the global context, experts estimate $1,276,106$ of new cases appeared in $2018$ alone, as reported in \cite{world-prostate-cancer}.
 To aid pathologists in tackling the ever-growing number of new cases, the RationAI team trained and tested a CNN on a dataset provided by Masaryk Memorial Cancer Institute.
 
-This chapter briefly introduces prostate cancer, a contemporary approach to detecting malignant tissue, and finally presents a dataset and RationAI's model for prostate cancer detection.
+This chapter provides a brief introduction to prostate cancer and the contemporary approach to detecting malignant tissue, which makes CNN's suitable architecture for assisted diagnosis.
+Additionally, we present a dataset and RationAI’s model designed for prostate cancer detection.
 
 \section{Prostate Cancer}
 
@@ -20,7 +21,7 @@ Given its high prevalence and potential for aggressiveness, early detection and 
 
 \subsection*{Gleason Patterns and Score}
 
-In 1996, Donald Gleason introduced a unified grading and scoring system to effectively detect and assess the impact of adenocarcinoma spread in the prostate.
+As Delahunt et al. \cite{gleason-patterns} documented, in 1996, Donald Gleason introduced a unified grading and scoring system to effectively detect and assess the impact of adenocarcinoma spread in the prostate.
 Gleason's system gained acceptance in 1974 and is the most prevalent system doctors use today.
 It categorizes the growth of cancer cells into distinct patterns based on how much the cancerous tissue differs from healthy prostate gland cells, as shown in \myref{Figure}{fig:gp}.
 Several patterns and their descriptions have since been refined, and we now distinguish between 9 patterns.
@@ -34,19 +35,16 @@ In 2016, the World Health Organization refined the grading into so-called \emph{
 As this approach to cancer detection is based on visual differences between cancerous and healthy tissue, cancer detection is an ideal setting for convolutional neural networks.
 
 \begin{figure}
-    \begin{center}
-    \begin{minipage}{1\textwidth}
+    \centering
     \fcolorbox{RoyalBlue}{white}
-      {\includegraphics[width=\textwidth]{img/gp-classification.png}}
-    \end{minipage}
+      {\includegraphics[width=0.97\textwidth]{img/gp-classification.png}}
     \caption{Example of Gleason Patterns ranked from $1$ to $5$. Pattern $1$ represents a healthy stroma --- ``cells and tissues that support and give structure to organs, glands, or other tissues in the body'', per definition from \cite{nci-stroma}. Pattern $5$ represents tissue with the highest risk of cancer. Sourced from \cite{gleason-pattern-description}.}
     \label{fig:gp}
-    \end{center}
 \end{figure}
 
 \section{Dataset}\label{sec:dataset}
 
-The Masaryk Memorial Cancer Institute provided the RationAI group with a pseudonymized dataset of hematoxylin/eosin-stained WSIs.
+The Masaryk Memorial Cancer Institute provided the RationAI group with a pseudonymized hematoxylin/eosin-stained WSIs dataset.
 Each WSI contains $3$ to $5$ biopsies and is stored as an uncompressed PNG of size $105,185 \times 221,772$ pixels.
 The dataset is stratified into training and test splits, containing $264$ WSIs with cancer, $436$ without, $37$ WSIs with cancer, and $50$ without, respectively \cite{gallo}.
 To mark cancerous areas, domain experts manually annotated areas of WSIs containing adenocarcinomas -- annotations are polygons encapsulating cancerous regions.
@@ -65,7 +63,7 @@ Grade 4         & 9 cases             & 1 case       \\
 Grade 5         & 10 cases            & 2 case       \\
 \bottomrule
 \end{tabular}
-\caption{WHO grade distributions for the training and test splits of the prostate WSI dataset. The test split consists of $87$ biopsies from 10 patients and is intended to ``represent different Gleason patterns
+\caption{WHO grade distributions for the training and test splits of the prostate WSI dataset. Each case represents a distinct patient. The test split consists of $87$ biopsies from 10 patients and is intended to ``represent different Gleason patterns
 and types of infiltration'' \cite{gallo}, loosely copying the distribution of the training split. While each case is from a patient with a positive diagnosis, some of the biopsies do not contain cancer, so the positive/negative ratio is $37/50$.}
 \label{tab:who_grade_distribution}
 \end{table}
@@ -75,7 +73,7 @@ As the user zooms in on a particular area of the slide, higher resolution layers
 Because processing the entire WSI at once is computationally expensive, we tile the WSIs to reduce memory requirements.
 Each WSI is divided into overlapping tiles of size $512 \times 512$ pixels.
 An overlap of $256$ pixels is used between two consecutive tiles to counteract the possibility of severing critical patterns.
-We cut out tiles at a resolution of $0.344$ \si{\micro\meter} per pixel, which corresponds to a $10$ times magnification.
+We cut out tiles at a resolution of $0.344$ \si{\micro\meter} per pixel, which corresponds to a $10$ times magnification and sample level of $1$ for our WSIs.
 
 Since WSIs contain multiple biopsies with gaps in between them, we chisel out only relevant parts.
 Any tile with less than $50$\% of its area covered by tissue is discarded from the training and test dataset splits.
@@ -86,18 +84,23 @@ Consequently, although all WSIs are the same size, the number of usable tiles pe
 A model trained by the RationAI group to perform cancer detection in tiled WSIs is a modified version of the well-known CNN architecture VGG16, introduced in \cite{vgg16}.
 \myref{Figure}{fig:rationai-vgg16} shows the full model decomposition.
 
-Loosely paraphrasing \cite{gallo}, the model aims to solve the following problem: \emph{Classify tiles according to the presence/absence of cancer in their central square area of $256 \times 256 $ pixels. Presence is determined by whether the central square overlaps with the domain expert's annotation}. The model performs remarkably well on the test split, reaching $100$\% slide-level prediction accuracy --- that is, the model correctly determines whether a WSI contains cancer for each test WSI.
+Loosely paraphrasing \cite{gallo}, the model aims to solve the following problem: 
+\emph{
+Classify tiles according to the presence/absence of cancer in their central square area of $256 \times 256 $ pixels.
+Presence is determined by whether the central square overlaps with the domain expert's annotation.
+}
+The model performs remarkably well on the test split, reaching $100$\% slide-level prediction accuracy --- that is, the model correctly determines whether a WSI contains cancer for each test WSI.
 
 However, in a high-stakes environment such as cancer detection, it is not enough to blindly trust the model based on accuracy.
-To verify that the model bases its decisions on relevant features, Gallo et at. performed an additional experiment in \cite{gallo}, presenting a subset of the dataset from \myref{Section}{sec:dataset} including regions of model's interest annotated by the technique described in \myref{Section}{occlusion} to a domain expert.
-The domain expert concluded that the model focuses on critical morphological features \cite{gallo} on which human pathologists would base their decisions.
+To verify that the model bases its decisions on relevant morphological features, Gallo et at. \cite{gallo} performed an experiment, presenting a subset of the dataset from \myref{Section}{sec:dataset} including regions of model's interest annotated by the technique described in \myref{Section}{occlusion} to a domain expert.
+The domain expert concluded that the model focuses on the critical features on which a human pathologist would base their decisions.
 
 \begin{figure}
     \begin{center}
     \begin{minipage}{0.75\textwidth}
       \includegraphics[width=\textwidth]{img/nn-arch.png}
     \end{minipage}
-    \caption{Architecture of the prostate cancer binary classifier model used by the RationAI group. The model is based on VGG16, introduced by Simonyan and Zisserman in \cite{vgg16}. They originally trained their VGG16 model to classify $1000$ classes from the ILSVRC dataset \cite{ilsvrc} and used three FC layers before applying softmax to the output of the last one. The RationAIs' model places global max pooling before a single FC layer, reducing each of the $512$ pooled activation maps to a single value. A sigmoid is applied to the output of the FC layer to scale the raw output value in the range $(0, 1)$. We can, therefore, interpret the final output as the probability of pro-cancer markers in the central $256 \times 256$ pixel square of a given tile.}
+    \caption{Architecture of the prostate cancer binary classifier model used by the RationAI group. The model is based on VGG16, introduced by Simonyan and Zisserman in \cite{vgg16}. They originally trained their VGG16 model to classify $1000$ classes from the ILSVRC dataset \cite{ilsvrc} and used three FC layers before applying softmax to the output of the last one. The RationAIs' model places global max pooling before a single FC layer, reducing each of the $512$ activation maps to a single value. A sigmoid is applied to the output of the FC layer to scale the raw output value in the range $(0, 1)$. We can, therefore, interpret the final output as the probability of pro-cancer markers in the central $256 \times 256$ pixel square of a given tile.}
     \label{fig:rationai-vgg16}
     \end{center}
 \end{figure}

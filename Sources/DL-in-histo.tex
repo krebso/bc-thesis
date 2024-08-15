@@ -1,9 +1,8 @@
 \chapter{Deep Learning in Digital Histopathology}
 
-\todo{better intro}
-This chapter provides a broad overview of the areas that comprise the subject of this thesis.
-We begin by introducing the field of histopathology and its concerns, as well as the tools used in contemporary clinical practice.
-We illustrate how digitization has helped reduce the logistical complexity of the histopathologist's workflow and how decision support systems can further reduce the amount of human labor required.
+Digitization and technology integration have transformed clinical diagnostics and treatment planning, with histopathology abundantly benefiting from those advancements.
+We begin this chapter by introducing the field of histopathology and its concerns, as well as the tools used in contemporary clinical practice.
+We illustrate how digitization has helped reduce the logistical complexity of histopathologists' workflow and how decision support systems can further reduce the required amount of human labor.
 Finally, we review feedforward artificial neural networks, focusing on convolutional networks, which are particularly suited to various computer vision problems.
 
 \section{Histopathology}
@@ -11,28 +10,29 @@ Finally, we review feedforward artificial neural networks, focusing on convoluti
 Histopathology is a discipline concerned with the study of diseases of tissues.
 The scope of histopathology includes, but is not limited to, the detection and prediction of cancer, the diagnosis of infectious or inflammatory diseases, and the study of brain-degenerative diseases such as Parkinson's or Alzheimer's \cite{histopathology-cancer, histopathology-infectious, histopathology-inflammatory, histopathology-brain-degenerative}.
 
-The Royal College of Pathology in \cite{histopathologist-role} defines histopathologists as medically qualified doctors who examine tissue samples from patients.
+The Royal College of Pathology \cite{histopathologist-role} defines histopathologists as medically qualified doctors who examine tissue samples from patients.
 Their expertise is essential in identifying cellular and tissue anomalies that may indicate various medical conditions.
 Histopathologists often work in collaboration with other physicians, providing insights that help guide the direction of further patient care.
 
 \section{Temporal and Spatial Limitations of Traditional Histopathology}
 
-Traditionally, getting tissue from a patient to a histopathologist involves a lengthy logistical process involving several people.
+Traditionally, getting tissue from a patient to a histopathologist is a lengthy logistical process involving several people.
 The surgeon needs to extract tissue samples from the patient.
-A specialized laboratory then receives the extracted tissue for processing; technicians infuse the tissue samples with a mix of chemicals and embed them into a paraffin wax block.
-The paraffin block is then sliced into thin sections, and technicians laminate those sections onto a glass slide.
-Glass slides are stained with hematoxylin/eosin (or another compound, depending on the use case, as per \cite{histopathology-staining}) to enhance the contrast between different cellular structures.
-After laboratory processing, the slides are sent to a histopathologist for review \cite{histo-process}.
+As presented in \cite{histo-process}, a specialized laboratory then receives the extracted tissue for processing; technicians infuse the tissue samples with a mix of chemicals and embed them into paraffin wax blocks.
+Technicians slice the paraffin blocks into thin sections and laminate those sections onto a glass slide.
+They then stain the glass slides with hematoxylin/eosin (or another compound, depending on the use case, as per \cite{histopathology-staining}) to enhance the contrast between different cellular structures.
+After the processing, the laboratory sends the slides to a histopathologist for review.
 
 While we cannot replace the surgeons who perform the biopsy or the laboratory workers who stain and embed the tissue, we can address the logistic challenges of moving glass slides to histopathologists.
 A physical slide suffers from several inefficiencies. 
-Only one or two histopathologists can study a slide at a time. If a second opinion from a different histopathologist is required, a designated person must transport the glass slide to the respective clinic.
+Only one or two histopathologists can study a slide at a time.
+If a second opinion from a different histopathologist is required, a designated person must transport the glass slide to the respective clinic.
 Such logistic pitfalls slow down the diagnostic process and lead to longer waiting times for a patient \cite{from-traditional-to-digital-histopathology}.
 
 \section{Digital Histopathology}
 
 Digital histopathology aims to reduce the logistic overhead caused by physical copies of glass slides.
-After the tissue has been extracted and prepared, instead of being sent to a histopathologist, it is scanned using special lenses, resulting in a high-resolution digital image called Whole Slide Image (WSI) \cite{from-traditional-to-digital-histopathology}.
+After the surgeons and technicians extract and prepare the tissue, instead of being sent to a histopathologist, it is scanned using special lenses, resulting in a high-resolution digital image called Whole Slide Image (WSI) \cite{from-traditional-to-digital-histopathology}.
 This image is then uploaded to an aggregator server, enabling real-time slide sharing and parallel collaboration of multiple clinicians.
 Histopathologists then examine WSI's in a dedicated browser on their computer monitors --- rather than looking at the glass slide under a microscope \cite{digital-histopathology-process}. \myref{Figure}{fig:xopat} shows a WSI of a prostate tissue sample displayed in a dedicated browser developed by the RationAI group.
 
@@ -48,12 +48,13 @@ Although contemporary digital pathology systems significantly speed up pathologi
 \subsection*{Decision Support System}
 
 A decision support system is a computer system that assists humans in making decisions while performing a particular task.
-These systems are used in various domains, including high-stake environments such as investment banking, autonomous driving, or military and defense \cite{dss-finance, dss-autonomous-driving, dss-military-and-defense}. In digital histopathology, clinicians typically use such systems to support perational processes \cite{digital-histopathology-process}.
+These systems are used in various domains, including high-stake environments such as investment banking, autonomous driving, or military and defense \cite{dss-finance, dss-autonomous-driving, dss-military-and-defense}.
+In digital histopathology, clinicians typically use such systems to support operational processes \cite{digital-histopathology-process}.
 However, with deep learning in the spotlight of today's research, new possibilities are emerging.
 
 Systems based on deep learning could improve the tissue diagnostic process by assisting diagnosis or discovering previously unrecognized features in large sets of data that are beyond the comprehension of a single expert \cite{dss-digital-histopathology}. 
 Researchers and various companies are actively trying to use machine learning systems in this way. 
-These systems often provide real-time results and domain-expert-like performance, demonstrating that further research can significantly improve current processes \cite{deep-learning-in-histopathology}.
+These systems often provide results in real-time and domain-expert-like performance, demonstrating that further research can significantly improve current processes \cite{deep-learning-in-histopathology}.
 
 \section{Deep Learning}\label{section:dl}
 
@@ -86,9 +87,9 @@ Multi-layer Perceptron (MLP) is a fundamental architecture in the history of fee
 In an MLP, the basic building block is a neuron.
 Neurons are arranged in layers to form the final network.
 A neuron receives input signals (input features $x$), processes them, and outputs its signal ($y$), which is passed on to subsequent neurons in the following layer.
-The processing consists of calculating the inner potential $\xi$, a weighted average of the neuron's inputs.
+The processing consists of calculating the inner potential $\xi$, a weighted sum of the neuron's inputs.
 The inner potential is then passed to the activation function, denoted as $\sigma$. 
-Given a neuron $i$ with activation function $\sigma_i$ expecting $K$ input signals, the output signal $y_i$ is expressed as
+Given a neuron $i$ expecting $K$ input signals, with activation function $\sigma_i$, the output signal $y_i$ is expressed as
 \begin{equation}
     y_i = \sigma_i(b_i + \sum_{k=1}^K w_{ik}x_k)
 \end{equation}
@@ -96,9 +97,9 @@ where weight $w_{ik}$ connects $k$-th input feature to the neuron $i$ and $b_i$ 
 If all neurons in a given layer $l$ have incoming weights from all neurons in the previous layer, we say that $l$ is fully connected (FC).
 % \myref{Figure}{fig:simple-mlp} depicts a small MLP with one hidden layer.
 
-Weights and biases are called trainable parameters, denoted as $\theta$.
+Weights and biases are called trainable parameters. %, denoted as $\theta$.
 Deep learning aims to make the trainable parameters useful.
-Since a network computes a function $f$, with specific training, we can make the network configure its parameters to approximate a desired function $f^*$ within a certain tolerance.
+A a network computes a function $f$, with specific training, we can make the network configure its parameters to approximate a desired function $f^*$ within a certain tolerance.
 To configure the parameters, we leverage a large amount of data to minimize the difference between $f$ and $f^*$.
 The difference is captured by a loss function $\ell$, and minimizing $\ell$ is typically performed iteratively using backpropagation and training algorithms such as stochastic gradient descent.
 More on neural network training can be found in \cite{goodfellow}.
@@ -106,7 +107,6 @@ More on neural network training can be found in \cite{goodfellow}.
 Even though MLPs demonstrate impressive results on tasks previously deemed impossible for computers, they have certain drawbacks.
 If we used only FC layers, contemporary architectures such as AlexNet from \cite{alexnet} would have an unimaginable number of trainable parameters.
 This led to the development of new architectures tailored to specific domain needs.
-Despite the move away from using models comprised only of FC layers, MLP stood its ground and is still an essential part of several state-of-the-art neural network architectures.
 
 \subsection*{Convolutional Neural Network}
 Convolutional Neural Networks (CNNs) focus on working with grid-like data.
@@ -119,15 +119,16 @@ These layers help capture patterns in the input features and reduce the size of 
 The convolutional layer uses trainable filters (kernels) to search for visual patterns in its features.
 The filter is typically smaller in width and height than the input but spans all the input channels.
 Rather than interacting with the entire input at once using weighted connections, the filter $F$ is systematically slid across the input, and the filter weights convolve with the corresponding input data segments, resulting in a two-dimensional \emph{activation map} $A$.
-Convolution is a linear operation that chains the element-wise product of the filter and receptive field over all channels and then sums the products into one value. Given a filter $F$ and input $I$, the spatial activation $A_{ij}$ is computed as 
+Convolution is a linear operation that chains the element-wise product of the filter and its receptive field over all channels and then sums the products into one value. Given a filter $F$ and input $I$, the spatial activation $A_{ij}$ is computed as 
 \begin{equation}
-    (F * I)_{ij} = b + \sum_{x=0}^{W} \sum_{y=0}^{H} \sum_{z=0}^{C} F_{xyz} \cdot I_{(i+x)(j+y)z}
+    (F * I)_{ij} = b + \sum_{x=0}^{H-1} \sum_{y=0}^{W-1} \sum_{z=0}^{C-1} F_{xyz} \cdot I_{(i+x)(j+y)z}
 \end{equation}
 where $W$, $H$ are width and height of $F$ and $C$ is number of input channels. The bias term $b$ is used similarly as in the case of fully connected layers.
 
 The resulting activation map can be thought of as a map of evidence for the presence of a shape detected by the filter in the input data.
 Sliding the filter through features gives us spatial invariance --- no matter where the learned pattern resides in the input, it will be detected and reflected in the corresponding activation map, something very hard to achieve using a fully connected layer.
 Therefore, we commonly say the filter has \emph{shared weights}, as per \cite{goodfellow}.
+Sharing weights has not only effects of identifying patterns regardless of their position in the input --- it also reduces the number of parameters we have in the network.
 
 When incorporating a convolutional layer into a neural network, the critical parameter to define is the shape of the filter.
 The shape determines the size of the receptive field -- how many input features the filter can see at a given position.
@@ -137,16 +138,15 @@ Stride controls how much we move the filter after each convolution.
 
 A convolutional layer typically consists of several units.
 Each unit has its filter and produces a unique activation map.
-The idea is that each filter learns to recognize a different pattern during training --- and each unit is a map of evidence of those patterns.
-This gives a single layer the capability to detect multiple patterns, and, similarly to its fully connected counterpart, it allows subsequent layers of the network to build upon captured abstractions and ultimately "understand" and represent high-level concepts.
-Given a layer with $n$ units, we will denote $k$-th filter as $F^k$ and $k$-th activation map as $A^k$.
+The idea is that each filter learns to recognize a different pattern during training --- and each unit produces a map of evidence of its detected pattern.
+This gives a single layer the capability to detect multiple patterns, and, similarly to its fully connected counterpart, it allows subsequent layers of the network to build upon captured abstractions and ultimately ``understand'' and represent high-level concepts.
+Given a convolutional layer, we will denote its $k$-th activation map as $A^k$.
 
-It is important to note that sharing weights has not only effects of identifying patterns regardless of their position in the input -- it also reduces the number of parameters we have in a network.
 
 \subsubsection{Pooling Layer}
 
-To avoid overfitting the network, pooling layers are employed to additionally distill captured patterns.
-They progressively reduce the size of the input features, leading to a smaller number of model parameters and reduced computational time \cite{cnns}.
+To avoid overfitting the network, we employ pooling layers to distill captured patterns.
+They progressively reduce the size of the input features, leading to a smaller number of model parameters and reduced computational time, per \cite{cnns}.
 
 A pooling layer is typically placed after a convolutional one, iterating its activation maps and systematically applying a specific operation over its receptive field.
 We differentiate between two primary types of pooling: \emph{max} and \emph{average}.
@@ -155,18 +155,18 @@ As their names suggest, max pooling selects the maximum value within its recepti
 \subsubsection{Global Pooling Layer}
 
 Given that our network comprises only convolutional and pooling layers, we are not bound to any specific input size.
-However, it is common practice to introduce fully connected layers towards the end of the network, requiring a fixed number of input features \cite{cnns}.
+However, as noted in \cite{cnns}, it is common practice to introduce fully connected layers towards the end of a network, which requires a fixed number of input features.
 To meet this requirement, we use global pooling layers.
 
-Like standard pooling, global pooling comes in two forms: max and average.
 The global pooling layer condenses each activation map into a single value.
 This guarantees that if a convolutional layer has $n$ units and the subsequent fully connected layer receives $n$ input features, placing a global pooling layer in between will provide a compatible transition, standardizing the output size of the last convolutional or pooling layer regardless of the original input data dimensions.
 
 Throughout this thesis, we will denote globally pooled activation map $A^k$ as $a^k$. For a global average pooling (GAP) layer, the $a^k$ is computed as
 \begin{equation}\label{gap}
-    a^k = \frac{1}{|A^k|} \sum_{i=0}^H \sum_{j=0}^W A^k_{ij}
+    a^k = \frac{1}{|A^k|} \sum_{i=0}^{H-1} \sum_{j=0}^{W-1} A^k_{ij}
 \end{equation}
-and for the global max pooling (GMP), the \myref{Equation}{gap} changes to
+where $|A^k|$ represents the number of spatial activations in the activation map $A^k$.
+For the global max pooling (GMP), the \myref{Equation}{gap} changes to
 \begin{equation}
     a^k = \max_{i,j} A^k_{ij}.
 \end{equation}
